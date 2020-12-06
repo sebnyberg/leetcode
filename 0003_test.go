@@ -1,7 +1,6 @@
 package leetcode_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -32,11 +31,10 @@ func lengthOfLongestSubstring(s string) int {
 		return len(s)
 	}
 	var (
-		res      int  // length of longest unique substring
-		startIdx int  // index of first unique character
-		uniqLen  int  = 1
-		i        int  // current index
-		r        rune // current rune
+		nuniq  int  = 1
+		i      int  // current index
+		r      rune // current rune
+		gcFrom int  // previous end index
 	)
 	// TODO: allocate beforehand
 	seenAt := map[rune]int{}
@@ -48,27 +46,23 @@ func lengthOfLongestSubstring(s string) int {
 			continue
 		}
 
-		// Rune is in map (non-unique rune)
-		// Store unique length if it was the greatest one
-		uniqLen = i - startIdx
-		if uniqLen > res {
-			fmt.Println(i, startIdx, uniqLen)
-			res = uniqLen
+		if len(seenAt) > nuniq {
+			nuniq = len(seenAt)
 		}
 
-		// Set new start index
-		startIdx = seenAt[r] + 1
+		// Clean from previous gc until (but not including) s[seenAt[r]]
+		for _, k := range s[gcFrom:seenAt[r]] {
+			delete(seenAt, k)
+		}
+		gcFrom = seenAt[r] + 1
 
-		// Update index
 		seenAt[r] = i
 	}
 
 	// In case the last element was unique
-	uniqLen = i - startIdx + 1
-	fmt.Println(i, startIdx, uniqLen)
-	if uniqLen > res {
-		res = uniqLen
+	if len(seenAt) > nuniq {
+		nuniq = len(seenAt)
 	}
 
-	return res
+	return nuniq
 }
