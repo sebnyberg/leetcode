@@ -14,7 +14,7 @@ type ListNode struct {
 	Next *ListNode
 }
 
-func Test_addTwo(t *testing.T) {
+func Test_l0002(t *testing.T) {
 	tcs := []struct {
 		l1   []int
 		l2   []int
@@ -26,9 +26,9 @@ func Test_addTwo(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v,%v", tc.l1, tc.l2), func(t *testing.T) {
-			l1 := createListNode(tc.l1)
-			l2 := createListNode(tc.l2)
-			require.EqualValues(t, tc.want, addTwoNumbersV2(l1, l2).Ints())
+			l1 := l0002_createlistNode(tc.l1)
+			l2 := l0002_createlistNode(tc.l2)
+			require.EqualValues(t, tc.want, l0002_addTwoNumbers(l1, l2).Ints())
 		})
 	}
 }
@@ -81,7 +81,7 @@ func Test_addTwo(t *testing.T) {
 // }
 
 // v2 re-uses l1 to generate output
-func addTwoNumbersV2(l1 *ListNode, l2 *ListNode) *ListNode {
+func l0002_addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	res := l1
 
 	// Add l2 values to res
@@ -138,7 +138,7 @@ func (l *ListNode) String() string {
 	return sb.String()
 }
 
-func createListNode(vals []int) *ListNode {
+func l0002_createlistNode(vals []int) *ListNode {
 	first := &ListNode{
 		Val: vals[0],
 	}

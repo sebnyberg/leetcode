@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_medianOfArr(t *testing.T) {
+func Test_l0004medianOfArr(t *testing.T) {
 	tcs := []struct {
 		in   []int
 		want float64
@@ -19,12 +19,12 @@ func Test_medianOfArr(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v", tc.in), func(t *testing.T) {
-			require.Equal(t, tc.want, medianOfArr(tc.in))
+			require.Equal(t, tc.want, l0004medianOfArr(tc.in))
 		})
 	}
 }
 
-func medianOfArr(a []int) float64 {
+func l0004medianOfArr(a []int) float64 {
 	var alen int = len(a)
 	switch alen {
 	case 0:
@@ -53,12 +53,12 @@ func Test_0004(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v/%v", tc.nums1, tc.nums2), func(t *testing.T) {
-			require.Equal(t, tc.want, findMedianSortedArrays(tc.nums1, tc.nums2))
+			require.Equal(t, tc.want, l0004findMedianSortedArrays(tc.nums1, tc.nums2))
 		})
 	}
 }
 
-func Test_mergeArraysSorted(t *testing.T) {
+func Test_l0004mergeArraysSorted(t *testing.T) {
 	tcs := []struct {
 		nums1 []int
 		nums2 []int
@@ -74,12 +74,12 @@ func Test_mergeArraysSorted(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v/%v", tc.nums1, tc.nums2), func(t *testing.T) {
-			require.Equal(t, tc.want, mergeArraysSorted(tc.nums1, tc.nums2))
+			require.Equal(t, tc.want, l0004mergeArraysSorted(tc.nums1, tc.nums2))
 		})
 	}
 }
 
-func mergeArraysSorted(nums1 []int, nums2 []int) []int {
+func l0004mergeArraysSorted(nums1 []int, nums2 []int) []int {
 	// Edge-cases
 	if len(nums1) == 0 {
 		return nums2
@@ -122,9 +122,9 @@ func mergeArraysSorted(nums1 []int, nums2 []int) []int {
 	return merged
 }
 
-func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
+func l0004findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 	// merge arrays into sorted list
-	merged := mergeArraysSorted(nums1, nums2)
+	merged := l0004mergeArraysSorted(nums1, nums2)
 
-	return medianOfArr(merged)
+	return l0004medianOfArr(merged)
 }

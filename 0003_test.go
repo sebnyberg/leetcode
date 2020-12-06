@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_challenge(t *testing.T) {
+func Test_l0003(t *testing.T) {
 	tcs := []struct {
 		in      string
 		want    int
@@ -21,12 +21,12 @@ func Test_challenge(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(tc.in, func(t *testing.T) {
-			require.Equal(t, tc.want, lengthOfLongestSubstring(tc.in))
+			require.Equal(t, tc.want, l0003_lengthOfLongestSubstring(tc.in))
 		})
 	}
 }
 
-func lengthOfLongestSubstring(s string) int {
+func l0003_lengthOfLongestSubstring(s string) int {
 	if len(s) <= 1 {
 		return len(s)
 	}
