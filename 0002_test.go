@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type ListNode struct {
@@ -26,41 +28,75 @@ func Test_addTwo(t *testing.T) {
 		t.Run(fmt.Sprintf("%v,%v", tc.l1, tc.l2), func(t *testing.T) {
 			l1 := createListNode(tc.l1)
 			l2 := createListNode(tc.l2)
-			res := addTwoNumbers(l1, l2)
-			fmt.Println(res)
+			require.EqualValues(t, tc.want, addTwoNumbersV2(l1, l2).Ints())
 		})
 	}
-	t.FailNow()
 }
 
-func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-	cur := new(ListNode)
-	res := cur
+// func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
+// 	cur := new(ListNode)
+// 	res := cur
 
-	// Create copy of l1 inside res
-	for {
-		cur.Val = l1.Val
-		cur.Next = l1.Next
-		if l1.Next == nil {
-			break
-		}
-		cur = l1.Next
-		l1 = l1.Next
-	}
+// 	// Create copy of l1 inside res
+// 	for {
+// 		cur.Val = l1.Val
+// 		cur.Next = l1.Next
+// 		if l1.Next == nil {
+// 			break
+// 		}
+// 		cur = l1.Next
+// 		l1 = l1.Next
+// 	}
+
+// 	// Add l2 values to res
+// 	var nilNode = &ListNode{Val: 0}
+// 	var carry int
+// 	var sum int
+// 	cur = res
+// 	for {
+// 		sum = cur.Val + l2.Val + carry
+// 		carry = sum / 10
+// 		cur.Val = sum % 10
+
+// 		if cur.Next == nil && l2.Next == nil {
+// 			if carry == 1 {
+// 				cur.Next = &ListNode{Val: carry}
+// 			}
+// 			break
+// 		}
+
+// 		// When there are no more values in l2, refer to a nilNode
+// 		if l2.Next == nil {
+// 			l2 = nilNode
+// 		} else {
+// 			l2 = l2.Next
+// 		}
+
+// 		if cur.Next == nil {
+// 			cur.Next = &ListNode{Val: 0}
+// 		}
+// 		cur = cur.Next
+// 	}
+// 	return res
+// }
+
+// v2 re-uses l1 to generate output
+func addTwoNumbersV2(l1 *ListNode, l2 *ListNode) *ListNode {
+	res := l1
 
 	// Add l2 values to res
 	var nilNode = &ListNode{Val: 0}
 	var carry int
 	var sum int
-	cur = res
-	for {
-		sum = cur.Val + l2.Val + carry
-		carry = sum / 10
-		cur.Val = sum % 10
 
-		if cur.Next == nil && l2.Next == nil {
+	for {
+		sum = l1.Val + l2.Val + carry
+		carry = sum / 10
+		l1.Val = sum % 10
+
+		if l1.Next == nil && l2.Next == nil {
 			if carry == 1 {
-				cur.Next = &ListNode{Val: carry}
+				l1.Next = &ListNode{Val: carry}
 			}
 			break
 		}
@@ -72,10 +108,19 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 			l2 = l2.Next
 		}
 
-		if cur.Next == nil {
-			cur.Next = &ListNode{Val: 0}
+		if l1.Next == nil {
+			l1.Next = &ListNode{Val: 0}
 		}
-		cur = cur.Next
+		l1 = l1.Next
+	}
+	return res
+}
+
+func (l *ListNode) Ints() []int {
+	res := make([]int, 1)
+	res[0] = l.Val
+	for cur := l; cur.Next != nil; cur = cur.Next {
+		res = append(res, cur.Next.Val)
 	}
 	return res
 }
