@@ -14,60 +14,89 @@ func Test_l0006(t *testing.T) {
 		want  string
 	}{
 		{"A", 1, "A"},
+		{"AB", 1, "AB"},
 		{"abcde", 2, "acebd"},
 		{"PAYPALISHIRING", 3, "PAHNAPLSIIGYIR"},
 		{"PAYPALISHIRING", 4, "PINALSIGYAHRPI"},
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v/%v", tc.s, tc.nrows), func(t *testing.T) {
-			require.Equal(t, tc.want, l0006convert(tc.s, tc.nrows))
+			require.Equal(t, tc.want, convert(tc.s, tc.nrows))
 		})
 	}
 }
 
-func l0006convert(s string, nrows int) string {
+func Test_l0006createIndices(t *testing.T) {
+	tcs := []struct {
+		nrows int
+		ntot  int
+		want  []int
+	}{
+		{1, 2, []int{0, 1}},
+		{2, 2, []int{0, 1}},
+		{1, 5, []int{0, 1, 2, 3, 4}},
+		{2, 5, []int{0, 2, 4, 1, 3}},
+		{3, 5, []int{0, 4, 1, 3, 2}},
+		{3, 14, []int{0, 4, 8, 12, 1, 3, 5, 7, 9, 11, 13, 2, 6, 10}},
+		{4, 5, []int{0, 1, 2, 4, 3}},
+	}
+	for _, tc := range tcs {
+		t.Run(fmt.Sprintf("%v/%v", tc.nrows, tc.ntot), func(t *testing.T) {
+			require.Equal(t, tc.want, createIndices(tc.nrows, tc.ntot))
+		})
+	}
+}
+
+func createIndices(nrows int, ntot int) []int {
+	res := make([]int, ntot)
 	if nrows == 1 {
-		return s
+		for i := range res {
+			res[i] = i
+		}
+		return res
 	}
-
-	ss := []rune(s)
-
-	//         (firstcol) (diagonal)
 	nperzigzag := nrows + nrows - 2
-	nzigzags := len(ss) / nperzigzag
 
-	// Create a two-dimensional array that will contain the letters
-	zigzagRows := make([][]rune, nrows)
-	for i := range zigzagRows {
-		// If this is the first or last row, the number of characters per
-		// row is at most nzigzag + 1
-		if i == 0 || i == nrows-1 {
-			zigzagRows[i] = make([]rune, 0, nzigzags+1)
-			continue
-		}
-		// For rows with diagonals, each row is at most 2*nzigzag+1
-		zigzagRows[i] = make([]rune, 0, 2*nzigzags+1)
-	}
-
+	// first row
 	var i int
-	for i < len(s) {
-		// Iterate across first column
-		for j := 0; j < nrows-1 && i < len(s); j++ {
-			zigzagRows[j] = append(zigzagRows[j], ss[i])
-			i++
-		}
+	for j := 0; j < ntot; j += nperzigzag {
+		res[i] = j
+		i++
+	}
 
-		// Iterate up along diagonal
-		for j := nrows - 1; j > 0 && i < len(s); j-- {
-			zigzagRows[j] = append(zigzagRows[j], ss[i])
+	// intermediate rows
+	for row := 1; row < nrows-1; row++ {
+		// current zigzag
+		j := 0
+		for {
+			if row+j*nperzigzag >= ntot {
+				break
+			}
+			res[i] = row + j*nperzigzag
+			i++
+			j++
+			if j*nperzigzag-row >= ntot {
+				break
+			}
+			res[i] = j*nperzigzag - row
 			i++
 		}
 	}
 
-	result := make([]rune, 0, len(ss))
-	for _, row := range zigzagRows {
-		result = append(result, row...)
+	// last row
+	for j := nrows - 1; j < ntot; j += nperzigzag {
+		res[i] = j
+		i++
 	}
 
-	return string(result)
+	return res
+}
+
+func convert(s string, nrows int) string {
+	idx := createIndices(nrows, len(s))
+	res := make([]rune, len(s))
+	for i, idx := range idx {
+		res[i] = rune(s[idx])
+	}
+	return string(res)
 }
