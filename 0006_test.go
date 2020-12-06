@@ -21,7 +21,7 @@ func Test_l0006(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v/%v", tc.s, tc.nrows), func(t *testing.T) {
-			require.Equal(t, tc.want, convert(tc.s, tc.nrows))
+			require.Equal(t, tc.want, l0006convert(tc.s, tc.nrows))
 		})
 	}
 }
@@ -42,12 +42,12 @@ func Test_l0006createIndices(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%v/%v", tc.nrows, tc.ntot), func(t *testing.T) {
-			require.Equal(t, tc.want, createIndices(tc.nrows, tc.ntot))
+			require.Equal(t, tc.want, l0006createIndices(tc.nrows, tc.ntot))
 		})
 	}
 }
 
-func createIndices(nrows int, ntot int) []int {
+func l0006createIndices(nrows int, ntot int) []int {
 	res := make([]int, ntot)
 	if nrows == 1 {
 		for i := range res {
@@ -92,8 +92,8 @@ func createIndices(nrows int, ntot int) []int {
 	return res
 }
 
-func convert(s string, nrows int) string {
-	idx := createIndices(nrows, len(s))
+func l0006convert(s string, nrows int) string {
+	idx := l0006createIndices(nrows, len(s))
 	res := make([]rune, len(s))
 	for i, idx := range idx {
 		res[i] = rune(s[idx])
