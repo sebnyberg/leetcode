@@ -25,7 +25,6 @@ func Test_twoSum(t *testing.T) {
 			assert.Equal(t, tc.want[1], j, "j")
 		})
 	}
-	t.FailNow()
 }
 
 func twoSum(nums []int, target int) []int {
