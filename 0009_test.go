@@ -24,12 +24,12 @@ func Test_l0009(t *testing.T) {
 	}
 }
 
-func l0009(n int) bool {
-	if n < 0 {
+func l0009(x int) bool {
+	if x < 0 {
 		return false
 	}
 
-	if n < 10 {
+	if x < 10 {
 		return true
 	}
 
@@ -37,11 +37,11 @@ func l0009(n int) bool {
 
 	// Put all numbers in a list
 	for {
-		ns = append(ns, int8(n%10))
-		if n < 10 {
+		ns = append(ns, int8(x%10))
+		if x < 10 {
 			break
 		}
-		n /= 10
+		x /= 10
 	}
 
 	// Compare numbers
