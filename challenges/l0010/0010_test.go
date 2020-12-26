@@ -1,4 +1,4 @@
-package leetcode_test
+package l0010_test
 
 // func Test_l0010(t *testing.T) {
 // 	tcs := []struct {

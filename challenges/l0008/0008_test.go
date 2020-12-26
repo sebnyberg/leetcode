@@ -1,4 +1,4 @@
-package leetcode_test
+package l0008_test
 
 import (
 	"fmt"
