@@ -71,76 +71,50 @@ func Test_pseudoPalindromicPaths(t *testing.T) {
 	}{
 		{[]int{2, 3, 1, 3, 1, -1, 1}, 2},
 		{[]int{2, 1, 1, 1, 3, -1, -1, -1, -1, -1, 1}, 1},
+		{[]int{2, 1, 1, 1, 3, -1, -1, -1, -1, -1, 1}, 1},
 		{[]int{9}, 1},
 	} {
 		t.Run(fmt.Sprintf("%v", tc.nodes), func(t *testing.T) {
-			require.Equal(t, tc.want, pseudoPalindromicPaths(parseTree(tc.nodes)))
+			tree := parseTree(tc.nodes)
+			require.Equal(t, tc.want, pseudoPalindromicPaths(tree))
 		})
 	}
 }
 
-type nodeStack []int
-
-func (s *nodeStack) Pop() int {
-	old := *s
-	n := len(old)
-	x := old[n-1]
-	*s = old[0 : n-1]
-	return x
+func init() {
+	for i := 1; i < 10; i++ {
+		bitMasks[i] = 1 << (i - 1)
+	}
 }
 
-func (s *nodeStack) Push(x int) {
-	old := *s
-	old = append(old, x)
-	*s = old
-}
+var bitMasks [10]int16
 
-type palindromeCounter struct {
-	odd   [10]bool
-	count int
-}
-
-/**
- * Definition for a binary tree node.
- * type TreeNode struct {
- *     Val int
- *     Left *TreeNode
- *     Right *TreeNode
- * }
- */
 func pseudoPalindromicPaths(root *TreeNode) int {
-	// Perform DFS of the tree, adding numbers to the stack
-	explorer := palindromeCounter{}
-	explorer.Explore(root)
-	return explorer.count
+	return explore(root, 0)
 }
 
-// Explore traverses the tree until neither left or right node is found
-func (e *palindromeCounter) Explore(node *TreeNode) {
-	e.odd[node.Val] = !e.odd[node.Val]
+func explore(node *TreeNode, oddBits int16) int {
+	if node == nil {
+		return 0
+	}
+	if oddBits&bitMasks[node.Val] == 0 {
+		oddBits |= bitMasks[node.Val]
+	} else {
+		oddBits -= bitMasks[node.Val]
+	}
 
-	defer func(val int) {
-		e.odd[val] = !e.odd[val]
-	}(node.Val)
-
-	// If at a leaf and the path is a palindrome, increase the counter
 	if node.Left == nil && node.Right == nil {
 		var foundodd bool
-		for _, isodd := range e.odd {
-			if isodd {
+		for i := 1; i < 10; i++ {
+			if oddBits&bitMasks[i] == bitMasks[i] {
 				if foundodd {
-					return
+					return 0
 				}
 				foundodd = true
 			}
 		}
-		e.count++
+		return 1
 	}
 
-	if node.Left != nil {
-		e.Explore(node.Left)
-	}
-	if node.Right != nil {
-		e.Explore(node.Right)
-	}
+	return explore(node.Left, oddBits) + explore(node.Right, oddBits)
 }
