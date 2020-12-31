@@ -13,7 +13,8 @@ func Test_largestRectangleArea(t *testing.T) {
 		want int
 	}{
 		{[]int{2, 1, 5, 6, 2, 3}, 10},
-		{[]int{2147483647, 0, 2147483647, 0, 2147483647, 0, 2147483647, 0, 2147483647, 0}, 0},
+		{[]int{2, 1, 2}, 3},
+		{[]int{2147483647, 0, 2147483647, 0, 2147483647, 0, 2147483647, 0, 2147483647, 0}, 2147483647},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.in), func(t *testing.T) {
 			require.Equal(t, tc.want, largestRectangleArea(tc.in))
@@ -23,17 +24,13 @@ func Test_largestRectangleArea(t *testing.T) {
 
 func largestRectangleArea(heights []int) int {
 	largestArea := 0
-	for i := 0; i < len(heights); i++ {
-		if i > 1 && heights[i] < heights[i-1] {
-			continue
+	for i, height := range heights {
+		start, end := i, i
+		for ; start >= 0 && heights[start] >= height; start-- {
 		}
-		height := heights[i]
-		for step := 1; step <= height; step++ {
-			j := i + 1
-			for ; j < len(heights) && heights[j] >= step; j++ {
-			}
-			largestArea = max(largestArea, step*(j-i))
+		for ; end < len(heights) && heights[end] >= height; end++ {
 		}
+		largestArea = max(largestArea, height*(end-start-1))
 	}
 	return largestArea
 }
