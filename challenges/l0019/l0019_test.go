@@ -55,44 +55,25 @@ type ListNode struct {
  * }
  */
 func removeNthFromEnd(head *ListNode, n int) *ListNode {
-	// For n=1, do the easy solution
-	if n == 1 {
-		if head.Next == nil {
-			return nil
-		}
-		prev := head
-		for {
-			if prev.Next.Next == nil {
-				prev.Next = nil
-				return head
-			}
-			prev = prev.Next
-		}
+	if head == nil {
+		return head
 	}
 
-	// Once the end is reached, the n+1th, n-1th nodes need to be available
-	// to remove the nth node, i.e. n+1 total nodes need to be in the stack
-	nodeStack := make([]*ListNode, n+1)
-	nodeStack[0] = head
+	fast, slow := head, head
 
-	next := head.Next
-	for i := 1; i < n+1; i++ {
-		if next == nil {
-			return head.Next
-		}
-		nodeStack[i] = next
-		next = next.Next
+	for i := 0; i < n; i++ {
+		fast = fast.Next
+	}
+	if fast == nil {
+		// n == len(nodes)
+		// return head.Next
+		return head.Next
 	}
 
-	// Move stack forward until the end
-	for nodeStack[n].Next != nil {
-		for i := range nodeStack {
-			nodeStack[i] = nodeStack[i].Next
-		}
+	for fast.Next != nil {
+		fast = fast.Next
+		slow = slow.Next
 	}
-
-	// Remove element
-	nodeStack[0].Next = nodeStack[2]
-
+	slow.Next = slow.Next.Next
 	return head
 }
