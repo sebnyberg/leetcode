@@ -23,16 +23,32 @@ func Test_largestRectangleArea(t *testing.T) {
 }
 
 func largestRectangleArea(heights []int) int {
-	largestArea := 0
-	for i, height := range heights {
-		start, end := i, i
-		for ; start >= 0 && heights[start] >= height; start-- {
+	// Keep a stack of indices for the heights
+	// E.g. [0,1,2,3] => heights[1,6,8,9]
+	stack := make([]int, 0)
+
+	// When a height is larger or equal to the height of the last index
+	// in the stack, pop the stack and calculate the height of each pop.
+	heights = append(heights, 0)
+
+	maxArea := 0
+
+	for i := range heights {
+		for len(stack) > 0 && heights[stack[len(stack)-1]] >= heights[i] {
+			stackHeight := heights[stack[len(stack)-1]]
+			stack = stack[:len(stack)-1]
+			var stackWidth int
+			if len(stack) == 0 {
+				stackWidth = i
+			} else {
+				stackWidth = i - stack[len(stack)-1] - 1
+			}
+			maxArea = max(maxArea, stackHeight*stackWidth)
 		}
-		for ; end < len(heights) && heights[end] >= height; end++ {
-		}
-		largestArea = max(largestArea, height*(end-start-1))
+		stack = append(stack, i)
 	}
-	return largestArea
+
+	return maxArea
 }
 
 func max(a, b int) int {
