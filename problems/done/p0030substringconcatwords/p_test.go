@@ -24,63 +24,46 @@ func Test_findSubstring(t *testing.T) {
 	}
 }
 
-func Test_matchMap(t *testing.T) {
-	for _, tc := range []struct {
-		s       string
-		wordLen int
-		words   map[string]int
-		want    bool
-	}{
-		// {"foobar", 3, map[string]int{"foo": 1, "bar": 1}, true},
-		{"goodgoodbestword", 4, map[string]int{"word": 1, "good": 2, "best": 1}, true},
-	} {
-		t.Run(fmt.Sprintf("%v/%v/%+v", tc.s, tc.wordLen, tc.words), func(t *testing.T) {
-			require.Equal(t, tc.want, matchMap(tc.s, tc.wordLen, tc.words))
-		})
-	}
-}
-
 func findSubstring(s string, words []string) []int {
 	if len(words) == 0 {
 		return []int{}
 	}
+	nwords, wordLen := len(words), len(words[0])
 
-	wordMap := make(map[string]int)
-	wordLen := len(words[0])
-	var wordsLen int
+	wordToIndex := make(map[string]int)
+	wordCounts := make([]int, 0, len(words))
+	i := 0
 	for _, word := range words {
-		wordMap[word]++
-		wordsLen += len(word)
+		wordIndex, exists := wordToIndex[word]
+		if !exists {
+			wordToIndex[word] = i
+			wordCounts = append(wordCounts, 1)
+			i++
+			continue
+		}
+		wordCounts[wordIndex]++
 	}
 
-	idx := 0
+	wordMatchCount := make([]int, len(wordCounts))
 
 	res := make([]int, 0)
-	for len(s[idx:]) >= wordsLen {
-		if matchMap(s[idx:idx+wordsLen], wordLen, wordMap) {
-			res = append(res, idx)
+	last := len(s) - (nwords * wordLen)
+	for i := 0; i <= last; i++ {
+		copy(wordMatchCount, wordCounts)
+		for j := 0; j < nwords*wordLen; j += wordLen {
+			substring := s[i+j : i+j+wordLen]
+			if _, exists := wordToIndex[substring]; !exists {
+				goto ContinueSearch
+			}
+			wordIndex := wordToIndex[substring]
+			if wordMatchCount[wordIndex] == 0 {
+				goto ContinueSearch
+			}
+			wordMatchCount[wordIndex]--
 		}
-
-		idx++
+		res = append(res, i)
+	ContinueSearch:
 	}
 
 	return res
-}
-
-func matchMap(s string, wordlen int, words map[string]int) bool {
-	var idx int
-	foundCount := make(map[string]int)
-	for idx < len(s) {
-		ss := s[idx : idx+wordlen]
-		count, exists := words[ss]
-		if !exists {
-			return false
-		}
-		if foundCount[ss] >= count {
-			return false
-		}
-		foundCount[ss]++
-		idx += wordlen
-	}
-	return true
 }
