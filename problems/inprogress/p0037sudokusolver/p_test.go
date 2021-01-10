@@ -2,6 +2,9 @@ package p0037sudokusolver
 
 import (
 	"fmt"
+	"math/bits"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -51,21 +54,21 @@ func solveSudoku(board [][]byte) bool {
 }
 
 type cell struct {
-	val      int
-	options  [10]bool
-	noptions int
+	val     int
+	options uint16
 }
 
 type sudokuSolver struct {
 	cells [9][9]cell
 }
 
+const ones = 0x3FE
+
 func (s *sudokuSolver) Solve(board [][]byte) bool {
 	// Initialize the board
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
-			s.cells[i][j].options = [10]bool{false, true, true, true, true, true, true, true, true, true}
-			s.cells[i][j].noptions = 9
+			s.cells[i][j].options = ones
 		}
 	}
 
@@ -104,9 +107,8 @@ func (s *sudokuSolver) Backtrack(i, j int) bool {
 	}
 
 	for n := 1; n <= 9; n++ {
-		if s.cells[i][j].options[n] {
-			before := s.cells
-			s.selectValue(i, j, n)
+		before := s.cells
+		if s.selectValue(i, j, n) {
 			if s.Backtrack(i, j+1) {
 				return true
 			}
@@ -123,12 +125,8 @@ func (s *sudokuSolver) SolveSimple() bool {
 			if s.cells[i][j].val != 0 {
 				continue
 			}
-			if s.cells[i][j].noptions == 1 {
-				for k, available := range s.cells[i][j].options {
-					if available {
-						s.selectValue(i, j, k)
-					}
-				}
+			if bits.OnesCount16(s.cells[i][j].options) == 1 {
+				s.selectValue(i, j, firstOne(s.cells[i][j].options))
 				return true
 			}
 		}
@@ -136,54 +134,56 @@ func (s *sudokuSolver) SolveSimple() bool {
 	return false
 }
 
-func (s *sudokuSolver) SetOpt(i, j, val int, avail bool) {
-	if s.cells[i][j].options[val] {
-		s.cells[i][j].noptions--
-	}
-	s.cells[i][j].options[val] = false
-}
-
 // Select removes value as an option from the same row/col
 // and 3x3 square by removing s.option entries.
 func (s *sudokuSolver) selectValue(i, j, val int) bool {
-	if !s.cells[i][j].options[val] {
+	if (s.cells[i][j].options>>val)&1 != 1 {
 		return false
 	}
+	var bitval uint16 = 1 << val
 
 	for k := 0; k < 9; k++ {
-		s.SetOpt(i, k, val, false)
-		s.SetOpt(k, j, val, false)
+		s.cells[i][k].options &^= bitval
+		s.cells[k][j].options &^= bitval
 	}
 	// Remove from 3x3 square
 	for k := (i / 3) * 3; k < (i/3)*3+3; k++ {
 		for l := (j / 3) * 3; l < (j/3)*3+3; l++ {
-			s.SetOpt(k, l, val, false)
+			s.cells[k][l].options &^= bitval
 		}
 	}
 	s.cells[i][j].val = val
 	return true
 }
 
-// func (s *SudokuSolver) String() string {
-// 	var sb strings.Builder
-// 	for i, row := range s.cells {
-// 		if i%3 == 0 {
-// 			sb.WriteString("-------------\n")
-// 		}
-// 		for j, col := range row {
-// 			if j%3 == 0 {
-// 				sb.WriteRune('|')
-// 			}
-// 			if col.val == 0 {
-// 				sb.WriteRune('.')
-// 			} else {
-// 				sb.WriteString(strconv.Itoa(col.val))
-// 			}
-// 		}
-// 		sb.WriteRune('|')
-// 		sb.WriteRune('\n')
-// 	}
-// 	sb.WriteString("-------------\n")
-// 	sb.WriteRune('\n')
-// 	return sb.String()
-// }
+func firstOne(n uint16) (i int) {
+	for i < 16 && n&1 != 1 {
+		n >>= 1
+		i++
+	}
+	return i
+}
+
+func (s *sudokuSolver) String() string {
+	var sb strings.Builder
+	for i, row := range s.cells {
+		if i%3 == 0 {
+			sb.WriteString("-------------\n")
+		}
+		for j, col := range row {
+			if j%3 == 0 {
+				sb.WriteRune('|')
+			}
+			if col.val == 0 {
+				sb.WriteRune('.')
+			} else {
+				sb.WriteString(strconv.Itoa(col.val))
+			}
+		}
+		sb.WriteRune('|')
+		sb.WriteRune('\n')
+	}
+	sb.WriteString("-------------\n")
+	sb.WriteRune('\n')
+	return sb.String()
+}
