@@ -30,22 +30,17 @@ func Test_merge(t *testing.T) {
 }
 
 func merge(nums1 []int, m int, nums2 []int, n int) {
-	for i, j := 0, 0; i < m+n; {
-		if i == m {
-			copy(nums1[i+j:], nums2[j:])
-			return
-		}
-		if j == n {
-			return
-		}
-		if i < m && nums1[i+j] <= nums2[j] {
+	var i, j int
+	for i < m && j < n {
+		if nums1[i+j] <= nums2[j] {
 			i++
 			continue
 		}
-		if j < n && nums2[j] < nums1[i+j] {
-			copy(nums1[i+j+1:], nums1[i+j:]) // make space
-			nums1[i+j] = nums2[j]
-			j++
-		}
+		copy(nums1[i+j+1:], nums1[i+j:]) // make space
+		nums1[i+j] = nums2[j]
+		j++
+	}
+	if i == m {
+		copy(nums1[i+j:], nums2[j:])
 	}
 }
