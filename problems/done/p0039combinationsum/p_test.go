@@ -28,25 +28,26 @@ func Test_combinationSum(t *testing.T) {
 
 func combinationSum(candidates []int, target int) [][]int {
 	sort.Ints(candidates)
-	return sortedCombinationSum(candidates, target)
+	nums := make([]int, 0, len(candidates))
+	res := make([][]int, 0)
+	findCombinationSums(candidates, target, nums, &res)
+	return res
 }
 
-func sortedCombinationSum(candidates []int, target int) [][]int {
-	res := make([][]int, 0)
-	for i, n := range candidates {
-		switch {
-		case n < target:
-			for _, nn := range combinationSum(candidates[i:], target-n) {
-				sub := make([]int, len(nn)+1)
-				copy(sub[1:], nn)
-				sub[0] = n
-				res = append(res, sub)
-			}
-			continue
-		case n == target:
-			res = append(res, []int{n})
-		}
-		break
+func findCombinationSums(candidates []int, target int, nums []int, res *[][]int) {
+	switch {
+	case target < 0:
+		return
+	case target == 0:
+		a := make([]int, len(nums))
+		copy(a, nums)
+		*res = append(*res, a)
+		return
 	}
-	return res
+
+	for i, n := range candidates {
+		nums = append(nums, n)
+		findCombinationSums(candidates[i:], target-n, nums, res)
+		nums = nums[:len(nums)-1]
+	}
 }
