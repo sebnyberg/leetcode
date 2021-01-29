@@ -1,59 +1,52 @@
 package tree
 
-// import (
-// 	"container/list"
-// 	"log"
-// )
-
-// type IntTreeNode struct {
+// type TreeNode struct {
 // 	Val   int
-// 	Left  *IntTreeNode
-// 	Right *IntTreeNode
+// 	Left  *TreeNode
+// 	Right *TreeNode
 // }
 
-// var nilIntNode *IntTreeNode
+// var nilNode *TreeNode
 
-// func NewIntTreeFromList(nodes []int) *IntTreeNode {
-// 	if len(nodes) == 0 {
-// 		log.Fatalln("more than one node is required to parse a tree")
+// func NewTreeFromList(nodesList []int) *TreeNode {
+// 	if len(nodesList) == 0 {
+// 		return nil
 // 	}
-// 	root := &IntTreeNode{Val: nodes[0]}
-// 	q := list.New()
-// 	n := len(nodes)
-// 	q.PushBack(root)
+// 	root := &TreeNode{
+// 		Val: nodesList[0],
+// 	}
+// 	levelNodes := list.New()
+// 	levelNodes.PushBack(root)
 // 	idx := 1
-
 // 	for {
-// 		if q.Len() == 0 {
-// 			return root
-// 		}
-// 		for size := q.Len(); size > 0; size-- {
-// 			el := q.Remove(q.Front()).(*IntTreeNode)
-// 			if el == nilIntNode {
+// 		for size := levelNodes.Len(); size > 0; size-- {
+// 			if idx >= len(nodesList) {
+// 				return root
+// 			}
+// 			node := levelNodes.Remove(levelNodes.Front()).(*TreeNode)
+// 			if node == nil {
+// 				levelNodes.PushBack(nilNode)
+// 				levelNodes.PushBack(nilNode)
 // 				idx += 2
 // 				continue
 // 			}
-// 			// Left side
-// 			if idx >= n {
-// 				return root
-// 			}
-// 			if nodes[idx] == -1 {
-// 				q.PushBack(nilNode)
+// 			// Left
+// 			if nodesList[idx] != -1 {
+// 				node.Left = &TreeNode{Val: nodesList[idx]}
+// 				levelNodes.PushBack(node.Left)
 // 			} else {
-// 				el.Left = &IntTreeNode{Val: nodes[idx]}
-// 				q.PushBack(el.Left)
+// 				levelNodes.PushBack(nilNode)
 // 			}
 // 			idx++
-
-// 			// Left side
-// 			if idx >= n {
+// 			if idx >= len(nodesList) {
 // 				return root
 // 			}
-// 			if nodes[idx] == -1 {
-// 				q.PushBack(nilNode)
+// 			// Right
+// 			if nodesList[idx] != -1 {
+// 				node.Right = &TreeNode{Val: nodesList[idx]}
+// 				levelNodes.PushBack(node.Right)
 // 			} else {
-// 				el.Right = &IntTreeNode{Val: nodes[idx]}
-// 				q.PushBack(el.Left)
+// 				levelNodes.PushBack(nilNode)
 // 			}
 // 			idx++
 // 		}

@@ -12,11 +12,10 @@ func Test_permute(t *testing.T) {
 		nums []int
 		want [][]int
 	}{
-		// {[]int{0, 1}, [][]int{{0, 1}, {1, 0}}},
-		{[]int{6, 3, 2, 7, 4, -1}, [][]int{{0, 1}, {1, 0}}},
+		{[]int{0, 1}, [][]int{{0, 1}, {1, 0}}},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.nums), func(t *testing.T) {
-			require.Equal(t, tc.want, permute(tc.nums))
+			require.EqualValues(t, tc.want, permute(tc.nums))
 		})
 	}
 }
