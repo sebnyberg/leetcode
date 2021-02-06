@@ -30,7 +30,7 @@ func getPermutation(n int, k int) string {
 	}
 
 	for i := 1; i < k; i++ {
-		permutate(&runes)
+		runes = permutate(runes)
 	}
 
 	for i := range runes {
@@ -40,13 +40,13 @@ func getPermutation(n int, k int) string {
 	return string(runes)
 }
 
-func permutate(s *[]byte) {
-	n := len(*s)
+func permutate(s []byte) []byte {
+	n := len(s)
 
 	// Find rightmost element which is smaller than the element to its right
 	l := n - 2
 	for ; l >= 0; l-- {
-		if (*s)[l] < (*s)[l+1] {
+		if s[l] < s[l+1] {
 			break
 		}
 	}
@@ -54,14 +54,16 @@ func permutate(s *[]byte) {
 	// Swap with the smallest element to its right which is larger than it
 	r := l + 1
 	for i := l + 1; i < n; i++ {
-		if (*s)[i] > (*s)[l] && (*s)[i] < (*s)[r] {
+		if s[i] > s[l] && s[i] < s[r] {
 			r = i
 		}
 	}
-	(*s)[r], (*s)[l] = (*s)[l], (*s)[r]
+	s[r], s[l] = s[l], s[r]
 
 	// Reverse the part of the permutation to the right of where that element was
 	for i, j := l+1, n-1; i < j; i, j = i+1, j-1 {
-		(*s)[i], (*s)[j] = (*s)[j], (*s)[i]
+		s[i], s[j] = s[j], s[i]
 	}
+
+	return s
 }
