@@ -13,10 +13,10 @@ func Test_insert(t *testing.T) {
 		newInterval []int
 		want        [][]int
 	}{
+		{[][]int{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, []int{4, 8}, [][]int{{1, 2}, {3, 10}, {12, 16}}},
 		{[][]int{{1, 5}}, []int{0, 3}, [][]int{{0, 5}}},
 		{[][]int{{1, 5}, {10, 11}}, []int{6, 7}, [][]int{{1, 5}, {6, 7}, {10, 11}}},
 		{[][]int{{1, 3}, {6, 9}}, []int{2, 5}, [][]int{{1, 5}, {6, 9}}},
-		{[][]int{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, []int{4, 8}, [][]int{{1, 2}, {3, 10}, {12, 16}}},
 		{[][]int{}, []int{5, 7}, [][]int{{5, 7}}},
 		{[][]int{{1, 5}}, []int{2, 3}, [][]int{{1, 5}}},
 		{[][]int{{1, 5}}, []int{2, 7}, [][]int{{1, 7}}},
@@ -27,6 +27,13 @@ func Test_insert(t *testing.T) {
 	}
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -35,24 +42,38 @@ func max(a, b int) int {
 }
 
 func insert(intervals [][]int, newInterval []int) [][]int {
-	// res := make([][]int, 0, len(intervals)
-	var i int
 	n := len(intervals)
-	for ; i < len(intervals) && newInterval[0] > intervals[i][1]; i++ {
+	if n == 0 {
+		return [][]int{newInterval}
 	}
-	if i == n {
+	res := make([][]int, 0, n)
+	if newInterval[1] < intervals[0][0] {
+		intervals = append(intervals, []int{})
+		copy(intervals[1:], intervals)
+		intervals[0] = newInterval
+		return intervals
+	}
+	if newInterval[0] > intervals[n-1][1] {
 		return append(intervals, newInterval)
 	}
-	if newInterval[0] < intervals[i][0] || newInterval[1] < intervals[i][0] {
-		intervals = append(intervals, []int{})
-		copy(intervals[i+1:], intervals[i:])
-		intervals[i] = newInterval
+
+	var i int
+	for ; i < len(intervals) && newInterval[0] > intervals[i][1]; i++ {
+		res = append(res, intervals[i])
 	}
 
-	intervals[i][1] = max(intervals[i][1], newInterval[1])
-	for i < len(intervals)-1 && intervals[i+1][0] <= intervals[i][1] {
-		intervals[i][1] = max(intervals[i][1], intervals[i+1][1])
-		intervals = append(intervals[:i+1], intervals[i+2:]...)
+	if newInterval[1] < intervals[i][0] {
+		res = append(res, newInterval)
+		return append(res, intervals[i:]...)
 	}
-	return intervals
+
+	start, end := min(newInterval[0], intervals[i][0]), max(intervals[i][1], newInterval[1])
+	for i++; i < len(intervals) && intervals[i][0] <= end; i++ {
+		end = max(end, intervals[i][1])
+	}
+	res = append(res, []int{start, end})
+	if i < len(intervals) {
+		res = append(res, intervals[i:]...)
+	}
+	return res
 }
