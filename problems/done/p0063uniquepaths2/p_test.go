@@ -9,31 +9,37 @@ import (
 
 func Test_uniquePaths(t *testing.T) {
 	for _, tc := range []struct {
-		m    int
-		n    int
-		want int
+		obstacleGrid [][]int
+		want         int
 	}{
-		{3, 7, 28},
-		{3, 2, 3},
-		{7, 3, 28},
-		{3, 3, 6},
+		{[][]int{{0, 0, 0}, {0, 1, 0}, {0, 0, 0}}, 2},
 	} {
-		t.Run(fmt.Sprintf("%+v", tc.m), func(t *testing.T) {
-			require.Equal(t, tc.want, uniquePaths(tc.m, tc.n))
+		t.Run(fmt.Sprintf("%+v", tc.obstacleGrid), func(t *testing.T) {
+			require.Equal(t, tc.want, uniquePathsWithObstacles(tc.obstacleGrid))
 		})
 	}
 }
 
-func uniquePaths(m int, n int) int {
+func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 	// DP-solution
 	// Since the robot can only move down or right, the number of
 	// ways to reach the top and left cells in the grid is one
+	m := len(obstacleGrid)
+	n := len(obstacleGrid[0])
 	grid := make([][]int, m)
 	for i := range grid {
 		grid[i] = make([]int, n)
+	}
+	for i := range obstacleGrid {
+		if obstacleGrid[i][0] == 1 {
+			break
+		}
 		grid[i][0] = 1
 	}
-	for i := range grid[0] {
+	for i := range obstacleGrid[0] {
+		if obstacleGrid[0][i] == 1 {
+			break
+		}
 		grid[0][i] = 1
 	}
 
@@ -42,6 +48,9 @@ func uniquePaths(m int, n int) int {
 	// and to the left
 	for i := 1; i < m; i++ {
 		for j := 1; j < n; j++ {
+			if obstacleGrid[i][j] == 1 {
+				continue
+			}
 			grid[i][j] = grid[i-1][j] + grid[i][j-1]
 		}
 	}
