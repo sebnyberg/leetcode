@@ -1,4 +1,4 @@
-package p0094bintreeordertrav
+package p0094bstinordertrav
 
 type TreeNode struct {
 	Val   int
