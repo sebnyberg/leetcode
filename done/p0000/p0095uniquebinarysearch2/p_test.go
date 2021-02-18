@@ -2,14 +2,12 @@ package p0095uniquebinarysearch2
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func Test_generateTrees(t *testing.T) {
-	res := generateTrees(3)
-	_ = res
-	require.Equal(t, 1, 2)
+	// res := generateTrees(3)
+	// _ = res
+	// require.Equal(t, 1, 2)
 }
 
 type TreeNode struct {
