@@ -1,10 +1,8 @@
-# README
+This post will go through optimization steps toward a solution that is near-optimal for this problem, and optimal for the followup problem: 188.
 
-The final, optimized solution to this problem is not very clear without going through each step individually. This post will present these different steps.
+## First solution
 
-## First solution - Time Limit Exceeded (TLE) :(
-
-We form a matrix `profits[k][i]` where the value of a cell at `profits[k][i]` is the maximum profit given by `k+1` possible trades at the time `i`. 
+Form a matrix `profits[k][i]` where the value of a cell at `profits[k][i]` is the maximum profit given by `k+1` possible trades at the time `i`. 
 
 ```go
 ntrades := 2
@@ -15,7 +13,7 @@ for i := range profits {
 }
 ```
 
-Filling the first row is easy - the maximum possible value at day `i` is the difference between the current price and the minimum price before day `i`. Since the first possible day to trade is day 2, we start at `i=1`
+Filling the first row is easy - the maximum profit at day `i` is the difference between the current price and the minimum price before day `i`:
 
 ```go
 minVal := prices[0]
@@ -33,14 +31,14 @@ k \ - - - - - - - -
 0 | 0 0 2 2 2 3 3 4
 ```
 
-For `k > 1`, the profit from making a trade depends on the maximum profit of previous trades. The easiest way to take this into account is to adjust the price on a given day by the maximum profit made from a trade made before that day.
+For `k > 1`, the profit from making a trade depends on the maximum profit of previous trades. The easiest way to take this into account is to adjust the price on a given day by the maximum profit made from a trade made **before that day**.
 
 For example, the adjusted price for the second trade would become:
 
 ```go
-prices     = [ 3  3  5  0  0  3  1  4 ]
-profits[0] = [ 0  0  2  2  2  3  3  4 ]
-adjusted   = [ 3  3  3 -2 -2  0 -2  1 ]
+[ 3  3  5  0  0  3  1  4 ] prices
+[ 0  0  2  2  2  3  3  4 ] profits[0]
+[ 0  3  5 -2 -2  0 -2  1 ] adjusted = prices[i] - profits[i-1]
 ```
 
 It is now clear that the value of making a trade on a given day for `k > 1` is given by the recurrence relation:
@@ -48,7 +46,7 @@ It is now clear that the value of making a trade on a given day for `k > 1` is g
 * `adjusted[k][i] = prices[i] - profits[k-1][j-1]`
 * `profits[k][i] = max(profits[k][i-1], prices[i]-min(adjusted[k][:i]...)`
 
-Which gives us the first solution:
+Which gives the first solution:
 
 ```go
 for k := 1; k < ntrades; k++ {
@@ -66,13 +64,13 @@ for k := 1; k < ntrades; k++ {
 ## Optimization 1: Keeping track of the minimum value 
 
 
-Instead of finding the minimum value of `adjusted[k][:i]` for each index i, we may just as well keep track of the minimum cost of buying a stock before the day i, i.e.:
+Instead of finding the minimum value of `adjusted[k][:i]` for each index i, the minimum cost of buying a stock before the day i can be kept track of, i.e.:
 
 ```go
 minPrice = [ 3  3  3 -2 -2 -2 -2 -2 ]
 ```
 
-This brings us to the solution:
+Which gives:
 
 ```go
 minPrices := make([]int, ndays)
@@ -133,9 +131,12 @@ ndays := len(prices)
 profits := make([]int, ndays)
 
 var minPrice int
-for k := 0; k < ntrades; k++ {
-  minPrice = prices[k*2]
-  for i := 1+(k*2); i < ndays; i++ {
+for k := 0; k < min(ntrades, ndays/2); k++ {
+  minPrice = prices[0]
+  for i := 1; i <= k*2; i++ {
+    minPrice = min(minPrice, prices[i]-profits[i])
+  }
+  for i := 1 + k*2; i < ndays; i++ {
     profits[i], minPrice = max(profits[i-1], prices[i]-minPrice),
       min(minPrice, prices[i]-profits[i])
   }

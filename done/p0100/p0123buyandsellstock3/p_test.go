@@ -113,7 +113,10 @@ func maxProfit(prices []int) (profit int) {
 	var minPrice int
 	for k := 0; k < min(ntrades, ndays/2); k++ {
 		minPrice = prices[0]
-		for i := 1; i < ndays; i++ {
+		for i := 1; i <= k*2; i++ {
+			minPrice = min(minPrice, prices[i]-profits[i])
+		}
+		for i := 1 + k*2; i < ndays; i++ {
 			profits[i], minPrice = max(profits[i-1], prices[i]-minPrice),
 				min(minPrice, prices[i]-profits[i])
 		}
