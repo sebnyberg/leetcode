@@ -2,7 +2,6 @@ package p0132palindromepartitioning2
 
 import (
 	"fmt"
-	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,26 +12,16 @@ func Test_partition(t *testing.T) {
 		s    string
 		want int
 	}{
-		// {"aab", 1},
-		// {"a", 0},
-		// {"ab", 1},
-		// {"apjesgpsxoeiokmqmfgvjslcjukbqxpsobyhjpbgdfruqdkeiszrlmtwgfxyfostpqczidfljwfbbrflkgdvtytbgqalguewnhvvmcgxboycffopmtmhtfizxkmeftcucxpobxmelmjtuzigsxnncxpaibgpuijwhankxbplpyejxmrrjgeoevqozwdtgospohznkoyzocjlracchjqnggbfeebmuvbicbvmpuleywrpzwsihivnrwtxcukwplgtobhgxukwrdlszfaiqxwjvrgxnsveedxseeyeykarqnjrtlaliyudpacctzizcftjlunlgnfwcqqxcqikocqffsjyurzwysfjmswvhbrmshjuzsgpwyubtfbnwajuvrfhlccvfwhxfqthkcwhatktymgxostjlztwdxritygbrbibdgkezvzajizxasjnrcjwzdfvdnwwqeyumkamhzoqhnqjfzwzbixclcxqrtniznemxeahfozp", 1},
+		{"aabaabaa", 1},
+		{"aab", 1},
+		{"a", 0},
+		{"ab", 1},
+		{"apjesgpsxoeiokmqmfgvjslcjukbqxpsobyhjpbgdfruqdkeiszrlmtwgfxyfostpqczidfljwfbbrflkgdvtytbgqalguewnhvvmcgxboycffopmtmhtfizxkmeftcucxpobxmelmjtuzigsxnncxpaibgpuijwhankxbplpyejxmrrjgeoevqozwdtgospohznkoyzocjlracchjqnggbfeebmuvbicbvmpuleywrpzwsihivnrwtxcukwplgtobhgxukwrdlszfaiqxwjvrgxnsveedxseeyeykarqnjrtlaliyudpacctzizcftjlunlgnfwcqqxcqikocqffsjyurzwysfjmswvhbrmshjuzsgpwyubtfbnwajuvrfhlccvfwhxfqthkcwhatktymgxostjlztwdxritygbrbibdgkezvzajizxasjnrcjwzdfvdnwwqeyumkamhzoqhnqjfzwzbixclcxqrtniznemxeahfozp", 452},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.s), func(t *testing.T) {
 			require.Equal(t, tc.want, minCut(tc.s))
 		})
 	}
-}
-
-func minCut(s string) int {
-	var f partitionFinder
-	f.partitions = math.MaxInt32
-	return f.partitions - 1
-}
-
-type partitionFinder struct {
-	partitions  int
-	palindromes map[string]bool
 }
 
 func min(a, b int) int {
@@ -42,29 +31,21 @@ func min(a, b int) int {
 	return b
 }
 
-func (f *partitionFinder) findPartitions(s string, partitions int) {
-	if partitions >= f.partitions {
-		return
+func minCut(s string) int {
+	n := len(s)
+	cut := make([]int, n+1) // # cuts for first k characters
+	for i := 0; i <= n; i++ {
+		cut[i] = i - 1
 	}
-	if len(s) == 0 {
-		f.partitions = min(f.partitions, partitions)
-		return
-	}
-	for i := len(s) - 1; i > 0; i-- {
-		if _, exists := f.palindromes[s[:i]]; !exists {
-			f.palindromes[s[:i]] = isPalindrome(s[:i])
-		}
-		if f.palindromes[s[:i]] {
-			f.findPartitions(s[i:], partitions+1)
-		}
-	}
-}
 
-func isPalindrome(s string) bool {
-	for i := 0; i < (len(s)+1)/2; i++ {
-		if s[i] != s[len(s)-1-i] {
-			return false
+	for i := 0; i < n; i++ {
+		for j := 0; i-j >= 0 && i+j < n && s[i-j] == s[i+j]; j++ {
+			cut[i+j+1] = min(cut[i+j+1], 1+cut[i-j])
+		}
+		for j := 1; i-j+1 >= 0 && i+j < n && s[i-j+1] == s[i+j]; j++ {
+			cut[i+j+1] = min(cut[i+j+1], 1+cut[i-j+1])
 		}
 	}
-	return true
+
+	return cut[n]
 }
