@@ -12,7 +12,6 @@ func Test_partition(t *testing.T) {
 		s    string
 		want int
 	}{
-		{"aabaabaa", 1},
 		{"aab", 1},
 		{"a", 0},
 		{"ab", 1},
