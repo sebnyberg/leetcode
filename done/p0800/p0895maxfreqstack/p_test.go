@@ -30,22 +30,23 @@ func TestFreqStack(t *testing.T) {
 }
 
 type FreqStack struct {
-	numFreq map[int]int // the frequency of a given number
-	items   ItemHeap    // heap of numbers, their frequency, and stack position
+	numFreq map[int]int // frequency of a given number
+	items   ItemHeap    // max-heap based on frequency and sequential index
 	npushes int         // used to create stack position for items
 }
 
 type Item struct {
-	val           int
-	freq          int
-	stackPosition int
+	val      int
+	freq     int // number of identical values in the stack when this was added
+	seqIndex int // global sequential index of all items added to the heap
 }
 
 type ItemHeap []Item
 
 func (s ItemHeap) Len() int { return len(s) }
 func (s ItemHeap) Less(i, j int) bool {
-	return s[i].freq > s[j].freq || (s[i].freq == s[j].freq && s[i].stackPosition > s[j].stackPosition)
+	return s[i].freq > s[j].freq ||
+		(s[i].freq == s[j].freq && s[i].seqIndex > s[j].seqIndex)
 }
 func (s ItemHeap) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s *ItemHeap) Push(x interface{}) {
@@ -69,9 +70,9 @@ func Constructor() FreqStack {
 func (this *FreqStack) Push(x int) {
 	this.numFreq[x]++
 	heap.Push(&this.items, Item{
-		val:           x,
-		freq:          this.numFreq[x],
-		stackPosition: this.npushes,
+		val:      x,
+		freq:     this.numFreq[x],
+		seqIndex: this.npushes,
 	})
 	this.npushes++
 }
