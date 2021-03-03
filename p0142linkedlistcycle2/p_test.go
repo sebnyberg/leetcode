@@ -6,17 +6,19 @@ type ListNode struct {
 }
 
 func detectCycle(head *ListNode) bool {
-	if head == nil {
+	if head == nil || head.Next == nil {
 		return false
 	}
-	smallNumber := -100001
-	cur := head
-	for cur != nil {
-		if cur.Val == smallNumber {
-			return true
-		}
-		cur.Val = smallNumber
-		cur = cur.Next
+	slow, fast := head, head.Next
+	for slow != fast {
+		slow = slow.Next
+		fast = fast.Next.Next
 	}
-	return false
+
+	slow = head
+	for slow != fast {
+		slow = slow.Next
+		fast = fast.Next
+	}
+	return slow
 }
