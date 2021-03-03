@@ -24,6 +24,7 @@ func Test_findDuplicate(t *testing.T) {
 }
 
 func findDuplicate(nums []int) int {
+	// Floyd's hare and tortoise cycle detection
 	slow, fast := nums[nums[0]], nums[nums[nums[0]]]
 	for slow != fast {
 		slow = nums[slow]

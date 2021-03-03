@@ -5,13 +5,17 @@ type ListNode struct {
 	Next *ListNode
 }
 
-func detectCycle(head *ListNode) bool {
+func detectCycle(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
-		return false
+		return nil
 	}
+	// Floyd's hare and tortoise cycle detection
 	slow, fast := head, head.Next
 	for slow != fast {
 		slow = slow.Next
+		if fast.Next == nil || fast.Next.Next == nil {
+			return nil
+		}
 		fast = fast.Next.Next
 	}
 
