@@ -1,0 +1,6 @@
+CREATE FUNCTION getNthHighestSalary(@N INT) RETURNS INT AS
+BEGIN
+    RETURN (
+      SELECT 
+    );
+END
