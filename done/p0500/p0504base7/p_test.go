@@ -1,4 +1,4 @@
-package p0507base7
+package p0504base7
 
 func convertToBase7(num int) string {
 	if num == 0 {
