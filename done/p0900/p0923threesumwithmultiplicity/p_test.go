@@ -24,6 +24,10 @@ func Test_threeSumMulti(t *testing.T) {
 }
 
 func threeSumMulti(arr []int, target int) int {
+	// There are much better ways to solve this
+	// In fact, just iterating over all combinations of i, j, k where i+j+k = target
+	// then counting occurrences found in the counts array below is much faster
+	// than creating a dedup array.
 	var counts [101]int
 	for _, n := range arr {
 		counts[n]++
