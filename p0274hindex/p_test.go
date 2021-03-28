@@ -13,7 +13,8 @@ func Test_hIndex(t *testing.T) {
 		citations []int
 		want      int
 	}{
-		{},
+		// {[]int{3, 0, 6, 1, 5}, 3},
+		// {[]int{1, 3, 1}, 1},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.citations), func(t *testing.T) {
 			require.Equal(t, tc.want, hIndex(tc.citations))
@@ -22,9 +23,13 @@ func Test_hIndex(t *testing.T) {
 }
 
 func hIndex(citations []int) int {
-	sort.Ints(citations)
-	n := len(citations)
-	_ = n
-	// mid := n / 2
+	sort.Slice(citations, func(i, j int) bool {
+		return citations[i] > citations[j]
+	})
+	for i, n := range citations {
+		if n < i {
+			return i
+		}
+	}
 	return 0
 }
