@@ -2,6 +2,7 @@ package p0354russiandollenvelopes
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,11 +22,22 @@ func Test_maxEnvelopes(t *testing.T) {
 }
 
 func maxEnvelopes(envelopes [][]int) int {
-	return 0
-	// 	// Sort envelopes by width and height
-	// 	byHeight := make([][]int, len(envelopes))
-	// 	for i := range byHeight {
-	// 		copy(byHeight[i], envelopes[i])
-	// 	}
-	// 	sort.Slice(byHeight, func(i, j int) bool { return byHeight[i][1] < byHeight[j][1] })
+	// Sort envelopes by width and height (descending)
+	sort.Slice(envelopes, func(i, j int) bool {
+		if envelopes[i][0] == envelopes[j][0] {
+			return envelopes[i][1] > envelopes[j][1]
+		}
+		return envelopes[i][0] < envelopes[j][0]
+	})
+
+	dp := make([]int, 0, len(envelopes))
+	for _, envelope := range envelopes {
+		i := sort.SearchInts(dp, envelope[1])
+		if i == len(dp) {
+			dp = append(dp, envelope[1])
+		} else {
+			dp[i] = envelope[1]
+		}
+	}
+	return len(dp)
 }
