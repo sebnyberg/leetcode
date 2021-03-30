@@ -61,7 +61,7 @@ type treeFlipper struct {
 }
 
 func (f *treeFlipper) visit(cur *TreeNode, voyage []int) {
-	if cur.Val != voyage[f.idx] {
+	if cur == nil || cur.Val != voyage[f.idx] {
 		return
 	}
 	f.idx++
@@ -69,14 +69,12 @@ func (f *treeFlipper) visit(cur *TreeNode, voyage []int) {
 		return
 	}
 	if cur.Left != nil && cur.Left.Val != voyage[f.idx] {
-		// Flip (does not ensure right order, that is checked above)
+		// Flip is necessary
+		// This does not ensure that the order is correct, that is determined
+		// by the cur.Val != voyage[f.idx] check
 		cur.Left, cur.Right = cur.Right, cur.Left
 		f.flippedNodes = append(f.flippedNodes, cur.Val)
 	}
-	if cur.Left != nil {
-		f.visit(cur.Left, voyage)
-	}
-	if cur.Right != nil {
-		f.visit(cur.Right, voyage)
-	}
+	f.visit(cur.Left, voyage)
+	f.visit(cur.Right, voyage)
 }
