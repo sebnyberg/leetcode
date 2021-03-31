@@ -39,7 +39,7 @@ func pivotIndex(nums []int) int {
 		lsum += n
 	}
 	if lsum == 0 {
-		return 0
+		return len(nums) - 1
 	}
 	return -1
 }
