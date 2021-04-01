@@ -7,9 +7,9 @@ import (
 )
 
 func Test_isPalindrome(t *testing.T) {
-	n := &ListNode{Val: 1, Next: &ListNode{Val: 2, Next: &ListNode{Val: 2, Next: &ListNode{Val: 1}}}}
+	n := &ListNode{Val: 1, Next: &ListNode{Val: 2, Next: &ListNode{Val: 1}}}
 	require.Equal(t, true, isPalindrome(n))
-	n = &ListNode{Val: 1, Next: &ListNode{Val: 2, Next: &ListNode{Val: 1}}}
+	n = &ListNode{Val: 1, Next: &ListNode{Val: 2, Next: &ListNode{Val: 2, Next: &ListNode{Val: 1}}}}
 	require.Equal(t, true, isPalindrome(n))
 }
 
@@ -19,24 +19,37 @@ type ListNode struct {
 }
 
 func isPalindrome(head *ListNode) bool {
+	if head.Next == nil {
+		return true
+	}
 	slow, fast := head, head
-	stack := make([]int, 0)
-	for {
-		stack = append(stack, slow.Val)
-		if fast.Next == nil {
-			stack = stack[:len(stack)-1]
-			break
-		} else if fast.Next.Next == nil {
-			break
-		}
+	for fast != nil && fast.Next != nil {
 		slow, fast = slow.Next, fast.Next.Next
 	}
-	slow = slow.Next
-	for i := len(stack) - 1; i >= 0; i-- {
-		if stack[i] != slow.Val {
-			return false
-		}
+
+	var prev *ListNode
+	rev, next := head, head.Next
+	rev.Next = prev
+	for next != slow {
+		prev, rev, next = rev, next, next.Next
+		rev.Next = prev
+	}
+
+	if fast != nil { // odd
 		slow = slow.Next
 	}
-	return true
+
+	// Compare
+	for {
+		switch {
+		case slow == nil && rev == nil:
+			return true
+		case slow == nil && rev != nil,
+			rev == nil && slow != nil:
+			return false
+		case slow.Val != rev.Val:
+			return false
+		}
+		slow, rev = slow.Next, rev.Next
+	}
 }
