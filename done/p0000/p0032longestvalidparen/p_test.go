@@ -58,3 +58,51 @@ func longestValidParentheses(s string) int {
 	}
 	return maxvalid
 }
+
+//////////////////////////////////////////////////////////
+// Stack based version
+
+type stack []parenPos
+
+func (s stack) len() int { return len(s) }
+func (s *stack) pop() parenPos {
+	n := s.len()
+	it := (*s)[n-1]
+	(*s) = (*s)[:n-1]
+	return it
+}
+func (s *stack) push(n parenPos) { (*s) = append((*s), n) }
+func (s *stack) peek() parenPos  { return (*s)[len(*s)-1] }
+
+type parenPos struct {
+	paren byte
+	pos   int
+}
+
+func longestValidParenthesesStack(s string) int {
+	var parens stack
+	var maxLen int
+	for i := range s {
+		switch s[i] {
+		case ')':
+			if parens.len() == 0 {
+				parens.push(parenPos{')', i})
+				continue
+			}
+			prev := parens.peek()
+			if prev.paren == '(' {
+				parens.pop()
+				if parens.len() == 0 {
+					maxLen = max(maxLen, i+1)
+				} else {
+					maxLen = max(maxLen, i-parens.peek().pos)
+				}
+				continue
+			}
+			parens.push(parenPos{')', i})
+		case '(':
+			parens.push(parenPos{'(', i})
+		}
+	}
+	return maxLen
+}
