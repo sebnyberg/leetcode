@@ -29,6 +29,7 @@ func Test_longestLine(t *testing.T) {
 	}
 }
 
+// TODO: needs rework - is not very fast at all...
 func longestLine(M [][]int) int {
 	if len(M) == 0 {
 		return 0
