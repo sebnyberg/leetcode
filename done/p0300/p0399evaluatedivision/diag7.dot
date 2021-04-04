@@ -1,0 +1,15 @@
+digraph G {
+  rankdir=LR;
+  node [shape=doublecircle];
+  node [shape=circle];
+  x1 [label=<X<SUB>1</SUB>>];
+  x2 [label=<X<SUB>2</SUB>>];
+  x3 [label=<X<SUB>3</SUB>>];
+  x4 [label=<X<SUB>4</SUB>>];
+  x5 [label=<X<SUB>5</SUB>>];
+  x1 -> x2 [label = 3];
+  x2 -> x3 [label = 2];
+  x4 -> x5 [label = 4];
+  x4 -> x3 [label = 12, style=dashed, constraint=false];
+  x5 -> x3 [label = "?", style=dashed, color="blue", fontcolor="blue", constraint=false];
+}
