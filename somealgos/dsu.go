@@ -37,7 +37,3 @@ func (d *DSU) union(a, b int) {
 		d.size[a] += d.size[b]
 	}
 }
-
-func (d *DSU) sameSet(a, b int) bool {
-	return d.find(a) == d.find(b)
-}
