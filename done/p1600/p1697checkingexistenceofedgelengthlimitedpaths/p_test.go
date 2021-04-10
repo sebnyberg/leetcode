@@ -26,9 +26,6 @@ func Test_distanceLimitedPathsExist(t *testing.T) {
 
 func distanceLimitedPathsExist(n int, edgeList [][]int, queries [][]int) []bool {
 	// Append positions to edgeList / queries
-	// for i := range edgeList {
-	// 	edgeList[i] = append(edgeList[i], i)
-	// }
 	for i := range queries {
 		queries[i] = append(queries[i], i)
 	}
