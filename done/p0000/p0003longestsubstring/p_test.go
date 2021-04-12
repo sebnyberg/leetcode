@@ -36,7 +36,6 @@ func lengthOfLongestSubstring(s string) int {
 		r      rune // current rune
 		gcFrom int  // previous end index
 	)
-	// TODO: allocate beforehand
 	seenAt := map[rune]int{}
 
 	for i, r = range s {
