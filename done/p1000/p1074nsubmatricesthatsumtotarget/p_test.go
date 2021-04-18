@@ -13,8 +13,8 @@ func Test_numSubmatrixSumTarget(t *testing.T) {
 		target int
 		want   int
 	}{
-		{[][]int{{0, 1, 0}, {1, 1, 1}, {0, 1, 0}}, 0, 4},
 		{[][]int{{1, -1}, {-1, 1}}, 0, 5},
+		{[][]int{{0, 1, 0}, {1, 1, 1}, {0, 1, 0}}, 0, 4},
 		{[][]int{{904}}, 0, 0},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.matrix), func(t *testing.T) {
@@ -24,32 +24,35 @@ func Test_numSubmatrixSumTarget(t *testing.T) {
 }
 
 func numSubmatrixSumTarget(matrix [][]int, target int) int {
-	// Four variables:
-	// xStart, xLen, yStart, yLen
-	// Try brute-force first
+	// First, count the sums of each row block in the matrix
 	m, n := len(matrix), len(matrix[0])
-	var count int
-	for yStart := 0; yStart < m; yStart++ {
-		for yLen := 1; yLen <= m-yStart; yLen++ {
-			for xStart := 0; xStart < n; xStart++ {
-				for xLen := 1; xLen <= n-xStart; xLen++ {
-					res := sum(matrix, xStart, xLen, yStart, yLen)
-					if res == target {
-						count++
+	prefixSum := make([][]int, m+1)
+	prefixSum[0] = make([]int, n+1)
+	for row := 1; row <= m; row++ {
+		prefixSum[row] = make([]int, n+1)
+		for col := 1; col <= n; col++ {
+			prefixSum[row][col] += prefixSum[row-1][col] + prefixSum[row][col-1]
+			prefixSum[row][col] -= prefixSum[row-1][col-1]
+			prefixSum[row][col] += matrix[row-1][col-1]
+		}
+	}
+
+	res := 0
+	for startRow := 1; startRow <= m; startRow++ {
+		for endRow := startRow; endRow <= m; endRow++ {
+			for startCol := 1; startCol <= n; startCol++ {
+				for endCol := startCol; endCol <= n; endCol++ {
+					val := prefixSum[endRow][endCol]
+					val -= prefixSum[endRow][startCol-1]
+					val -= prefixSum[startRow-1][endCol]
+					val += prefixSum[startRow-1][startCol-1]
+					if val == target {
+						res++
 					}
 				}
 			}
 		}
 	}
-	return count
-}
 
-func sum(matrix [][]int, xStart, xLen, yStart, yLen int) int {
-	var res int
-	for y := 0; y < yLen; y++ {
-		for x := 0; x < xLen; x++ {
-			res += matrix[yStart+y][xStart+x]
-		}
-	}
 	return res
 }

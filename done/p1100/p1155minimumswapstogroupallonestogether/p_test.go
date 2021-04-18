@@ -12,7 +12,13 @@ func Test_minSwaps(t *testing.T) {
 		data []int
 		want int
 	}{
+		{
+			[]int{1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1},
+			30,
+		},
+		{[]int{1, 0, 1, 0, 1}, 1},
 		{[]int{0, 0, 0, 1, 0}, 0},
+		{[]int{1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1}, 3},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.data), func(t *testing.T) {
 			require.Equal(t, tc.want, minSwaps(tc.data))
@@ -22,33 +28,35 @@ func Test_minSwaps(t *testing.T) {
 
 func minSwaps(data []int) int {
 	n := len(data)
-	var ones int
+	var windowSize int
 	for _, d := range data {
 		if d == 1 {
-			ones++
+			windowSize++
 		}
 	}
 
 	var l, r int
-	var zeroes int
-	for r := 0; r < ones; r++ {
+	var requiredSwaps int
+	for r = 0; r < windowSize; r++ {
 		if data[r] == 0 {
-			zeroes++
+			requiredSwaps++
 		}
 	}
-	minZeroes := zeroes
-	for r < n-1 {
+	minSwaps := requiredSwaps
+	for r < n {
+		// Remove left number in window
 		if data[l] == 0 {
-			zeroes--
+			requiredSwaps--
 		}
 		l++
-		r++
+		// Add right number in window
 		if data[r] == 0 {
-			zeroes++
+			requiredSwaps++
 		}
-		if zeroes < minZeroes {
-			minZeroes = zeroes
+		r++
+		if requiredSwaps < minSwaps {
+			minSwaps = requiredSwaps
 		}
 	}
-	return minZeroes
+	return minSwaps
 }
