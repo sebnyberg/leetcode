@@ -16,11 +16,39 @@ func Test_groupStrings(t *testing.T) {
 		{[]string{"a"}, [][]string{{"a"}}},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.strings), func(t *testing.T) {
-			require.Equal(t, tc.want, groupStrings(tc.strings))
+			require.ElementsMatch(t, tc.want, groupStrings(tc.strings))
 		})
 	}
 }
 
 func groupStrings(strings []string) [][]string {
+	// Normalize each string so that the first letter is always "a"
+	// Then collect strings into a joint map
+	results := make(map[string][]string)
+	for _, s := range strings {
+		norm := normalize(s)
+		results[norm] = append(results[norm], s)
+	}
+	resultsList := make([][]string, 0, len(results))
+	for _, v := range results {
+		resultsList = append(resultsList, v)
+	}
+	return resultsList
+}
 
+func normalize(s string) string {
+	if s[0] == 'a' { // already normalized
+		return s
+	}
+	// normalize based on 'a'
+	res := make([]byte, len(s))
+	d := s[0] - 'a'
+	for i, ch := range s {
+		resCh := byte(ch) - d
+		if resCh < byte('a') {
+			resCh += 26
+		}
+		res[i] = resCh
+	}
+	return string(res)
 }
