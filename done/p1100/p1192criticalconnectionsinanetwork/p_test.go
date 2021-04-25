@@ -2,7 +2,6 @@ package p1192criticalconnectionsinanetwork
 
 import (
 	"fmt"
-	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -34,37 +33,40 @@ func criticalConnections(n int, connections [][]int) [][]int {
 		time:       1,
 		timestamps: make([]int, n),
 		low:        make([]int, n),
-		bridges:    make([][]int, 0),
 	}
-	t.dfs(adj, n, 0, -1)
+	t.dfs(adj, 0, -1)
 	return t.bridges
 }
 
 type Tarjan struct {
 	time       int
 	timestamps []int
+	low        []int
 	bridges    [][]int
 }
 
-func (t *Tarjan) dfs(adj [][]int, n, cur, parent int) int {
-	if t.timestamps[cur] != 0 {
-		return t.timestamps[cur]
-	}
+func (t *Tarjan) dfs(adj [][]int, cur, parent int) {
 	t.timestamps[cur] = t.time
+	t.low[cur] = t.time
 	t.time++
 
-	minTimestamp := math.MaxInt32
 	for _, nei := range adj[cur] {
 		if nei == parent { // avoid checking the parent
 			continue
 		}
-		neiTs := t.dfs(adj, n, nei, cur)
-		minTimestamp = min(minTimestamp, neiTs)
+		// If the nei[ghbour] node has not been seen before
+		// Continue SCC search and set the current low-link
+		// value to that node's low-link value.
+		if t.timestamps[nei] == 0 {
+			t.dfs(adj, nei, cur)
+			t.low[cur] = min(t.low[cur], t.low[nei])
+			if t.timestamps[cur] < t.low[nei] {
+				t.bridges = append(t.bridges, []int{cur, nei})
+			}
+		} else { // Seen before and part of this scc, use timestamp as lowlink
+			t.low[cur] = min(t.low[cur], t.timestamps[nei])
+		}
 	}
-	// if minTimestamp >= t.timestamps[cur] && parent >= 0 {
-	// 	t.bridges = append(t.bridges, []int{parent, cur})
-	// }
-	return min(t.timestamps[cur], minTimestamp)
 }
 
 func min(a, b int) int {
