@@ -1,44 +1,4 @@
-package p0308rangesumquery2dmutable
-
-import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
-func TestNumMatrix(t *testing.T) {
-	t.Run("first", func(t *testing.T) {
-		nm := Constructor([][]int{
-			{3, 0, 1, 4, 2},
-			{5, 6, 3, 2, 1},
-			{1, 2, 0, 1, 5},
-			{4, 1, 0, 1, 7},
-			{1, 0, 3, 0, 5},
-		})
-		res := nm.SumRegion(2, 1, 4, 3)
-		require.Equal(t, 8, res)
-		nm.Update(3, 2, 2)
-		res = nm.SumRegion(2, 1, 4, 3)
-		require.Equal(t, 10, res)
-	})
-
-	// t.Run("second", func(t *testing.T) {
-	// 	nm := Constructor([][]int{
-	// 		{1},
-	// 		{2},
-	// 	})
-	// 	res := nm.SumRegion(0, 0, 0, 0)
-	// 	require.Equal(t, 0, res)
-	// 	res = nm.SumRegion(1, 0, 1, 0)
-	// 	res = nm.SumRegion(0, 0, 1, 0)
-	// 	nm.Update(0, 0, 3)
-	// 	nm.Update(1, 0, 5)
-	// 	res = nm.SumRegion(0, 0, 1, 0)
-	// 	// res = nm.SumRegion(2, 1, 4, 3)
-	// 	// require.Equal(t, 10, res)
-	// 	_ = res
-	// })
-}
+package p0304rangesumquery2dimmutable
 
 type NumMatrix struct {
 	n, m   int
