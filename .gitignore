@@ -5,3 +5,4 @@
 **latexmk
 **.fls
 **.log
+**_cache
