@@ -1,2 +1,7 @@
 **debug**
 **pycache**
+**.aux
+**.dvi
+**latexmk
+**.fls
+**.log
