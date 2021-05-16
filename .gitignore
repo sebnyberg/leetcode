@@ -6,3 +6,5 @@
 **.fls
 **.log
 **_cache
+**synctex*
+**.out

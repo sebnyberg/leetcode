@@ -1,3 +1,18 @@
+\documentclass{article}
+\usepackage{blindtext}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\title{Sections and Chapters}
+\author{Gubert Farnsworth}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
 # MIT 6.006 Introduction to Algorithms
 
 [Course Website](https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-006-introduction-to-algorithms-fall-2011/index.htm)
@@ -26,21 +41,22 @@ Peak finding using divide and conquer for the problem: "There is a single peak (
 [Lecture](https://www.youtube.com/watch?v=Zc54gFhdpLA)
 [Recitation](https://www.youtube.com/watch?v=QFcyt8fgQMU)
 
-Summary: 
+Machines have one word per cell in its memory.
 
-Model of computation specifies:
-* What operations an algorithm is allowed
-* Cost (time, space) of each op
+* Random Access Machine is a big chunk o' memory
+* Pointer Machine uses objects instead which can point to other objects
 
-#### Random Access Machine (RAM)
+#### Document distance problem
 
-Modeled by a big array from 1 .. words in one stick of RAM.
+Given two documents (d1, d2), figure out a distance $d(D_1, D_2)$.
 
-A word is a cell in memory, and it has width $w$.
+A document is a sequence of words. A word is a string of alphanumerical characters.
 
-#### Pointer Machine
+Idea: shared words. A vector of words - D[w] = # occurrences of w in D. The goal is to find a measure of similarity based on the vectors. One example would be the dot-product, but that causes unnormalized scores. Another is cosine-similarity, which is given by
 
-- OOP
-- Dynamically allocated objects
-- Object has O(1) fields
-- Field or pointer or null = word (e.g. int) 
+$$
+\newcommand{\d1}{\textrm{D}_1}
+\textrm{d}'(\textrm{D}_1, \textrm{D}_2) = \frac{\textrm{D}_1}{\left|\textrm{D}_1\right|}
+$$
+
+\end{document}
