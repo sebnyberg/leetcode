@@ -65,14 +65,6 @@ func suggestedProducts(products []string, searchWord string) [][]string {
 	// Create a trie
 	root := &trieNode{words: make([]int, 0)}
 
-	// // trie[nCh][ch][]int => word indices at that character
-	// trie := make([][26][]int, 1000)
-	// for i := range trie {
-	// 	for j := range trie[i] {
-	// 		trie[i][j] = make([]int, 0, 3)
-	// 	}
-	// }
-
 	for i, word := range products {
 		cur := root
 		for _, ch := range word {
@@ -89,7 +81,6 @@ func suggestedProducts(products []string, searchWord string) [][]string {
 		for j := 0; j < min(3, len(cur.words)); j++ {
 			res[i] = append(res[i], products[cur.words[j]])
 		}
-		// res[i] = cur.words[:min(3, len(cur.words))]
 	}
 
 	return res
