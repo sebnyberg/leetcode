@@ -21,7 +21,8 @@ func Test_removeDuplicates(t *testing.T) {
 	}
 }
 
-func removeDuplicates(nums []int) (i int) {
+func removeDuplicates(nums []int) int {
+	i := 0
 	for j := 1; j < len(nums); j++ {
 		if nums[j] != nums[i] {
 			i++
