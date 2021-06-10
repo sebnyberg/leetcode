@@ -1,22 +1,6 @@
-package p0729mycalendar1
+package tree
 
 import "math"
-
-type MyCalendar struct {
-	bookings IntervalTree
-}
-
-func Constructor() MyCalendar {
-	return MyCalendar{}
-}
-
-func (this *MyCalendar) Book(start int, end int) bool {
-	if this.bookings.IntersectsInterval(start, end) {
-		return false
-	}
-	this.bookings.Insert(start, end)
-	return true
-}
 
 // IntervalTree is a modified AVL-tree which can be used to perform O(nlogn)
 // lookups of intervals.
