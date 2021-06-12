@@ -1,55 +1,75 @@
-package p1895a
+package p1896mincosttochangefinalvalueofexpr
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"testing"
-	"unsafe"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_minOperationsToFlip(t *testing.T) {
-	// for _, tc := range []struct {
-	// 	expression string
-	// 	want       int
-	// }{
-	// 	{"(0&0)&(0&0&0)", 3},
-	// 	{"1&(0|1)", 1},
-	// 	{"(0|(1|0&1))", 1},
-	// } {
-	// 	t.Run(fmt.Sprintf("%+v", tc.expression), func(t *testing.T) {
-	// 		require.Equal(t, tc.want, minOperationsToFlip(tc.expression))
-	// 	})
-	// }
-	t.Run("big", func(t *testing.T) {
-		f, _ := os.Open("testdata/input")
-		s, _ := io.ReadAll(f)
-		ss := string(s)
-		res := minOperationsToFlip(ss)
-		_ = res
-	})
+	for _, tc := range []struct {
+		expression string
+		want       int
+	}{
+		{"(0&0)&(0&0&0)", 3},
+		{"1&(0|1)", 1},
+		{"(0|(1|0&1))", 1},
+	} {
+		t.Run(fmt.Sprintf("%+v", tc.expression), func(t *testing.T) {
+			require.Equal(t, tc.want, minOperationsToFlip(tc.expression))
+		})
+	}
+	for i, input := range []string{
+		"testdata/input",
+		"testdata/input2",
+	} {
+		t.Run(fmt.Sprintf("big_%v", i), func(t *testing.T) {
+			f, _ := os.Open(input)
+			s, _ := io.ReadAll(f)
+
+			ss := string(s)
+			res := minOperationsToFlip(ss)
+			_ = res
+		})
+	}
+}
+
+var res int
+
+func Benchmark_minOperationsToFlip(b *testing.B) {
+	f, _ := os.Open("testdata/input")
+	s, _ := io.ReadAll(f)
+
+	ss := string(s)
+	for i := 0; i < b.N; i++ {
+		res = minOperationsToFlip(ss)
+	}
 }
 
 func minOperationsToFlip(expression string) int {
-	// Evaluate current value of the expression
-	bs := *(*[]byte)(unsafe.Pointer(&expression))
+	bs := []byte(expression)
 	parsedExpr := parseExpr(bs)
 	var want bool
 	if !parsedExpr.eval() {
 		want = true
 	}
 	res := minOpToFlip(parsedExpr, want)
-	return res
+	return int(res)
 }
 
-func minOpToFlip(e expr, want bool) int {
+func minOpToFlip(e expr, want bool) uint16 {
 	if e.eval() == want {
 		return 0
 	}
 	if e.getType() == typUnary {
 		return 1
 	}
-	var res int
+	var res uint16
+	var extraOp bool
 	binExpr := e.(*binaryExpr)
 	if !want {
 		// Expression evaluated to true, although it should be false.
@@ -66,7 +86,7 @@ func minOpToFlip(e expr, want bool) int {
 		// The operand is guaranteed to be AND. If both are true, turn the
 		// cheapest alternative into false.
 		if binExpr.lhs.eval() && binExpr.rhs.eval() {
-			res += min(minOpToFlip(binExpr.lhs, want), minOpToFlip(binExpr.rhs, want))
+			extraOp = true
 		}
 	} else {
 		// When the expression is false, always change from AND => OR.
@@ -76,7 +96,19 @@ func minOpToFlip(e expr, want bool) int {
 		// Now the operand is guaranteed to be OR. If both are false, turn the
 		// cheapest alternative into true.
 		if !binExpr.lhs.eval() && !binExpr.rhs.eval() {
-			res += min(minOpToFlip(binExpr.lhs, want), minOpToFlip(binExpr.rhs, want))
+			extraOp = true
+		}
+	}
+	if extraOp {
+		if binExpr.lhs.getType() == typUnary || binExpr.rhs.getType() == typUnary {
+			res++
+		} else {
+			extraOps := minOpToFlip(binExpr.lhs, want)
+			if extraOps <= 1 {
+				res++
+			} else {
+				res += min(extraOps, minOpToFlip(binExpr.rhs, want))
+			}
 		}
 	}
 	return res
@@ -145,7 +177,7 @@ func (p *parser) peek() byte {
 	return p.expr[p.pos]
 }
 
-type typ int
+type typ byte
 
 const (
 	typBinary typ = 0
@@ -194,7 +226,7 @@ type unaryExpr bool
 func (e unaryExpr) eval() bool   { return bool(e) }
 func (e unaryExpr) getType() typ { return typUnary }
 
-func min(a, b int) int {
+func min(a, b uint16) uint16 {
 	if a < b {
 		return a
 	}

@@ -1,4 +1,4 @@
-package p1894a
+package p1895largestmagicsquare
 
 import (
 	"fmt"

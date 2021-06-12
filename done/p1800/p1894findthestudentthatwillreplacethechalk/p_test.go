@@ -1,4 +1,4 @@
-package p1893a
+package p1894findthestudentthatwillreplacethechalk
 
 import (
 	"fmt"

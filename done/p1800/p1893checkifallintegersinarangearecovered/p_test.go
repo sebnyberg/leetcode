@@ -1,4 +1,4 @@
-package p1892a
+package p1893checkifallintegersinarangearecovered
 
 import (
 	"fmt"
