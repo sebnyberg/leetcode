@@ -1,4 +1,4 @@
-package somealgos
+package ds
 
 import "sort"
 

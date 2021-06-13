@@ -1,4 +1,4 @@
-package somealgos
+package ds
 
 type DSU struct {
 	parent []int

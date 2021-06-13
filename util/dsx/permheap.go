@@ -1,4 +1,4 @@
-package somealgos
+package ds
 
 type Permutator struct {
 	permIndex int

@@ -1,4 +1,4 @@
-package somealgos
+package ds
 
 type Fenwick struct {
 	tree []int

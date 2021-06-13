@@ -1,4 +1,4 @@
-package somealgos
+package ds
 
 type RingBuffer struct {
 	curLen    int
