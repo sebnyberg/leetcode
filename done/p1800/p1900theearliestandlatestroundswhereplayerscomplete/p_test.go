@@ -36,7 +36,8 @@ func earliestAndLatest(n int, firstPlayer int, secondPlayer int) []int {
 		bit <<= 1
 	}
 
-	f.tryAll(state, uint8(firstPlayer), uint8(secondPlayer), 1, uint8(n))
+	mem := make(map[uint32]struct{})
+	f.tryAll(mem, state, uint8(firstPlayer), uint8(secondPlayer), 1, uint8(n))
 	return []int{int(f.minMoves), int(f.maxMoves)}
 }
 
@@ -45,15 +46,17 @@ type minMaxFinder struct {
 	maxMoves uint8
 }
 
-func (f *minMaxFinder) tryAll(state uint32, first, second, round, n uint8) {
-	// fmt.Printf("round: %v\t bitmask: %v\n", round, debugBitMask(state, n))
-	// Try all possible matchings inside the state
-	// If a matching is first vs second, update both min and max moves
+func (f *minMaxFinder) tryAll(mem map[uint32]struct{}, state uint32, first, second, round, n uint8) {
+	if _, exists := mem[state]; exists {
+		return
+	}
+	mem[state] = struct{}{}
 	var l, r uint8
 	l = 1
 	r = n
 	matchings := [][2]uint8{}
-	var extraMask uint32
+	var extraMask uint32 = 1 << first
+	extraMask |= 1 << second
 	for {
 		for ; state&(1<<l) == 0; l++ {
 		}
@@ -62,16 +65,12 @@ func (f *minMaxFinder) tryAll(state uint32, first, second, round, n uint8) {
 		if l >= r {
 			break
 		}
-		switch {
-		case l == first && r == second:
+		if l == first && r == second {
 			f.minMoves = min(f.minMoves, round)
 			f.maxMoves = max(f.maxMoves, round)
 			return
-		case l == first || l == second:
-			extraMask |= 1 << l
-		case r == first || r == second:
-			extraMask |= 1 << r
-		default:
+		}
+		if l != first && r != first && l != second && r != second {
 			matchings = append(matchings, [2]uint8{l, r})
 		}
 		l++
@@ -87,8 +86,7 @@ func (f *minMaxFinder) tryAll(state uint32, first, second, round, n uint8) {
 		close(nextStates)
 	}()
 	for nextState := range nextStates {
-		// fmt.Printf("round: %v\t extra  : %v\n", round, debugBitMask(extraMask, n))
-		f.tryAll(nextState|extraMask, first, second, round+1, n)
+		f.tryAll(mem, nextState|extraMask, first, second, round+1, n)
 	}
 }
 
@@ -113,18 +111,4 @@ func min(a, b uint8) uint8 {
 		return a
 	}
 	return b
-}
-
-func debugBitMask(bm uint32, n uint8) string {
-	b := uint32(2)
-	out := make([]byte, 0, n)
-	for i := uint8(0); i < n; i++ {
-		if bm&b > 0 {
-			out = append(out, 'X')
-		} else {
-			out = append(out, '-')
-		}
-		b <<= 1
-	}
-	return string(out)
 }
