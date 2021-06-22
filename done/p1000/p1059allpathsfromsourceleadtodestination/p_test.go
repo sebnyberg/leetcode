@@ -15,6 +15,7 @@ func Test_leadsToDestination(t *testing.T) {
 		destination int
 		want        bool
 	}{
+		{1, [][]int{{0, 0}}, 0, 0, false},
 		{5, [][]int{{0, 1}, {1, 2}, {2, 3}, {3, 4}}, 1, 3, false},
 		{3, [][]int{{0, 1}, {0, 2}}, 0, 2, false},
 		{4, [][]int{{0, 1}, {0, 3}, {1, 2}, {2, 1}}, 0, 3, false},
@@ -30,81 +31,65 @@ func Test_leadsToDestination(t *testing.T) {
 
 func leadsToDestination(n int, edges [][]int, source int, destination int) bool {
 	adj := make([][]int, n)
-	indeg := make([]int, n)
 	for _, edge := range edges {
 		adj[edge[0]] = append(adj[edge[0]], edge[1])
-		indeg[edge[1]]++
+	}
+	if len(adj[destination]) > 0 {
+		return false
 	}
 
-	visited := make([]bool, n)
-	tovisit := []int{}
-	for idx, deg := range indeg {
-		if deg == 0 {
-			tovisit = append(tovisit, idx)
-			visited[idx] = true
-		}
+	colors := make([]byte, n)
+	if hasCycle(adj, colors, n, source) {
+		return false
 	}
 
-	// detect cycle using toposort
-	next := []int{}
-	for len(tovisit) > 0 {
-		next = next[:0]
-		for _, n := range tovisit {
-			for _, nei := range adj[n] {
-				indeg[nei]--
-				if visited[nei] {
-					continue
-				}
-				if indeg[nei] == 0 {
-					visited[nei] = true
-					next = append(next, nei)
-				}
-			}
-		}
-		tovisit, next = next, tovisit
+	// There are no cycles - now we can do DFS to validate that all paths lead
+	// to the end.
+	leadsToEnd := make([]byte, n)
+	leadsToEnd[destination] = leadToEnd
+	return allPathsLeadToEnd(adj, leadsToEnd, n, source)
+}
+
+const (
+	unseen    = 0
+	deadEnd   = 1
+	leadToEnd = 2
+)
+
+func allPathsLeadToEnd(adj [][]int, leadsToEnd []byte, n, cur int) bool {
+	if leadsToEnd[cur] != unseen {
+		return leadsToEnd[cur] == leadToEnd
 	}
-	for _, v := range visited {
-		if !v {
+	if len(adj[cur]) == 0 {
+		leadsToEnd[cur] = deadEnd
+		return false
+	}
+	for _, nei := range adj[cur] {
+		if !allPathsLeadToEnd(adj, leadsToEnd, n, nei) {
+			leadsToEnd[cur] = deadEnd
 			return false
 		}
 	}
-
-	// there are no cycles, perform DFS to check if all paths end in destination
-	status := make([]byte, n)
-	status[destination] = leadsToEnd
-	dfs(adj, status, n, source, destination)
-	for _, st := range status {
-		if st != leadsToEnd {
-			return false
-		}
-	}
+	leadsToEnd[cur] = leadToEnd
 	return true
 }
 
 const (
-	notVisited byte = 0
-	deadEnd    byte = 1
-	leadsToEnd byte = 2
+	colorWhite = 0
+	colorGrey  = 1
+	colorBlack = 2
 )
 
-func dfs(adj [][]int, status []byte, n, cur, destination int) bool {
-	if status[cur] != notVisited {
-		return status[cur] == leadsToEnd
-	}
-	if len(adj[cur]) == 0 {
-		status[cur] = deadEnd
-		return false
-	}
-	ok := true
+func hasCycle(adj [][]int, colors []byte, n, cur int) bool {
+	colors[cur] = colorGrey
 	for _, nei := range adj[cur] {
-		if !dfs(adj, status, n, nei, destination) {
-			ok = false
+		if colors[nei] == colorGrey {
+			return true
+		}
+		if hasCycle(adj, colors, n, nei) {
+			return true
 		}
 	}
-	if ok {
-		status[cur] = leadsToEnd
-	} else {
-		status[cur] = deadEnd
-	}
-	return ok
+	colors[cur] = colorBlack
+	return false
 }
