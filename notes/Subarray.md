@@ -2,7 +2,15 @@
 
 ## Intuition
 
-Consider the following:
+Consider:
+
+* Whether there is a transformation that would make the problem easier to solve (abs, reduce by k, etc)
+* Prefix sums
+* If matching is going on, consider DP or KMP
+* For next smaller/greater before/after, consider monotonous stacks
+* Consider stacks for counts of elements within window
+* For hard exercises, sometimes it helps to use binary search
+* When dealing with absolute comparisons, examine each individual case, e.g. |a-b|+|c-d| => 12 (4!) cases, of which maybe a subset makes sense in the scenario
 
 ### Prefix sums
 
@@ -63,3 +71,5 @@ func maxSubArray(nums []int) int {
 
 * Finding the maximum average is the same as finding the maximum sum
 * Counting number of possible sub arrays meeting a criterion is equal to multiplying the number of elements to the left and right of the smallest center interval which still meet the criteria.
+* Kadane's algorithm can be used to find min sums as well as max sums at the same time
+* (918) Maximizing a circular sum that may span from the end to the beginning of an array may be equal to removing the minimum subarray sum from the middle.
