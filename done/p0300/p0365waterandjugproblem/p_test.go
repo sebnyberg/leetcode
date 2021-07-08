@@ -23,5 +23,11 @@ func Test_canMeasureWater(t *testing.T) {
 }
 
 func canMeasureWater(jug1Capacity int, jug2Capacity int, targetCapacity int) bool {
-
+	if targetCapacity > jug1Capacity+jug2Capacity {
+		return false
+	}
+	for jug2Capacity != 0 {
+		jug2Capacity, jug1Capacity = jug1Capacity%jug2Capacity, jug2Capacity
+	}
+	return targetCapacity%jug1Capacity == 0
 }
