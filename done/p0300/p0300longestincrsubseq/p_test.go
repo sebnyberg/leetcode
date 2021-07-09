@@ -2,7 +2,6 @@ package p0300longestincrsubseq
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -25,14 +24,18 @@ func Test_lengthOfLIS(t *testing.T) {
 }
 
 func lengthOfLIS(nums []int) int {
-	dp := make([]int, 0, len(nums))
+	// Approach: Patience Sort - O(n)
+	stack := make([]int, 1, 10)
+	stack[0] = -10001 // Dummy guard
 	for _, num := range nums {
-		insertPos := sort.SearchInts(dp, num)
-		if insertPos == len(dp) {
-			dp = append(dp, num)
+		var pos int
+		for pos = len(stack); stack[pos-1] >= num; pos-- {
+		}
+		if pos == len(stack) {
+			stack = append(stack, num)
 		} else {
-			dp[insertPos] = num
+			stack[pos] = num
 		}
 	}
-	return len(dp)
+	return len(stack) - 1
 }
