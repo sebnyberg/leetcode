@@ -12,7 +12,7 @@ func Test_wiggleSort(t *testing.T) {
 	for _, tc := range []struct {
 		nums []int
 	}{
-		// {[]int{4, 5, 5, 6}},
+		{[]int{4, 5, 5, 6}},
 		{[]int{1, 5, 1, 1, 6, 4}},
 		{[]int{1, 3, 2, 2, 3, 1}},
 	} {
@@ -37,15 +37,12 @@ func wiggleSort(nums []int) {
 	sortedNums := make([]int, n)
 	copy(sortedNums, nums)
 	sort.Ints(sortedNums)
-	half := n / 2
-	if n%2 == 1 {
-		half += 1
-	}
+	half := (n + 1) / 2
 	for i := range sortedNums {
 		if i%2 == 0 {
-			nums[i] = sortedNums[i/2]
+			nums[i] = sortedNums[half-1-i/2]
 		} else {
-			nums[i] = sortedNums[half+i/2]
+			nums[i] = sortedNums[n-1-i/2]
 		}
 	}
 }

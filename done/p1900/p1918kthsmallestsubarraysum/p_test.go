@@ -23,5 +23,35 @@ func Test_kthSmallestSubarraySum(t *testing.T) {
 }
 
 func kthSmallestSubarraySum(nums []int, k int) int {
-	return -1
+	var maxSum int
+	for _, n := range nums {
+		maxSum += n
+	}
+	l, r := 0, maxSum
+	for l < r {
+		mid := l + (r-l)/2
+		if countLeqSum(nums, mid) < k {
+			l = mid + 1
+		} else {
+			r = mid
+		}
+	}
+	return l
+}
+
+func countLeqSum(nums []int, maxSum int) int {
+	var count int
+	sum := 0
+	l := 0
+	for r := 0; r < len(nums); {
+		if sum+nums[r] <= maxSum {
+			sum += nums[r]
+			count += r - l + 1
+			r++
+		} else {
+			sum -= nums[l]
+			l++
+		}
+	}
+	return count
 }
