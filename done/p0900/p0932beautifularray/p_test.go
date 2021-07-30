@@ -36,6 +36,5 @@ func beautifulArray(n int) []int {
 	// * A pair of odd + even is always safe in positions i and j
 	// * A pair of odd or even is safe iff positions k inbetween do not contain
 	//   the pair divided by 2
-	// * The most
 	return []int{3, 1, 2, 5, 4}
 }
