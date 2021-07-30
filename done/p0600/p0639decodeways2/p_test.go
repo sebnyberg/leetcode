@@ -12,6 +12,12 @@ func Test_numDecodings(t *testing.T) {
 		s    string
 		want int
 	}{
+		{"*********", 291868912},
+		{"9617278761", 2},
+		{"*0**0", 36},
+		{"*1*1*0", 404},
+		{"*1", 11},
+		{"**", 96},
 		{"*", 9},
 		{"1*", 18},
 		{"2*", 15},
@@ -22,51 +28,62 @@ func Test_numDecodings(t *testing.T) {
 	}
 }
 
-func numDecodings(s string) int {
+const mod = 1e9 + 7
 
+func numDecodings(s string) int {
+	n := len(s)
+	bs := []byte(s)
+	var dp [2]int
+	dp[0], dp[1] = 1, 1
+	for i := 0; i < n; i++ {
+		ways := dp[1] * waysToDecodeOne(bs[i])
+		if i > 0 {
+			ways += dp[0] * waysToDecodeTwo(bs[i-1:i+1])
+		}
+		ways %= mod
+		dp[0], dp[1] = dp[1], ways
+	}
+	return dp[1]
 }
 
-func ways(bs []byte) int {
-	if bs[0] == '0' {
+func waysToDecodeOne(b byte) int {
+	switch b {
+	case '0':
 		return 0
+	case '*':
+		return 9
+	default:
+		return 1
 	}
-	switch len(bs) {
-	case 1:
-		if bs[0] == '*' {
+}
+
+func waysToDecodeTwo(bs []byte) int {
+	if len(bs) != 2 {
+		panic("must be length 2")
+	}
+	a, b := bs[0], bs[1]
+	switch {
+	case a == '1':
+		if b == '*' {
 			return 9
-		} else {
+		}
+		return 1
+	case a == '2':
+		switch {
+		case b == '*':
+			return 6
+		case b >= '0' && b <= '6':
 			return 1
 		}
-	case 2:
-		// '*x'
-		if bs[0] == '*' {
-			switch {
-			// '**' => 26
-			case bs[1] == '*':
-				return 26
-			}
-			if bs[1] == '*' {
-				return 26
-			} 
-				if bs[1] <= '6' {
-					return 2
-				} else {
-					return 1
-				}
-			}
-		}
-		// bs[0] is not '*'
+	case a == '*':
 		switch {
-		case bs[0] == '0' || bs[0] >= '3':
-			return 0
-		case bs[1] == '*':
-			return 9
-		// bs[0] is either '1' or '2'
-		case bs[1] <= '2':
-			return 9
-		default:
+		case b == '*':
+			return 15
+		case b <= '6' && b >= '0':
+			return 2
+		default: // implicit b >= '7'
+			return 1
 		}
-	default:
-		panic("bs must be <= 2 in length")
 	}
+	return 0
 }
