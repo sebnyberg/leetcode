@@ -24,15 +24,11 @@ func Test_numWays(t *testing.T) {
 }
 
 func numWays(n int, k int) int {
-	if n == 0 {
-		return 0
-	}
-	same := 0
 	different := k
-	for i := 2; i <= n; i++ {
-		tmp := same
-		same = different
-		different = (tmp + different) * (k - 1)
+	same := 0
+	for n > 1 {
+		different, same = (k-1)*(different+same), different
+		n--
 	}
-	return same + different
+	return different + same
 }
