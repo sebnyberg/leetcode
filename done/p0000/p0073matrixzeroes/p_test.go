@@ -24,66 +24,23 @@ func Test_setZeroes(t *testing.T) {
 }
 
 func setZeroes(matrix [][]int) {
-	m := len(matrix)
-	n := len(matrix[0])
-
-	// Check first col
-	var shouldZeroFirstCol bool
-	for i := 0; i < m; i++ {
-		if matrix[i][0] == 0 {
-			shouldZeroFirstCol = true
-			break
-		}
-	}
-
-	// Check first row
-	// Whether first row should be zeroed is stored in matrix[0][0]
-	for j := 0; j < n; j++ {
-		if matrix[0][j] == 0 {
-			matrix[0][0] = 0
-			break
-		}
-	}
-
-	// If a value is zero, set the corresponding first value
-	// in the same col / row to zero. This is a non-destructive
-	// maneuver since we have already stored whether the first
-	// col / row should all be zeroed out in the "fistnum" value
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
+	m, n := len(matrix), len(matrix[0])
+	cols := make([]bool, n)
+	rows := make([]bool, m)
+	for i := range matrix {
+		for j := range matrix[i] {
 			if matrix[i][j] == 0 {
-				matrix[0][j] = 0
-				matrix[i][0] = 0
+				rows[i] = true
+				cols[j] = true
 			}
 		}
 	}
 
-	// Zero out entries in rows for which the first value is zero
-	for i := 1; i < m; i++ {
-		if matrix[i][0] == 0 {
-			for j := range matrix[i] {
+	for i := range matrix {
+		for j := range matrix[i] {
+			if rows[i] || cols[j] {
 				matrix[i][j] = 0
 			}
-		}
-	}
-
-	// Zero out entries in columns for which the first value is zero
-	for j := 1; j < n; j++ {
-		if matrix[0][j] == 0 {
-			for i := range matrix {
-				matrix[i][j] = 0
-			}
-		}
-	}
-
-	if matrix[0][0] == 0 {
-		for i := 0; i < n; i++ {
-			matrix[0][i] = 0
-		}
-	}
-	if shouldZeroFirstCol {
-		for j := 0; j < m; j++ {
-			matrix[j][0] = 0
 		}
 	}
 }
