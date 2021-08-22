@@ -2,6 +2,7 @@ package p1977numberofwaystoseparatenumber
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"testing"
 
@@ -13,7 +14,7 @@ func Test_numberOfCombinations(t *testing.T) {
 		num  string
 		want int
 	}{
-		{strings.Repeat("1", 3500), 10},
+		{strings.Repeat("1", 3500), 755568658},
 		{"24896", 6},
 		{"1203", 2},
 		{"327", 2},
@@ -30,43 +31,38 @@ func Test_numberOfCombinations(t *testing.T) {
 const mod = 1e9 + 7
 
 func numberOfCombinations(num string) int {
-	// Keep list of "last numbers" from previous series in a list
-	// The index in the list denotes where the series ended.
-	// Each list is sorted by start index so that binary search can rule out
-	// exactly how many previous series are relevant for a given position in the
-	// nums string.
-	series := make([][]lastNum, len(num)+1)
-	presums := make([][]int, len(num)+1)
-	series[0] = append(series[0], lastNum{0, 0, 1})
-	presums[0] = make([]int, 2)
-	presums[0][1] = 1
-	for i := 1; i <= len(num); i++ {
-		// For each prior end position, count the number of series which end in
-		// a number which is smaller than or equal to the current value
-		for j := 0; j < i; j++ {
-			if num[j] == '0' {
+	n := len(num)
+
+	lastNums := make([][]int, n+1)
+	presums := make([][]int, n+1)
+	lastNums[0] = append(lastNums[0], 0)
+	presums[0] = []int{0, 1}
+
+	for end := 1; end <= len(num); end++ {
+		presums[end] = append(presums[end], 0)
+		var presumIdx int
+		for curStart := end - 1; curStart >= 0; curStart-- {
+			if num[curStart] == '0' {
 				continue
 			}
-			var count int
-			val := num[j:i]
-			for _, s := range series[j] {
-				if geq(val, num[s.start:j]) {
-					count += s.count
-				}
-			}
-			if count > 0 {
-				series[i] = append(series[i], lastNum{j, i, count})
+			val := num[curStart:end]
+
+			i := sort.Search(len(lastNums[curStart]), func(j int) bool {
+				prevStart := lastNums[curStart][j]
+				return gt(num[prevStart:curStart], val)
+			})
+			if count := presums[curStart][i]; count > 0 {
+				lastNums[end] = append(lastNums[end], curStart)
+				presums[end] = append(presums[end], presums[end][presumIdx]+count)
+				presums[end][presumIdx] %= mod
+				presumIdx++
 			}
 		}
 	}
-	var res int
-	for _, s := range series[len(num)] {
-		res += s.count
-	}
-	return res
+	return presums[n][len(presums[n])-1] % mod
 }
 
-func geq(a, b string) bool {
+func gt(a, b string) bool {
 	if len(a) != len(b) {
 		return len(a) > len(b)
 	}
@@ -76,12 +72,5 @@ func geq(a, b string) bool {
 		}
 		return a[i] > b[i]
 	}
-	return true
-}
-
-// lastNum stores the last number of a series of numbers, and a count of the
-// number of ways one could end up with such a series.
-type lastNum struct {
-	start, end int
-	count      int
+	return false
 }
