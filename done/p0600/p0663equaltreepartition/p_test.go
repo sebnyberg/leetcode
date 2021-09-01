@@ -71,8 +71,8 @@ func Test_checkEqualTree(t *testing.T) {
 		want bool
 	}{
 		{"[1,-1]", false},
-		// {"[5,10,10,null,null,2,3]", true},
-		// {"[1,2,10,null,null,2,20]", false},
+		{"[5,10,10,null,null,2,3]", true},
+		{"[1,2,10,null,null,2,20]", false},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.tree), func(t *testing.T) {
 			root := ParseTree(tc.tree)
@@ -82,42 +82,39 @@ func Test_checkEqualTree(t *testing.T) {
 }
 
 func checkEqualTree(root *TreeNode) bool {
-	// O(n)/O(n) two-pass:
-	var p partitioner
-	// Calculate total sum
-	p.sums = make(map[*TreeNode]int)
-	p.collectSum(root)
-	res := p.checkHasPartition(root, 0)
+	// Collect total sum O(n)/O(n)
+	var sum int
+	tovisit := []*TreeNode{root}
+	for i := 0; i < len(tovisit); i++ {
+		if tovisit[i] == nil {
+			continue
+		}
+		sum += tovisit[i].Val
+		tovisit = append(tovisit, tovisit[i].Left)
+		tovisit = append(tovisit, tovisit[i].Right)
+	}
+
+	// Check if there is a branch for which total sum - branch == branch
+	_, res := checkHasPartition(root, sum)
 	return res
 }
 
-type partitioner struct {
-	sums map[*TreeNode]int
-	// hasSum bool
-}
-
-func (p *partitioner) collectSum(cur *TreeNode) int {
-	if cur == nil {
-		return 0
+func checkHasPartition(cur *TreeNode, total int) (int, bool) {
+	var leftSum int
+	if cur.Left != nil {
+		var leftHasPart bool
+		leftSum, leftHasPart = checkHasPartition(cur.Left, total)
+		if leftHasPart || total-leftSum == leftSum {
+			return -1, true
+		}
 	}
-	if _, exists := p.sums[cur]; !exists {
-		leftSum := p.collectSum(cur.Left)
-		rightSum := p.collectSum(cur.Right)
-		p.sums[cur] = leftSum + rightSum + cur.Val
+	var rightSum int
+	if cur.Right != nil {
+		var rightHasPart bool
+		rightSum, rightHasPart = checkHasPartition(cur.Right, total)
+		if rightHasPart || total-rightSum == rightSum {
+			return -1, true
+		}
 	}
-	return p.sums[cur]
-}
-
-func (p *partitioner) checkHasPartition(cur *TreeNode, parentVal int) bool {
-	if cur == nil {
-		return false
-	}
-	leftSum := p.collectSum(cur.Left)
-	rightSum := p.collectSum(cur.Right)
-	if leftSum == parentVal-leftSum+cur.Val+rightSum ||
-		rightSum == parentVal-rightSum+cur.Val+leftSum {
-		return true
-	}
-	return p.checkHasPartition(cur.Left, leftSum+rightSum+cur.Val) ||
-		p.checkHasPartition(cur.Right, leftSum+rightSum+cur.Val)
+	return leftSum + rightSum + cur.Val, false
 }
