@@ -14,19 +14,6 @@ func Test_isValidSudoku(t *testing.T) {
 	}{
 		{
 			[][]byte{
-				{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
-				{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-				{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-				{'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-				{'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-				{'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-				{'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-				{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-				{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
-			}, true,
-		},
-		{
-			[][]byte{
 				{'8', '3', '.', '.', '7', '.', '.', '.', '.'},
 				{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
 				{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
@@ -37,6 +24,19 @@ func Test_isValidSudoku(t *testing.T) {
 				{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
 				{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
 			}, false,
+		},
+		{
+			[][]byte{
+				{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+				{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+				{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+				{'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+				{'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+				{'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+				{'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+				{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+				{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
+			}, true,
 		},
 		{
 			[][]byte{
@@ -59,32 +59,23 @@ func Test_isValidSudoku(t *testing.T) {
 }
 
 func isValidSudoku(board [][]byte) bool {
-	// Choose cleaner code over saving 3 bytes
-	// Index from 1
-	var cells [9][10]bool
-	var cols [9][10]bool
-	var rows [9][10]bool
-
-	for i := range board {
-		for j, ch := range board[i] {
-			if ch == '.' {
-				continue
-			}
-			n := ch - '0'
-			if cells[i/3+(j/3)*3][n] {
+	var rows [9]uint16
+	var cols [9]uint16
+	var boxes [9]uint16
+	for row := range board {
+		for col := range board[row] {
+			val := int(board[row][col] - '0')
+			boxIdx := 3*(row/3) + col/3
+			var bit uint16 = 1 << val
+			if rows[row]&bit > 0 ||
+				cols[col]&bit > 0 ||
+				boxes[boxIdx]&bit > 0 {
 				return false
 			}
-			if cols[j][n] {
-				return false
-			}
-			if rows[i][n] {
-				return false
-			}
-			cells[i/3+(j/3)*3][n] = true
-			cols[j][n] = true
-			rows[i][n] = true
+			rows[row] |= bit
+			cols[col] |= bit
+			boxes[boxIdx] |= bit
 		}
 	}
-
 	return true
 }

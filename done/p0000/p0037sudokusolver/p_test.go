@@ -9,8 +9,8 @@ import (
 
 func Test_solveSudoku(t *testing.T) {
 	for _, tc := range []struct {
-		in   [][]byte
-		want bool
+		board [][]byte
+		want  bool
 	}{
 		{
 			[][]byte{
@@ -39,87 +39,91 @@ func Test_solveSudoku(t *testing.T) {
 			}, true,
 		},
 	} {
-		t.Run(fmt.Sprintf("%+v", tc.in), func(t *testing.T) {
-			require.Equal(t, tc.want, solveSudoku(tc.in))
+		t.Run(fmt.Sprintf("%+v", tc.board), func(t *testing.T) {
+			solveSudoku(tc.board)
+			require.True(t, isValidSudoku(tc.board))
 		})
 	}
 }
 
-func solveSudoku(board [][]byte) bool {
-	var row [9]int
-	var col [9]int
-	var block [9]int
+func solveSudoku(board [][]byte) {
+	var rows [9]int
+	var cols [9]int
+	var blocks [9]int
 
-	for r := 0; r < 9; r++ {
-		for c := 0; c < 9; c++ {
-			v := 1 << (board[r][c] - '1')
-			row[r] |= v
-			col[c] |= v
-			block[blockID(r, c)] |= v
+	// Initialize board
+	for i := range board {
+		for j, val := range board[i] {
+			b := 1 << (val - '0')
+			rows[i] |= b
+			cols[j] |= b
+			blocks[blockIdx(i, j)] |= b
 		}
 	}
 
-	return solve(board, row, col, block)
+	findSolution(board, 0, 0, &rows, &cols, &blocks)
 }
 
-func blockID(i, j int) int {
-	return (i/3)*3 + j/3
+func blockIdx(i, j int) int {
+	return 3*(i/3) + j/3
 }
 
-func solve(board [][]byte, row, col, block [9]int) bool {
-	for r := 0; r < 9; r++ {
-		for c := 0; c < 9; c++ {
-			if board[r][c] != '.' {
-				continue
+// findSolution works with the board to find the solution (a solution is
+// guaranteed by the problem). If the solution was found, it returns true,
+// which is used to stop early.
+func findSolution(board [][]byte, i, j int, rows, cols, blocks *[9]int) bool {
+	if j == 9 {
+		j = 0
+		i += 1
+	}
+	if i == 9 {
+		return true
+	}
+	if board[i][j] != '.' {
+		return findSolution(board, i, j+1, rows, cols, blocks)
+	}
+	// Place each possible number
+	k := blockIdx(i, j)
+	for a := 1; a <= 9; a++ {
+		bit := 1 << a
+		if rows[i]&bit > 0 || cols[j]&bit > 0 || blocks[k]&bit > 0 {
+			continue
+		}
+		// Try this number
+		board[i][j] = byte('0' + a)
+		rows[i] |= bit
+		cols[j] |= bit
+		blocks[k] |= bit
+		if findSolution(board, i, j+1, rows, cols, blocks) {
+			return true
+		}
+		// Undo selected number
+		board[i][j] = '.'
+		rows[i] &^= bit
+		cols[j] &^= bit
+		blocks[k] &^= bit
+	}
+	return false
+}
+
+func isValidSudoku(board [][]byte) bool {
+	var rows [9]uint16
+	var cols [9]uint16
+	var boxes [9]uint16
+	for row := range board {
+		for col := range board[row] {
+			val := int(board[row][col] - '0')
+			boxIdx := 3*(row/3) + col/3
+			var bit uint16 = 1 << val
+			if rows[row]&bit > 0 ||
+				cols[col]&bit > 0 ||
+				boxes[boxIdx]&bit > 0 {
+				return false
 			}
-
-			opts := (row[r] | col[c] | block[blockID(r, c)]) ^ 0x1FF
-			for v := 0; v < 9; v++ {
-				bitval := 1 << v
-				if (opts & bitval) == 0 {
-					continue
-				}
-
-				row[r] |= bitval
-				col[c] |= bitval
-				block[blockID(r, c)] |= bitval
-				board[r][c] = byte('1' + v)
-
-				if solve(board, row, col, block) {
-					return true
-				}
-
-				row[r] &^= bitval
-				col[c] &^= bitval
-				block[blockID(r, c)] &^= bitval
-				board[r][c] = '.'
-			}
-			return false
+			rows[row] |= bit
+			cols[col] |= bit
+			boxes[boxIdx] |= bit
 		}
 	}
 	return true
 }
-
-// func (s *sudokuSolver) String() string {
-// 	var sb strings.Builder
-// 	for i, row := range s.cells {
-// 		if i%3 == 0 {
-// 			sb.WriteString("-------------\n")
-// 		}
-// 		for j, col := range row {
-// 			if j%3 == 0 {
-// 				sb.WriteRune('|')
-// 			}
-// 			if col.val == 0 {
-// 				sb.WriteRune('.')
-// 			} else {
-// 				sb.WriteString(strconv.Itoa(col.val))
-// 			}
-// 		}
-// 		sb.WriteRune('|')
-// 		sb.WriteRune('\n')
-// 	}
-// 	sb.WriteString("-------------\n")
-// 	sb.WriteRune('\n')
-// 	return sb.String()
-// }
