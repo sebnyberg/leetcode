@@ -1,4 +1,4 @@
-package one_test
+package p1994thenumberofgoodsubsets
 
 import (
 	"fmt"
