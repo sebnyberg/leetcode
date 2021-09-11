@@ -24,6 +24,8 @@ func Test_numberOfArithmeticSlices(t *testing.T) {
 
 func numberOfArithmeticSlices(nums []int) int {
 	n := len(nums)
+	// Seqs[i][d] contains counts of sequences ending in i for which the delta
+	// between consecutive numbers in the sequence was d
 	seqs := make([]map[int]int, n)
 	for i := range seqs {
 		seqs[i] = make(map[int]int)
@@ -31,9 +33,18 @@ func numberOfArithmeticSlices(nums []int) int {
 
 	var res int
 	for i := 0; i < n; i++ {
+		// For each pair formed by numbers prior to i
 		for j := 0; j < i; j++ {
+			// Calculate the delta between the pair (j, i)
 			d := nums[i] - nums[j]
+
+			// Add the number of sequences ending in j for which the delta is the same
+			// as between (j, i). These sequences are guaranteed to be at least 3 in
+			// length.
 			res += seqs[j][d]
+
+			// There is one new sequence formed by (k, j, i) and all prior sequences
+			// longer than two elements is also added.
 			seqs[i][d] += seqs[j][d] + 1
 		}
 	}
