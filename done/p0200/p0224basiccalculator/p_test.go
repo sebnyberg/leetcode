@@ -41,9 +41,6 @@ func calculate(s string) int {
 }
 
 // Grammar: (now RL)
-// expr    := expr { ("-" | "+") term }
-// term    := term { ("*" | "/") factor }
-// factor  := "-" num | "-" "(" expr ")"
 
 type calculator struct {
 	input string
@@ -52,6 +49,7 @@ type calculator struct {
 
 var eof = rune(0)
 
+// expr    := expr { ("-" | "+") term }
 func (c *calculator) expr() int {
 	rhs := c.term()
 	switch c.next() {
@@ -67,6 +65,7 @@ func (c *calculator) expr() int {
 	}
 }
 
+// term    := term { ("*" | "/") factor }
 func (c *calculator) term() int {
 	rhs := c.factor()
 	switch c.next() {
@@ -82,8 +81,8 @@ func (c *calculator) term() int {
 	}
 }
 
+// factor  := "-" num | "-" "(" expr ")"
 func (c *calculator) factor() int {
-
 	switch r := c.next(); {
 	case r == ')':
 		inner := c.expr()
