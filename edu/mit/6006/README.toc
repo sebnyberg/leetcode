@@ -1,6 +1,0 @@
-\contentsline {section}{\numberline {0}Overview}{2}{section.0}%
-\contentsline {section}{\numberline {1}Algorithmic thinking, asymptotic complexity, peak finding}{2}{section.1}%
-\contentsline {subsection}{\numberline {1.1}Asymptotic complexity}{2}{subsection.1.1}%
-\contentsline {section}{\numberline {2}Models of Computation, Document Distance}{2}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Models of Computation}{3}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Document Distance}{3}{subsection.2.2}%
