@@ -1,26 +1,34 @@
 package p0151reversewords
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func Test_reverseWords(t *testing.T) {
+	for _, tc := range []struct {
+		s    string
+		want string
+	}{
+		{"  a word", "word a"},
+		{"  a word  ", "word a"},
+		{"a word  ", "word a"},
+		{"a  word  ", "word a"},
+		{"a  word", "word a"},
+	} {
+		t.Run(fmt.Sprintf("%+v", tc.s), func(t *testing.T) {
+			require.Equal(t, tc.want, reverseWords(tc.s))
+		})
+	}
+}
 
 func reverseWords(s string) string {
-	s = strings.Trim(s, " ")
-	var trimmed strings.Builder
-	var inspace bool
-	for _, ch := range s {
-		if ch == ' ' {
-			if inspace {
-				continue
-			}
-			inspace = true
-			trimmed.WriteRune(ch)
-		} else {
-			inspace = false
-			trimmed.WriteRune(ch)
-		}
-	}
-	words := strings.Split(trimmed.String(), " ")
-	for i, j := 0, len(words)-1; i < j; i, j = i+1, j-1 {
-		words[i], words[j] = words[j], words[i]
+	words := strings.Fields(s)
+	for l, r := 0, len(words)-1; l < r; l, r = l+1, r-1 {
+		words[l], words[r] = words[r], words[l]
 	}
 	return strings.Join(words, " ")
 }
