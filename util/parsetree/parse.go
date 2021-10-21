@@ -38,7 +38,6 @@ func ParseTree(input string) *TreeNode {
 	}
 	q := list.New()
 	q.PushBack(nodes[0])
-	// q := []*TreeNode{nodes[0]}
 
 	i := 1
 	for q.Len() > 0 && i < n {

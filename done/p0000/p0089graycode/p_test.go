@@ -31,6 +31,19 @@ func grayCode(n int) []int {
 	return res
 }
 
+func grayCodeAnother(n int) []int {
+	res := make([]int, 0, 1<<n)
+	res = append(res, 0, 1)
+	for i := 1; i < n; i++ {
+		// As per Wikipedia article - append zeroes to half (no-op, already in list)
+		// and append '1' to the second half.
+		for j := len(res) - 1; j >= 0; j-- {
+			res = append(res, res[j]+1<<i)
+		}
+	}
+	return res
+}
+
 func grayCodeFirst(n int) []int {
 	// First attempt done without checking Google
 	nresults := 1 << n

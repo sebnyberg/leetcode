@@ -8,3 +8,5 @@
 **_cache
 **synctex*
 **.out
+**.DS_Store
+./edu

@@ -6,7 +6,7 @@ type AVLTree struct {
 	root *AVLNode
 }
 
-func (t *AVLTree) Insert(x int) {
+func (t *AVLTree) insert(x int) {
 	if t.root == nil {
 		t.root = &AVLNode{
 			Val: x,
@@ -19,12 +19,12 @@ func (t *AVLTree) Insert(x int) {
 
 type AVLNode struct {
 	Val   int
-	Left  *AVLNode
-	Right *AVLNode
+	left  *AVLNode
+	right *AVLNode
 	h     int
 }
 
-func (t *AVLNode) Height() int {
+func (t *AVLNode) height() int {
 	if t == nil {
 		return 0
 	}
@@ -37,36 +37,36 @@ func (t *AVLNode) Height() int {
 // updates references accordingly.
 func (n *AVLNode) Insert(x int) *AVLNode {
 	if x < n.Val {
-		if n.Left == nil {
-			n.Left = &AVLNode{Val: x, h: 1}
+		if n.left == nil {
+			n.left = &AVLNode{Val: x, h: 1}
 		} else {
-			n.Left = n.Left.Insert(x)
+			n.left = n.left.Insert(x)
 		}
 	} else {
-		if n.Right == nil {
-			n.Right = &AVLNode{Val: x, h: 1}
+		if n.right == nil {
+			n.right = &AVLNode{Val: x, h: 1}
 		} else {
-			n.Right = n.Right.Insert(x)
+			n.right = n.right.Insert(x)
 		}
 	}
 	n.updateHeight()
 
-	balance := n.Right.Height() - n.Left.Height()
+	balance := n.right.height() - n.left.height()
 
 	if balance < -1 {
 		// LL
-		if n.Left.Left.Height() > n.Left.Right.Height() {
+		if n.left.left.height() > n.left.right.height() {
 			return n.rotateRight()
 		} else { // LR
-			n.Left = n.Left.rotateLeft()
+			n.left = n.left.rotateLeft()
 			return n.rotateRight()
 		}
 	} else if balance > 1 {
 		// RR
-		if n.Left.Left.Height() > n.Left.Right.Height() {
+		if n.right.right.height() > n.right.left.height() {
 			return n.rotateLeft()
 		} else { // RL
-			n.Right = n.Right.rotateRight()
+			n.right = n.right.rotateRight()
 			return n.rotateLeft()
 		}
 	}
@@ -76,21 +76,21 @@ func (n *AVLNode) Insert(x int) *AVLNode {
 
 func (n *AVLNode) updateHeight() {
 	if n != nil {
-		n.h = 1 + max(n.Left.Height(), n.Right.Height())
+		n.h = 1 + max(n.left.height(), n.right.height())
 	}
 }
 
 func (n *AVLNode) rotateLeft() *AVLNode {
-	newRoot := n.Right
-	n.Right.Left, n.Right = n, n.Right.Left
+	newRoot := n.right
+	n.right.left, n.right = n, n.right.left
 	newRoot.updateHeight()
 	n.updateHeight()
 	return newRoot
 }
 
 func (n *AVLNode) rotateRight() *AVLNode {
-	newRoot := n.Left
-	n.Left.Right, n.Left = n, n.Left.Right
+	newRoot := n.left
+	n.left.right, n.left = n, n.left.right
 	newRoot.updateHeight()
 	n.updateHeight()
 	return newRoot
@@ -101,11 +101,4 @@ func max(a, b int) int {
 		return a
 	}
 	return b
-}
-
-func abs(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
 }

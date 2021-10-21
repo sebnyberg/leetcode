@@ -3,6 +3,7 @@ module leetcode
 go 1.16
 
 require (
+	github.com/bcmills/unsafeslice v0.2.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/pkg/profile v1.5.0
