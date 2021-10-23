@@ -66,6 +66,8 @@ func Test_sortLinkedList(t *testing.T) {
 		list string
 		want string
 	}{
+		{"[-1,-3,-7,-9]", "[-9,-7,-3,-1]"},
+		{"[-1]", "[-1]"},
 		{"[0,2,-5,5,10,-10]", "[-10,-5,0,2,5,10]"},
 		{"[0,1,2]", "[0,1,2]"},
 		{"[1]", "[1]"},
@@ -79,5 +81,13 @@ func Test_sortLinkedList(t *testing.T) {
 }
 
 func sortLinkedList(head *ListNode) *ListNode {
-
+	cur := head
+	for cur.Next != nil {
+		if cur.Next.Val < 0 { // cut and make it the new head
+			head, cur.Next, cur.Next.Next = cur.Next, cur.Next.Next, head
+		} else {
+			cur = cur.Next
+		}
+	}
+	return head
 }
