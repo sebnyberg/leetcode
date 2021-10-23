@@ -27,32 +27,32 @@ func Test_assignBikes(t *testing.T) {
 func assignBikes(workers [][]int, bikes [][]int) int {
 	n := len(workers)
 	m := len(bikes)
-	costs := make([]int16, 1<<(m+1)-1)
+	costs := make([]int, 1<<(m+1)-1)
 	for i := range costs {
 		costs[i] = -1
 	}
-	// Pre-calculate the distance between all workers and bikes
-	dist := make([][]int16, n)
+	// Pre-calculate the distance between workers and bikes
+	dist := make([][]int, n)
 	for i := range dist {
-		dist[i] = make([]int16, m)
+		dist[i] = make([]int, m)
 		for j := range dist[i] {
-			dist[i][j] = abs(int16(workers[i][0]-bikes[j][0])) +
-				abs(int16(workers[i][1]-bikes[j][1]))
+			dist[i][j] = abs(workers[i][0]-bikes[j][0]) +
+				abs(workers[i][1]-bikes[j][1])
 		}
 	}
-	return int(visit(dist, costs, 0, 0, int16(n), int16(m)))
+	return int(visit(dist, costs, 0, 0, int(n), int(m)))
 }
 
-func visit(dist [][]int16, costs []int16, bm, idx, n, m int16) int16 {
+func visit(dist [][]int, costs []int, bm, idx, n, m int) int {
 	if idx == n {
 		return 0
 	}
 	if costs[bm] != -1 {
 		return costs[bm]
 	}
-	minCost := int16(math.MaxInt16)
-	for j := int16(0); j < m; j++ {
-		var b int16 = 1 << j
+	minCost := math.MaxInt16
+	for j := 0; j < m; j++ {
+		var b int = 1 << j
 		if bm&b == 0 {
 			minCost = min(minCost, dist[idx][j]+visit(dist, costs, bm|b, idx+1, n, m))
 		}
@@ -61,14 +61,14 @@ func visit(dist [][]int16, costs []int16, bm, idx, n, m int16) int16 {
 	return costs[bm]
 }
 
-func min(a, b int16) int16 {
+func min(a, b int) int {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-func abs(x int16) int16 {
+func abs(x int) int {
 	if x < 0 {
 		return -x
 	}
