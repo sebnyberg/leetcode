@@ -84,16 +84,16 @@ func Test_isCousins(t *testing.T) {
 
 func isCousins(root *TreeNode, x int, y int) bool {
 	var relation [101][2]int8
-	findRelations(root, 0, -1, &relation)
+	gather(root, 0, -1, &relation)
 	return relation[x][0] == relation[y][0] && relation[x][1] != relation[y][1]
 }
 
-func findRelations(cur *TreeNode, level, parent int8, relation *[101][2]int8) {
+func gather(cur *TreeNode, level, parent int8, relation *[101][2]int8) {
 	if cur == nil {
 		return
 	}
 	relation[cur.Val][0] = level
 	relation[cur.Val][1] = parent
-	findRelations(cur.Left, level+1, int8(cur.Val), relation)
-	findRelations(cur.Right, level+1, int8(cur.Val), relation)
+	gather(cur.Left, level+1, int8(cur.Val), relation)
+	gather(cur.Right, level+1, int8(cur.Val), relation)
 }
