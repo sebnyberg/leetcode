@@ -46,34 +46,43 @@ func wordSquares(words []string) [][]string {
 		}
 	}
 
-	var f squareFinder
-	f.root = root
-	curSquare := make([]string, len(words[0]))
-	f.findWordSquares(curSquare, 0, len(words[0]))
+	// DFS for valid squares
+	f := squareFinder{
+		root:        root,
+		wordSquares: make([][]string, 0),
+		curSquare:   make([]string, len(words[0])),
+	}
+	f.findWordSquares(0, len(words[0]))
 	return f.wordSquares
 }
 
 type squareFinder struct {
 	root        *trieNode
 	wordSquares [][]string
+	curSquare   []string
 }
 
-func (f *squareFinder) findWordSquares(curSquare []string, pos, n int) {
+func (f *squareFinder) findWordSquares(pos, n int) {
+	// Copy valid square whenever successfully reaching the end
 	if pos == n {
-		stringsCpy := make([]string, len(curSquare))
-		copy(stringsCpy, curSquare)
+		stringsCpy := make([]string, len(f.curSquare))
+		copy(stringsCpy, f.curSquare)
 		f.wordSquares = append(f.wordSquares, stringsCpy)
 		return
 	}
+
+	// Filter only valid words using trie
 	cur := f.root
 	for i := 0; i < pos; i++ {
-		cur = cur.next[curSquare[i][pos]-'a']
+		cur = cur.next[f.curSquare[i][pos]-'a']
 		if cur == nil {
 			return
 		}
 	}
+
+	// Try picking each valid word
 	for _, word := range cur.words {
-		curSquare[pos] = word
-		f.findWordSquares(curSquare, pos+1, n)
+		f.curSquare[pos] = word
+		f.findWordSquares(pos+1, n)
 	}
 }
