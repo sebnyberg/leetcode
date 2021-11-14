@@ -34,17 +34,17 @@ func isSymmetric(root *TreeNode) bool {
 	if root == nil {
 		return true
 	}
-	return helper(root.Left, root.Right)
+	return eq(root.Left, root.Right)
 }
 
-func helper(left *TreeNode, right *TreeNode) bool {
-	if left == nil {
-		return right == nil
-	} else if right == nil {
-		return left == nil
+func eq(left *TreeNode, right *TreeNode) bool {
+	if left == nil && right == nil {
+		return true
 	}
-	if left.Val != right.Val {
+	if left == nil || right == nil {
 		return false
 	}
-	return helper(left.Right, right.Left) && helper(left.Left, right.Right)
+	return left.Val == right.Val &&
+		eq(left.Left, right.Right) &&
+		eq(left.Right, right.Left)
 }
