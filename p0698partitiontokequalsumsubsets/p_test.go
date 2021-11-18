@@ -31,5 +31,4 @@ func canPartitionKSubsets(nums []int, k int) bool {
 		return false
 	}
 	want := sum / k
-	// When matching numbers, the goal is to match as large numbers as possible.
 }
