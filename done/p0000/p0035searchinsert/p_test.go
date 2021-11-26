@@ -26,14 +26,14 @@ func Test_searchInsert(t *testing.T) {
 }
 
 func searchInsert(nums []int, target int) int {
-	i, j := 0, len(nums)
-	for i < j {
-		mid := (i + j) >> 1
+	lo, hi := 0, len(nums)
+	for lo < hi {
+		mid := (lo + hi) / 2
 		if nums[mid] < target {
-			i = mid + 1
+			lo = mid + 1
 			continue
 		}
-		j = mid
+		hi = mid
 	}
-	return i
+	return lo
 }
