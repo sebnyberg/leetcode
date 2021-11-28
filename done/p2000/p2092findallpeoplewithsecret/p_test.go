@@ -1,8 +1,8 @@
 package p2092findallpeoplewithsecret
 
 import (
-	"container/heap"
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,77 +21,78 @@ func Test_findAllPeople(t *testing.T) {
 		{6, [][]int{{0, 2, 1}, {1, 3, 1}, {4, 5, 1}}, 1, []int{0, 1, 2, 3}},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.n), func(t *testing.T) {
-			require.Equal(t, tc.want, findAllPeople(tc.n, tc.meetings, tc.firstPerson))
+			require.ElementsMatch(t, tc.want, findAllPeople(tc.n, tc.meetings, tc.firstPerson))
 		})
 	}
 }
 
 func findAllPeople(n int, meetings [][]int, firstPerson int) []int {
-	key := func(p1, p2 int32) [2]int32 {
-		if p1 > p2 {
-			p1, p2 = p2, p1
-		}
-		return [2]int32{p1, p2}
+	// Set up DSU
+	parent := make([]int, n)
+	for i := range parent {
+		parent[i] = i
 	}
-	met := make(map[[2]int32]bool)
-
-	h := make(MeetingTimeHeap, 0)
-	h = append(h, meetingTime{int32(firstPerson), 0})
-	met[key(0, int32(firstPerson))] = true
-	adj := make([][]meetingTime, n)
-	for _, meeting := range meetings {
-		a, b, t := int32(meeting[0]), int32(meeting[1]), int32(meeting[2])
-		adj[a] = append(adj[a], meetingTime{b, t})
-		adj[b] = append(adj[b], meetingTime{a, t})
-		if a == 0 {
-			h = append(h, meetingTime{b, t})
-		} else if b == 0 {
-			h = append(h, meetingTime{a, t})
+	var find func(a int) int
+	find = func(a int) int {
+		if parent[a] != a {
+			root := find(parent[a])
+			parent[a] = root // path compression
+		}
+		return parent[a]
+	}
+	union := func(a, b int) {
+		aRoot, bRoot := find(a), find(b)
+		if bRoot < aRoot {
+			aRoot, bRoot = bRoot, aRoot // ensure that root of secret group will be 0
+		}
+		if aRoot != bRoot {
+			parent[bRoot] = aRoot
 		}
 	}
-	heap.Init(&h)
+	union(0, firstPerson)
 
-	knows := make([]bool, n)
-	knows[0] = true
-	for len(h) > 0 {
-		x := heap.Pop(&h).(meetingTime)
-		knows[x.person] = true
-		for _, nei := range adj[x.person] {
-			if k := key(x.person, nei.person); nei.time >= x.time && !met[k] {
-				heap.Push(&h, nei)
-				met[k] = true
+	// Sort meetings by time
+	sort.Slice(meetings, func(i, j int) bool {
+		return meetings[i][2] < meetings[j][2]
+	})
+
+	// Partition by time
+	timeMeetings := make([][][]int, 1)
+	timeMeetings[0] = append(timeMeetings[0], meetings[0])
+	var timeIdx int
+	for i := 1; i < len(meetings); i++ {
+		if meetings[i][2] != meetings[i-1][2] {
+			timeIdx++
+			timeMeetings = append(timeMeetings, [][]int{})
+		}
+		timeMeetings[timeIdx] = append(timeMeetings[timeIdx], meetings[i])
+	}
+
+	// For each set of meetings for a given timestamp
+	for _, meetings := range timeMeetings {
+		// Add to DSU
+		for _, meeting := range meetings {
+			union(meeting[0], meeting[1])
+		}
+
+		// Reset entries which do not belong to root group
+		for _, meeting := range meetings {
+			if find(meeting[0]) != 0 {
+				parent[meeting[0]] = meeting[0]
+			}
+			if find(meeting[1]) != 0 {
+				parent[meeting[1]] = meeting[1]
 			}
 		}
 	}
-	res := make([]int, 0)
-	for i, doesKnow := range knows {
-		if doesKnow {
+
+	// Add all nodes which are in secret group in DSU to result
+	res := make([]int, 0, 2)
+	for i := 0; i < n; i++ {
+		if find(i) == 0 {
 			res = append(res, i)
 		}
 	}
+
 	return res
-}
-
-type meetingTime struct {
-	person int32
-	time   int32
-}
-
-type MeetingTimeHeap []meetingTime
-
-func (h MeetingTimeHeap) Len() int { return len(h) }
-func (h MeetingTimeHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
-}
-func (h MeetingTimeHeap) Less(i, j int) bool {
-	return h[i].time < h[j].time
-}
-func (h *MeetingTimeHeap) Push(x interface{}) {
-	*h = append(*h, x.(meetingTime))
-}
-func (h *MeetingTimeHeap) Pop() interface{} {
-	n := len(*h)
-	it := (*h)[n-1]
-	*h = (*h)[:n-1]
-	return it
 }
