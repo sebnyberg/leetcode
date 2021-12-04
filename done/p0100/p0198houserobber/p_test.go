@@ -12,8 +12,8 @@ func Test_rob(t *testing.T) {
 		nums []int
 		want int
 	}{
-		// {[]int{1, 2, 3, 1}, 4},
-		// {[]int{2, 7, 9, 3, 1}, 12},
+		{[]int{1, 2, 3, 1}, 4},
+		{[]int{2, 7, 9, 3, 1}, 12},
 		{[]int{2, 1, 1, 2}, 4},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.nums), func(t *testing.T) {
