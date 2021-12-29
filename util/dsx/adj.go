@@ -1,4 +1,4 @@
-package ds
+package dsx
 
 func getNear(i, j, m, n int) [][2]int {
 	nearby := make([][2]int, 0, 4)

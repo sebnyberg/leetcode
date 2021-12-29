@@ -1,4 +1,4 @@
-package ds
+package dsx
 
 type Fenwick struct {
 	tree []int

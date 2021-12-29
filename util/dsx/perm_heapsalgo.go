@@ -1,4 +1,4 @@
-package ds
+package dsx
 
 type Permutator struct {
 	permIndex int

@@ -1,4 +1,4 @@
-package ds
+package dsx
 
 type RingBuffer struct {
 	curLen    int
