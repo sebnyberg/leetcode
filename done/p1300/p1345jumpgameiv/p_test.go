@@ -52,7 +52,7 @@ func minJumps(arr []int) int {
 
 	for {
 		// Reset
-		next = make([]int, 0)
+		next = next[:0]
 
 		// Explore options at the current indices
 		for _, idx := range cur {
@@ -83,6 +83,6 @@ func minJumps(arr []int) int {
 		}
 
 		moves++
-		cur = next
+		cur, next = next, cur
 	}
 }
