@@ -13,6 +13,16 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
+func (n *TreeNode) Equals(other *TreeNode) bool {
+	if n == nil || other == nil {
+		return n == other
+	}
+	if n.Val != other.Val {
+		return false
+	}
+	return n.Left.Equals(other.Left) && n.Right.Equals(other.Right)
+}
+
 func ParseTree(input string) *TreeNode {
 	// Trim start/end []
 	input = input[1 : len(input)-1]
