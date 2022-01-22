@@ -13,6 +13,7 @@ func Test_removeKdigits(t *testing.T) {
 		k    int
 		want string
 	}{
+		{"10", 1, "0"},
 		{"1432219", 3, "1219"},
 		{"10200", 1, "200"},
 		{"10", 2, "0"},
@@ -24,17 +25,31 @@ func Test_removeKdigits(t *testing.T) {
 }
 
 func removeKdigits(num string, k int) string {
-	// n := len(num)
-	// stack := make([]byte, 0)
-	// for i, ch := range num {
-	// 	if i < k {
-	// 		stack = append(stack, byte(ch-'0'))
-	// 		continue
-	// 	}
-	// 	canPop := n - 1
-	// for canPop > 0 && len(stack) > 0 && stack[len(stack)-1] > byte(ch-'0') {
-	// 	stack = stack[:len(stack)-1]
-	// }
-	// }
-	return ""
+	n := len(num)
+	want := n - k
+	if k == len(num) {
+		return "0"
+	}
+
+	stack := make([]byte, 0)
+	m := len(stack)
+	for i := range num {
+		ch := num[i]
+		for m > 0 && ch < stack[m-1] && k > 0 {
+			stack = stack[:m-1]
+			k--
+			m--
+		}
+		stack = append(stack, ch)
+		m++
+	}
+
+	// At this point, the stack contains at least 'want' characters
+	// Trim prefix characters
+	stack = stack[:want]
+	var i int
+	for i < len(stack)-1 && stack[i] == '0' {
+		i++
+	}
+	return string(stack[i:])
 }
