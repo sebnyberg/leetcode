@@ -10,3 +10,6 @@
 **.out
 **.DS_Store
 ./edu
+**/*cpu.pprof
+**/*mem.pprof
+**/*.test
