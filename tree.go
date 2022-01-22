@@ -13,6 +13,19 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
+func (n *TreeNode) FindVal(val int) *TreeNode {
+	if n == nil {
+		return nil
+	}
+	if n.Val == val {
+		return n
+	}
+	if l := n.Left.FindVal(val); l != nil {
+		return l
+	}
+	return n.Right.FindVal(val)
+}
+
 func (n *TreeNode) Equals(other *TreeNode) bool {
 	if n == nil || other == nil {
 		return n == other
