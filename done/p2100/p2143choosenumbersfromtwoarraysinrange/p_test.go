@@ -107,30 +107,3 @@ func max(a, b int) int {
 	}
 	return b
 }
-
-// func countSubranges(nums1 []int, nums2 []int) int {
-// 	var result int
-
-// 	prev := make(map[int]int)
-// 	cur := make(map[int]int)
-
-// 	for i, n1 := range nums1 {
-// 		n2 := -nums2[i]
-// 		for k := range cur {
-// 			delete(cur, k)
-// 		}
-
-// 		// Create sub-range starting in this position
-// 		cur[n1]++
-// 		cur[n2]++
-
-// 		// Add current number to all possible sums ending in previous position
-// 		for sum, count := range prev {
-// 			cur[sum+n1] = (cur[sum+n1] + count) % mod
-// 			cur[sum+n2] = (cur[sum+n2] + count) % mod
-// 		}
-// 		result = (result + cur[0]) % mod
-// 		cur, prev = prev, cur
-// 	}
-// 	return result
-// }
