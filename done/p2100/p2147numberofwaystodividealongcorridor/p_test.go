@@ -1,4 +1,4 @@
-package p2147
+package p2147numberofwaystodividealongcorridor
 
 import (
 	"fmt"

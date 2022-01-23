@@ -1,4 +1,4 @@
-package p2145
+package p2145countthehiddensequences
 
 import (
 	"fmt"

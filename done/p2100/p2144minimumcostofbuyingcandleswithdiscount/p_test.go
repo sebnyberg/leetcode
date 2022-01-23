@@ -1,4 +1,4 @@
-package p2144
+package p2144minimumcostofbuyingcandleswithdiscount
 
 import (
 	"fmt"
