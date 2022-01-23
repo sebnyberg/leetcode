@@ -79,7 +79,6 @@ func modPow(a, b, mod int) int {
 	}
 	p := modPow(a, b/2, mod) % mod
 	p *= p
-	// p %= mod
 	if b%2 == 0 {
 		return p
 	}
