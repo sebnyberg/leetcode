@@ -9,6 +9,15 @@ Collection of leetcode solutions in Go.
 * Manacher's algorithm, works similar to Knuth-Morris-Pratt LPS tables in that
   it re-uses a partial existing match when searching for new palindromes.
 
+### String matching
+
+* Rabin-Karp a.k.a. Rolling Hash. Allows for continuously hashing a sliding 
+  window in an efficient way.
+* Knuth-Morris-Pratt. Used to search for a word in a string. Usually,
+  Rabin-Karp is easier so it's the preferredchoice.
+* Aho-Corasick can be used to search for multiple different patterns at the same
+  time.
+
 ### k-coloring
 
 NP-hard, no good solutions. For small graphs, it's possible to speed up with DP.

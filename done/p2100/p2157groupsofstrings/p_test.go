@@ -83,10 +83,10 @@ func groupStrings(words []string) []int {
 	masks := make(map[int][]int, n)
 	for i, w := range words {
 		bits := getBits(w)
-		masks[bits+1<<26] = append(masks[bits+1<<26], i) // add wildcard
+		masks[bits] = append(masks[bits], i) // add wildcard
 		for b := 1; b < 1<<27; b <<= 1 {
 			if bits&b > 0 {
-				replaced := (bits &^ b) | 1<<26
+				replaced := bits &^ b
 				masks[replaced] = append(masks[replaced], i) // replacement wildcard
 			}
 		}
