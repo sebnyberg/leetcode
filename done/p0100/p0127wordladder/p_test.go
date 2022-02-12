@@ -1,4 +1,4 @@
-package p0126wordladder2
+package p0127wordladder
 
 import (
 	"fmt"
@@ -12,89 +12,78 @@ func Test_findLadders(t *testing.T) {
 		beginWord string
 		endWord   string
 		wordList  []string
-		want      [][]string
+		want      int
 	}{
-		{"a", "c", []string{"a", "b", "c"}, [][]string{{"a", "c"}}},
-		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log", "cog"}, [][]string{
-			{"hit", "hot", "dot", "dog", "cog"}, {"hit", "hot", "lot", "log", "cog"},
-		}},
-		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log"}, [][]string{}},
+		{"a", "c", []string{"a", "b", "c"}, 2},
+		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log", "cog"}, 5},
+		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log"}, 0},
 	} {
 		t.Run(fmt.Sprintf("%v/%v/%+v", tc.beginWord, tc.endWord, tc.wordList), func(t *testing.T) {
-			got := findLadders(tc.beginWord, tc.endWord, tc.wordList)
+			got := ladderLength(tc.beginWord, tc.endWord, tc.wordList)
 			require.Equal(t, tc.want, got)
 		})
 	}
 }
 
-func findLadders(beginWord string, endWord string, wordList []string) [][]string {
-	considered := make([]bool, len(wordList))
-	resIndices := make([][]int, 0)
-	lastWordIdx := -1
-	for i, word := range wordList {
-		if word == endWord {
-			lastWordIdx = i
-		}
-		if isAdj(beginWord, word) {
-			resIndices = append(resIndices, []int{i})
-			considered[i] = true
+func ladderLength(beginWord string, endWord string, wordList []string) int {
+	// Find index of begin / end word
+	var beginIdx, endIdx int = -1, -1
+	for i, w := range wordList {
+		if w == beginWord {
+			beginIdx = i
+		} else if w == endWord {
+			endIdx = i
 		}
 	}
-	if lastWordIdx == -1 {
-		return [][]string{}
+	if endIdx == -1 {
+		return 0
 	}
 
-	listLen := 1
-	for len(resIndices) > 0 {
-		if considered[lastWordIdx] {
-			break
+	// If beginWord is not in the list, add it
+	if beginIdx == -1 {
+		beginIdx = len(wordList)
+		wordList = append(wordList, beginWord)
+	}
+	n := len(wordList)
+
+	// Create wildcard masks for each word in the list, where one character is
+	// replaced with '*'. Store these masks and indices of words having the masks.
+	maskIndices := make(map[string][]int, n)
+	masks := make([][]string, n)
+	for i, w := range wordList {
+		masks[i] = make([]string, len(beginWord))
+		for j := 0; j < len(beginWord); j++ {
+			m := string(w[:j] + "*" + w[j+1:])
+			maskIndices[m] = append(maskIndices[m], i)
+			masks[i][j] = m
 		}
-		newIndices := make([][]int, 0, 10)
-		for i, otherWord := range wordList {
-			if considered[i] {
-				continue
-			}
-			for _, words := range resIndices {
-				if isAdj(wordList[words[listLen-1]], otherWord) {
-					considered[i] = true
-					wordsCpy := make([]int, listLen+1)
-					copy(wordsCpy, words)
-					wordsCpy[listLen] = i
-					newIndices = append(newIndices, wordsCpy)
+	}
+
+	// Perform BFS until finding the endWord or running out of options
+	seen := make([]bool, n)
+	seen[beginIdx] = true
+	cur := make([]int, 1, n)
+	cur[0] = beginIdx
+	next := make([]int, 0, n)
+	for nwords := 2; len(cur) > 0; nwords++ {
+		next = next[:0]
+		for _, idx := range cur {
+			for _, m := range masks[idx] {
+				for _, nei := range maskIndices[m] {
+					if seen[nei] {
+						continue
+					}
+					if nei == endIdx {
+						return nwords
+					}
+					seen[nei] = true
+					next = append(next, nei)
 				}
 			}
 		}
-		resIndices = newIndices
-		listLen++
+
+		cur, next = next, cur
 	}
 
-	res := make([][]string, 0, len(resIndices))
-	for _, r := range resIndices {
-		if r[listLen-1] != lastWordIdx {
-			continue
-		}
-		ws := make([]string, listLen+1)
-		ws[0] = beginWord
-		for j, idx := range r {
-			ws[j+1] = wordList[idx]
-		}
-		res = append(res, ws)
-	}
-	return res
-}
-
-func isAdj(a, b string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	var dist int
-	for i := range a {
-		if a[i] != b[i] {
-			dist++
-		}
-		if dist > 1 {
-			return false
-		}
-	}
-	return dist == 1
+	return 0
 }

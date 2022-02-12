@@ -12,61 +12,75 @@ func Test_findLadders(t *testing.T) {
 		beginWord string
 		endWord   string
 		wordList  []string
-		want      int
+		want      [][]string
 	}{
-		{"a", "c", []string{"a", "b", "c"}, 2},
-		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log", "cog"}, 5},
-		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log"}, 0},
+		{"a", "c", []string{"a", "b", "c"}, [][]string{{"a", "c"}}},
+		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log", "cog"}, [][]string{
+			{"hit", "hot", "dot", "dog", "cog"}, {"hit", "hot", "lot", "log", "cog"},
+		}},
+		{"hit", "cog", []string{"hot", "dot", "dog", "lot", "log"}, [][]string{}},
 	} {
 		t.Run(fmt.Sprintf("%v/%v/%+v", tc.beginWord, tc.endWord, tc.wordList), func(t *testing.T) {
-			got := ladderLength(tc.beginWord, tc.endWord, tc.wordList)
+			got := findLadders(tc.beginWord, tc.endWord, tc.wordList)
 			require.Equal(t, tc.want, got)
 		})
 	}
 }
 
-func ladderLength(beginWord string, endWord string, wordList []string) int {
+func findLadders(beginWord string, endWord string, wordList []string) [][]string {
 	considered := make([]bool, len(wordList))
-	toConsider := make([]int, 0)
+	resIndices := make([][]int, 0)
 	lastWordIdx := -1
 	for i, word := range wordList {
 		if word == endWord {
 			lastWordIdx = i
 		}
 		if isAdj(beginWord, word) {
-			toConsider = append(toConsider, i)
-			if word == endWord {
-				return 2
-			}
+			resIndices = append(resIndices, []int{i})
 			considered[i] = true
 		}
 	}
 	if lastWordIdx == -1 {
-		return 0
+		return [][]string{}
 	}
 
 	listLen := 1
-	for len(toConsider) > 0 {
-		newIndices := make([]int, 0, 10)
+	for len(resIndices) > 0 {
+		if considered[lastWordIdx] {
+			break
+		}
+		newIndices := make([][]int, 0, 10)
 		for i, otherWord := range wordList {
 			if considered[i] {
 				continue
 			}
-			for _, considerIdx := range toConsider {
-				if isAdj(wordList[considerIdx], otherWord) {
-					if i == lastWordIdx {
-						return listLen + 2
-					}
+			for _, words := range resIndices {
+				if isAdj(wordList[words[listLen-1]], otherWord) {
 					considered[i] = true
-					newIndices = append(newIndices, i)
+					wordsCpy := make([]int, listLen+1)
+					copy(wordsCpy, words)
+					wordsCpy[listLen] = i
+					newIndices = append(newIndices, wordsCpy)
 				}
 			}
 		}
-		toConsider = newIndices
+		resIndices = newIndices
 		listLen++
 	}
 
-	return 0
+	res := make([][]string, 0, len(resIndices))
+	for _, r := range resIndices {
+		if r[listLen-1] != lastWordIdx {
+			continue
+		}
+		ws := make([]string, listLen+1)
+		ws[0] = beginWord
+		for j, idx := range r {
+			ws[j+1] = wordList[idx]
+		}
+		res = append(res, ws)
+	}
+	return res
 }
 
 func isAdj(a, b string) bool {
