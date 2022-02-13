@@ -12,7 +12,7 @@ func Test_subsets(t *testing.T) {
 		nums []int
 		want [][]int
 	}{
-		// {[]int{1, 2, 3}, [][]int{{}, {1}, {2}, {1, 2}, {3}, {1, 3}, {2, 3}, {1, 2, 3}}},
+		{[]int{1, 2, 3}, [][]int{{}, {1}, {2}, {1, 2}, {3}, {1, 3}, {2, 3}, {1, 2, 3}}},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.nums), func(t *testing.T) {
 			require.Equal(t, tc.want, subsets(tc.nums))
@@ -21,22 +21,15 @@ func Test_subsets(t *testing.T) {
 }
 
 func subsets(nums []int) [][]int {
-	res := make([][]int, 0, 1<<len(nums))
-	collectSubsets(0, []int{}, nums, &res)
-	return res
-}
-
-func collectSubsets(idx int, prefix []int, nums []int, result *[][]int) {
-	if idx == len(nums) {
-		*result = append(*result, prefix)
-		return
+	n := len(nums)
+	res := make([][]int, 1<<n)
+	for x := 0; x < 1<<n; x++ {
+		res[x] = make([]int, 0, n)
+		for b := 0; b < n; b++ {
+			if x&(1<<b) > 0 {
+				res[x] = append(res[x], nums[b])
+			}
+		}
 	}
-	// Option 1: add the current number
-	prefixCpy := make([]int, len(prefix))
-	copy(prefixCpy, prefix)
-	prefixCpy = append(prefixCpy, nums[idx])
-	collectSubsets(idx+1, prefixCpy, nums, result)
-
-	// Option 2: do nothing
-	collectSubsets(idx+1, prefix, nums, result)
+	return res
 }
