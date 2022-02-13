@@ -30,18 +30,17 @@ func minimumRemoval(beans []int) int64 {
 
 	// Sort beans by size
 	sort.Ints(beans)
-	presum := make([]int, n+1)
-	for i, n := range beans {
-		presum[i+1] = presum[i] + n
+	var sum int
+	for _, num := range beans {
+		sum += num
 	}
-	beans = append(beans, math.MaxInt64) // sentinel
 
 	// For each bean value,
 	res := math.MaxInt64
 	for i := 0; i < n; i++ {
 		// Remove all values prior to this position, and set all values after this
 		// position to be equal to the current number
-		v := presum[i] + (presum[n] - presum[i]) - (n-i)*beans[i]
+		v := sum - (n-i)*beans[i]
 		if v < res {
 			res = v
 		}
