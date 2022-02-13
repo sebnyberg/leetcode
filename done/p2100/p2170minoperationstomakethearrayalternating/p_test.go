@@ -25,18 +25,18 @@ func minimumOperations(nums []int) int {
 	n := len(nums)
 
 	// Count the top 2 most prevalent numbers on even and odd positions
-	oddCOunt := make(map[int]int)
-	evenCount := make(map[int]int)
+	oddCount := make(map[int]int, n)
+	evenCount := make(map[int]int, n)
 	for i, num := range nums {
 		if i%2 == 0 {
 			evenCount[num]++
 		} else {
-			oddCOunt[num]++
+			oddCount[num]++
 		}
 	}
 
 	var maxOddCount, maxOddNums [2]int
-	for num, count := range oddCOunt {
+	for num, count := range oddCount {
 		if count > maxOddCount[0] {
 			maxOddNums[0], maxOddNums[1], maxOddCount[1] = num, maxOddNums[0], maxOddCount[0]
 			maxOddCount[0] = count
