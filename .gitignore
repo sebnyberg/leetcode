@@ -13,3 +13,4 @@
 **/*cpu.pprof
 **/*mem.pprof
 **/*.test
+tmp
