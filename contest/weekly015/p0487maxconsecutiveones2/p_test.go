@@ -1,0 +1,1 @@
+package p0487maxconsecutiveones2
