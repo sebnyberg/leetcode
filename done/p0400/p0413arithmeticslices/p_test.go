@@ -23,21 +23,16 @@ func Test_numberOfArithmeticSlices(t *testing.T) {
 	}
 }
 
-func numberOfArithmeticSlices(A []int) (res int) {
-	if len(A) <= 1 {
-		return res
-	}
-	runLength := 2
-	diff := A[1] - A[0]
-	for i := 2; i < len(A); i++ {
-		d := A[i] - A[i-1]
-		if d != diff {
-			diff = d
-			runLength = 2
-			continue
+func numberOfArithmeticSlices(nums []int) int {
+	count := 2
+	var res int
+	for i := 2; i < len(nums); i++ {
+		if nums[i]-nums[i-1] == nums[i-1]-nums[i-2] {
+			count++
+		} else {
+			count = 2
 		}
-		runLength++
-		res += runLength - 2
+		res += count - 2
 	}
 	return res
 }

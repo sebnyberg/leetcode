@@ -28,20 +28,27 @@ func Test_wordsAbbreviation(t *testing.T) {
 }
 
 func wordsAbbreviation(words []string) []string {
-	// First off, two words cannot have the same abbreviation unless they have the
+	// Two words cannot have the same abbreviation unless they have the
 	// same number of letters. So we may partition the strings by size..
 	var bySize [401][]string
 	for _, w := range words {
 		bySize[len(w)] = append(bySize[len(w)], w)
 	}
+	// ResultMap holds the result for a given string
+	resultMap := make(map[string]string, len(words))
+	for _, w := range words {
+		resultMap[w] = w // default
+	}
 
 	// Then, abbreviate strings one by one
-	res := make(map[string]string, len(words))
 	abbrs := make(map[[2]string]int, len(words))
 	for size, words := range bySize {
 		if len(words) == 0 {
 			continue
 		}
+		// Remember: this idiomatic way of clearing maps uses memclr under the hood,
+		// significantly speeding up the cleanup. It doesn't actually loop through
+		// each item.
 		for k := range abbrs {
 			delete(abbrs, k)
 		}
@@ -58,18 +65,14 @@ func wordsAbbreviation(words []string) []string {
 				k := [2]string{w[:size-x-1], w[size-1:]}
 				if abbrs[k] == 1 {
 					done[i] = true
-					res[words[i]] = w[:size-x-1] + fmt.Sprint(x) + w[size-1:]
+					resultMap[words[i]] = w[:size-x-1] + fmt.Sprint(x) + w[size-1:]
 				}
 			}
 		}
 	}
-	resList := make([]string, len(words))
+	res := make([]string, len(words))
 	for i, w := range words {
-		if v, exists := res[w]; exists {
-			resList[i] = v
-		} else {
-			resList[i] = w
-		}
+		res[i] = resultMap[w]
 	}
-	return resList
+	return res
 }
