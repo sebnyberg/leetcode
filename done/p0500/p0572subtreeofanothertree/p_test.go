@@ -1,10 +1,9 @@
-package p0549binarytreelongestconsecutivesequence2
+package p0572subtreeofanothertree
 
 import (
 	"container/list"
 	"fmt"
 	"log"
-	"math"
 	"strconv"
 	"strings"
 	"testing"
@@ -89,56 +88,50 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
-func Test_longestConsecutive(t *testing.T) {
+func Test_isSubtree(t *testing.T) {
 	for _, tc := range []struct {
-		tree string
-		want int
+		root    string
+		subRoot string
+		want    bool
 	}{
-		{"[1,2,null,3,null,4]", 4},
-		{"[1,2,3]", 2},
-		{"[2,1,3]", 3},
+		{"[3,4,5,1,2]", "[4,1,2]", true},
+		{"[3,4,5,1,2,null,null,null,null,0]", "[4,1,2]", false},
 	} {
-		t.Run(fmt.Sprintf("%+v", tc.tree), func(t *testing.T) {
-			tree := ParseTree(tc.tree)
-			require.Equal(t, tc.want, longestConsecutive(tree))
+		t.Run(fmt.Sprintf("%+v", tc.root), func(t *testing.T) {
+			root := ParseTree(tc.root)
+			subRoot := ParseTree(tc.subRoot)
+			require.Equal(t, tc.want, isSubtree(root, subRoot))
 		})
 	}
 }
 
-func longestConsecutive(root *TreeNode) int {
-	var res int
-	findLongestConsecutive(root, math.MaxInt32, &res)
-	return res
+func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
+	return visit(root, subRoot)
 }
 
-func findLongestConsecutive(cur *TreeNode, parent int, res *int) (incr, decr int) {
-	if cur == nil {
-		return 0, 0
+func visit(curr, subRoot *TreeNode) bool {
+	if curr == nil {
+		return false
 	}
 
-	incrLeft, decrLeft := findLongestConsecutive(cur.Left, cur.Val, res)
-	incrRight, decrRight := findLongestConsecutive(cur.Right, cur.Val, res)
-
-	if cur.Val == parent+1 {
-		// This is part of an increasing chain
-		incr = 1 + max(incrLeft, incrRight)
-	} else if cur.Val == parent-1 {
-		// This is part of a decreasing chain
-		decr = 1 + max(decrLeft, decrRight)
+	if curr.Val == subRoot.Val {
+		if match(curr, subRoot) {
+			return true
+		}
 	}
 
-	maxLen := max(
-		1+decrLeft+incrRight,
-		1+incrLeft+decrRight,
-	)
-	*res = max(*res, maxLen)
-
-	return incr, decr
+	return visit(curr.Left, subRoot) || visit(curr.Right, subRoot)
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
+func match(curr, sub *TreeNode) bool {
+	if curr == nil && sub != nil || curr != nil && sub == nil {
+		return false
 	}
-	return b
+	if curr == nil && sub == nil {
+		return true
+	}
+	if curr.Val != sub.Val {
+		return false
+	}
+	return match(curr.Left, sub.Left) && match(curr.Right, sub.Right)
 }
