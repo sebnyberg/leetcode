@@ -1,4 +1,4 @@
-package p2196replacenoncoprimenumbersinarray
+package p2197replacenoncoprimenumbersinarray
 
 import (
 	"fmt"
