@@ -75,7 +75,7 @@ func assignBikes(workers [][]int, bikes [][]int) []int {
 		}
 		return matches[i].sqdist < matches[j].sqdist
 	})
-	bikeTaken := make([]bool, 1001)
+	var bikeTaken [1001]bool
 	res := make([]int, n)
 	for i := range res {
 		res[i] = -1
