@@ -1,4 +1,4 @@
-package p2
+package p2221findtriangularsumofanarray
 
 import (
 	"fmt"

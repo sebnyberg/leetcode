@@ -1,4 +1,4 @@
-package p1
+package p2220minimumbitflipstoconvertnumber
 
 import (
 	"fmt"

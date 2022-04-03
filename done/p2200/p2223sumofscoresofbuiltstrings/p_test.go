@@ -1,4 +1,4 @@
-package p4
+package p2223sumofscoresofbuiltstrings
 
 import (
 	"fmt"
@@ -12,9 +12,9 @@ func Test_sumScores(t *testing.T) {
 		s    string
 		want int64
 	}{
-		// {"babab", 9},
-		// {"azbazbzaz", 14},
-		{"abcbabcb", 14},
+		{"babab", 9},
+		{"azbazbzaz", 14},
+		// {"abcbabcb", 14},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.s), func(t *testing.T) {
 			require.Equal(t, tc.want, sumScores(tc.s))
@@ -22,26 +22,22 @@ func Test_sumScores(t *testing.T) {
 	}
 }
 
-type trieNode struct {
-	next [26]*trieNode
-}
-
 func sumScores(s string) int64 {
 	ans := 0
 	n := len(s)
-	res := make([]int, n)
+	z := make([]int, n)
 	var l, r int
 	for i := 1; i < n; i++ {
-		k := max(0, min(res[i-l], r-i+1))
+		k := max(0, min(z[i-l], r-i+1))
 		for i+k < n && s[k] == s[i+k] {
 			l, r = i, i+k
 			k++
 		}
-		res[i] = k
+		z[i] = k
 	}
-	res[0] = n
+	z[0] = n
 
-	for _, v := range res {
+	for _, v := range z {
 		ans += v
 	}
 

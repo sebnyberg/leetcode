@@ -1,4 +1,4 @@
-package p3
+package p2222numberofwaystoselectbuildings
 
 import (
 	"fmt"
