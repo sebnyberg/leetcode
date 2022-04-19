@@ -25,6 +25,19 @@ func TestRangeModule(t *testing.T) {
 	}{
 		{
 			actions: []testAction{
+				{actionAddRange, []any{6, 8}, nil},
+				{actionRemoveRange, []any{7, 8}, nil},
+				{actionRemoveRange, []any{8, 9}, nil},
+				{actionAddRange, []any{8, 9}, nil},
+				{actionRemoveRange, []any{1, 3}, nil},
+				{actionAddRange, []any{1, 8}, nil},
+				{actionQueryRange, []any{2, 4}, []any{true}},
+				{actionQueryRange, []any{2, 9}, []any{true}},
+				{actionQueryRange, []any{4, 6}, []any{true}},
+			},
+		},
+		{
+			actions: []testAction{
 				{actionAddRange, []any{10, 180}, nil},
 				{actionAddRange, []any{150, 200}, nil},
 				{actionAddRange, []any{250, 500}, nil},
@@ -73,19 +86,24 @@ func Constructor() RangeModule {
 // Update the range [start,end] in tracked so that it contains the contents of
 // sub.
 func (this *RangeModule) update(start, end int, sub []int) {
-	// There are more efficient ways of doing this, but it would also be more
-	// complicated, so I went for the double-copy.
-
-	// Truncate
-	copy(this.tracked[start:], this.tracked[end:])
-	this.tracked = this.tracked[:len(this.tracked)-(end-start)]
-
-	// Add space for sub
-	for range sub {
-		this.tracked = append(this.tracked, 0)
+	// If there are no elements to the right of end, truncate and append
+	if end == len(this.tracked) {
+		this.tracked = this.tracked[:start]
+		this.tracked = append(this.tracked, sub...)
+		return
 	}
-	// Move right-hand elements
-	copy(this.tracked[start+len(sub):], this.tracked[start:])
+
+	// We must make len(sub) space and remove [start,end] at the same time.
+	toRemove := end - start
+	if toRemove < len(sub) { // add slots to end and copy
+		this.tracked = append(this.tracked, make([]int, len(sub)-toRemove)...)
+		copy(this.tracked[start+len(sub):], this.tracked[start:])
+	} else if toRemove > len(sub) {
+		// There is enough space in the original array
+		// Move the sequence and truncate
+		copy(this.tracked[start+len(sub):], this.tracked[end:])
+		this.tracked = this.tracked[:len(this.tracked)-(toRemove-len(sub))]
+	}
 
 	// Insert sub
 	for i := range sub {
@@ -131,11 +149,3 @@ func (this *RangeModule) RemoveRange(left int, right int) {
 	}
 	this.update(start, end, sub)
 }
-
-/**
- * Your RangeModule object will be instantiated and called as such:
- * obj := Constructor();
- * obj.AddRange(left,right);
- * param_2 := obj.QueryRange(left,right);
- * obj.RemoveRange(left,right);
- */
