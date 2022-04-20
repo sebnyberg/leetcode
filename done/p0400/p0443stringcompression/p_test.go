@@ -2,7 +2,6 @@ package p0443stringcompression
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,48 +9,39 @@ import (
 
 func Test_compress(t *testing.T) {
 	for _, tc := range []struct {
-		chars string
+		chars []byte
 		want  int
 	}{
-		{"aabbccc", 6},
-		{"a", 1},
-		{"abbbbbbbbbbbb", 4},
-		{"aaabbaa", 6},
+		{[]byte("abbbbbbbbbbbb"), 4},
+		{[]byte("aabbccc"), 6},
+		{[]byte("a"), 1},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.chars), func(t *testing.T) {
-			require.Equal(t, tc.want, compress([]byte(tc.chars)))
+			require.Equal(t, tc.want, compress(tc.chars))
 		})
 	}
 }
 
 func compress(chars []byte) int {
-	curCh := chars[0]
+	var j int
 	count := 1
-	var idx int
-	addRes := func(count int) {
-		chars[idx] = curCh
-		idx++
+	write := func(ch byte) {
+		chars[j] = ch
+		j++
 		if count > 1 {
-			nStr := strconv.Itoa(count)
-			for i := range nStr {
-				chars[idx] = nStr[i]
-				idx++
-			}
+			s := []byte(fmt.Sprint(count))
+			j += copy(chars[j:], s)
 		}
+		count = 1
 	}
-	for i := range chars {
-		if i == 0 {
-			continue
-		}
-		if chars[i] == curCh {
+
+	for i := 1; i < len(chars); i++ {
+		if chars[i] == chars[i-1] {
 			count++
 			continue
 		}
-		addRes(count)
-		curCh = chars[i]
-		count = 1
+		write(chars[i-1])
 	}
-	addRes(count)
-	chars = chars[:idx]
-	return len(chars)
+	write(chars[len(chars)-1])
+	return j
 }
