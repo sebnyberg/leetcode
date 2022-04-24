@@ -1,33 +1,37 @@
-package p0705designhashmap
+package p0705designhashset
+
+const nBuckets = 1024
+const nBucketElems = 16
+const bucketSize = nBucketElems * 64
 
 type MyHashSet struct {
-	sets [15626]uint64
+	items [nBuckets]*[nBucketElems]uint64
 }
 
-const keyModulo = 15625
-
-/** Initialize your data structure here. */
-func Constructor() (m MyHashSet) {
-	return
+func Constructor() MyHashSet {
+	return MyHashSet{}
 }
 
 func (this *MyHashSet) Add(key int) {
-	this.sets[key/64] |= (1 << (key % 64))
+	bucket := key / bucketSize
+	k := (key % bucketSize) / 64
+	if this.items[bucket] == nil {
+		this.items[bucket] = &[nBucketElems]uint64{}
+	}
+	this.items[bucket][k] |= 1 << (key % 64)
 }
 
 func (this *MyHashSet) Remove(key int) {
-	this.sets[key/64] &^= (1 << (key % 64))
+	bucket := key / bucketSize
+	k := (key % bucketSize) / 64
+	if this.items[bucket] == nil {
+		return
+	}
+	this.items[bucket][k] &^= 1 << (key % 64)
 }
 
-/** Returns true if this set contains the specified element */
 func (this *MyHashSet) Contains(key int) bool {
-	return this.sets[key/64]&(1<<(key%64)) > 0
+	bucket := key / bucketSize
+	k := (key % bucketSize) / 64
+	return this.items[bucket] != nil && this.items[bucket][k]&(1<<(key%64)) > 0
 }
-
-/**
-* Your MyHashSet object will be instantiated and called as such:
-* obj := Constructor();
-* obj.Add(key);
-* obj.Remove(key);
-* param_3 := obj.Contains(key);
- */
