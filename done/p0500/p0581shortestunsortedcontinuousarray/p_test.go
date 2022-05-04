@@ -26,36 +26,39 @@ func Test_findUnsortedSubarray(t *testing.T) {
 }
 
 func findUnsortedSubarray(nums []int) int {
-	sorted := true
-	for i := 1; i < len(nums); i++ {
-		if nums[i] < nums[i-1] {
-			sorted = false
-			break
+	stack := make([]int, 0, len(nums))
+	start := math.MaxInt32
+	end := 0
+	maxVal := math.MinInt32
+	for i, num := range nums {
+		for len(stack) > 0 && nums[stack[len(stack)-1]] > num {
+			// Pop from stack
+			stack = stack[:len(stack)-1]
+			if len(stack) > 0 {
+				start = min(start, stack[len(stack)-1])
+			} else {
+				start = -1
+			}
+			end = max(end, i)
 		}
+		if num < maxVal {
+			end = i
+		}
+		maxVal = max(maxVal, num)
+		stack = append(stack, i)
 	}
-	if sorted {
+	if start == math.MaxInt32 {
 		return 0
 	}
 
-	max := math.MinInt32
-	var end int
-	for i := range nums {
-		if nums[i] >= max {
-			max = nums[i]
-		} else {
-			end = i
-		}
+	return end - start
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
 	}
-	min := math.MaxInt32
-	var start int
-	for i := len(nums) - 1; i >= 0; i-- {
-		if nums[i] <= min {
-			min = nums[i]
-		} else {
-			start = i
-		}
-	}
-	return end - start + 1
+	return b
 }
 
 func min(a, b int) int {
