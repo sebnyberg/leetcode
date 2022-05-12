@@ -22,33 +22,27 @@ func Test_permuteUnique(t *testing.T) {
 }
 
 func permuteUnique(nums []int) [][]int {
-	res := make([][]int, 0)
-	findPerms(nums, []int{}, &res)
+	res := make([][]int, 0, len(nums))
+	prefix := make([]int, len(nums))
+	collectPerms(nums, prefix, 0, 0, len(nums), &res)
 	return res
 }
 
-func findPerms(nums []int, prefix []int, res *[][]int) {
-	if len(nums) == 0 {
-		*res = append(*res, prefix)
+func collectPerms(nums, prefix []int, bm, i, n int, result *[][]int) {
+	if i == n {
+		cpy := make([]int, n)
+		copy(cpy, prefix)
+		*result = append(*result, cpy)
+		return
 	}
-
-	// For each position, create a prefix for each unique number
-	// found in nums, remove the number from nums, and pass it
-	// onto the child function
-	seen := make(map[int]struct{}, len(nums))
-	for i, n := range nums {
-		if _, exists := seen[n]; exists {
+	seen := 0
+	for j, num := range nums {
+		nonNeg := num + 10
+		if bm&(1<<j) > 0 || seen&(1<<nonNeg) > 0 {
 			continue
 		}
-		seen[n] = struct{}{}
-		prefixCpy := make([]int, len(prefix)+1)
-		copy(prefixCpy, prefix)
-		prefixCpy[len(prefix)] = n
-
-		nCpy := make([]int, len(nums))
-		copy(nCpy, nums)
-		nCpy = append(nCpy[:i], nCpy[i+1:]...)
-
-		findPerms(nCpy, prefixCpy, res)
+		seen |= (1 << nonNeg)
+		prefix[i] = num
+		collectPerms(nums, prefix, bm|(1<<j), i+1, n, result)
 	}
 }
