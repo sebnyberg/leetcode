@@ -30,10 +30,6 @@ func Test_findShortestWay(t *testing.T) {
 func findShortestWay(maze [][]int, ball []int, hole []int) string {
 	// Idea is to perform a kind of BFS with memoization and stopping early
 
-	// const (
-	// 	d, l, r, u byte = 0, 1, 2, 3
-	// )
-
 	m := len(maze)
 	n := len(maze[0])
 	dirs := [][2]int{{1, 0}, {0, -1}, {0, 1}, {-1, 0}}
