@@ -3,7 +3,6 @@ package p0322coinchange
 import (
 	"fmt"
 	"math"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,28 +23,26 @@ func Test_coinChange(t *testing.T) {
 }
 
 func coinChange(coins []int, amount int) int {
-	sort.Ints(coins)
+	// Since amount is small, we may DP to find the result.
 	dp := make([]int, amount+1)
-	for i := range dp {
-		dp[i] = math.MaxInt32
-	}
 	dp[0] = 0
-	min := func(a, b int) int {
-		if a < b {
-			return a
-		}
-		return b
-	}
 	for i := 1; i <= amount; i++ {
-		for _, coin := range coins {
-			if coin > i {
-				break
+		dp[i] = math.MaxInt32
+		for _, c := range coins {
+			if i-c >= 0 && dp[i-c] >= 0 {
+				dp[i] = min(dp[i], dp[i-c]+1)
 			}
-			dp[i] = min(dp[i], dp[i-coin]+1)
 		}
 	}
-	if dp[amount] < math.MaxInt32 {
-		return dp[amount]
+	if dp[amount] == math.MaxInt32 {
+		return -1
 	}
-	return -1
+	return dp[amount]
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
