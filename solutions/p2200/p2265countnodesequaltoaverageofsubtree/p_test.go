@@ -8,21 +8,21 @@ type TreeNode struct {
 
 func averageOfSubtree(root *TreeNode) int {
 	var res int
-	visit(root, &res)
+	countSubtree(root, &res)
 	return res
 }
 
-func visit(cur *TreeNode, res *int) (sum, count int) {
+func countSubtree(cur *TreeNode, res *int) (count int, sum int) {
 	if cur == nil {
 		return 0, 0
 	}
-	ls, lc := visit(cur.Left, res)
-	rs, rc := visit(cur.Right, res)
-	subSum := ls + rs + cur.Val
-	subCount := lc + rc + 1
-	avg := subSum / subCount
-	if cur.Val == avg {
+	leftCount, leftSum := countSubtree(cur.Left, res)
+	rightCount, rightSum := countSubtree(cur.Right, res)
+	totalCount := leftCount + rightCount + 1
+	totalSum := leftSum + rightSum + cur.Val
+	if (totalSum / totalCount) == cur.Val {
 		*res++
 	}
-	return subSum, subCount
+
+	return totalCount, totalSum
 }
