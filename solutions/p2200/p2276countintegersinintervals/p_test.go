@@ -155,51 +155,72 @@ func Constructor() CountIntervals {
 	c := CountIntervals{
 		intervals: make([]interval, 0, 100),
 	}
-	c.intervals = append(c.intervals, interval{-100, -99}, interval{1e9 + 1, 1e9 + 2})
+	// Add sentinel values to make indexing easier
+	c.intervals = append(c.intervals,
+		interval{-100, -99},
+		interval{1e9 + 1, 1e9 + 2},
+	)
 	return c
 }
 
 func (this *CountIntervals) Add(left int, right int) {
 	right++ // easier to work with open-ended intervals
 
-	start := sort.Search(len(this.intervals), func(i int) bool {
+	// Binary search for first and second interval.
+	// These may be the same interval
+	first := sort.Search(len(this.intervals), func(i int) bool {
 		return left <= this.intervals[i].end
 	})
-	end := sort.Search(len(this.intervals), func(i int) bool {
+	second := sort.Search(len(this.intervals), func(i int) bool {
 		return this.intervals[i].start > right
 	}) - 1
 
-	// First scenario: <left> <right> [ )
-	if right < this.intervals[start].start {
-		// Insert on left side of current interval
+	// Cases to consider:
+	//
+	// <right> <left> [ )
+	// <left> [ <right> )
+	// <left> [ ) <right>
+	// [ <left> <right> )
+	// [ <left> ) <right>
+
+	if right < this.intervals[first].start {
+		// (1) <left> <right> [ )
+		// Create new interval and return
 		this.intervals = append(this.intervals, interval{})
-		copy(this.intervals[start+1:], this.intervals[start:])
-		this.intervals[start] = interval{left, right}
+		copy(this.intervals[first+1:], this.intervals[first:])
+		this.intervals[first] = interval{left, right}
 		this.count += right - left
 		return
-	} else if right > this.intervals[end].end {
-		// [ ) <right>
-		this.count += right - this.intervals[end].end
-		this.intervals[end].end = right
+	} else if right > this.intervals[second].end {
+		// Right falls outside the interval - update right boundary
+		// E.g.
+		// (3b) and (5b)
+		// Adjust right boundary of the second interval
+		this.count += right - this.intervals[second].end
+		this.intervals[second].end = right
 	} else {
+		// (2a) (2b) (4a) (4b)
+		// right is inside the interval - no need to update
 		// [ <right> )
 	}
 
-	if left < this.intervals[start].start {
+	if left < this.intervals[first].start {
+		// Example cases:
 		// <left> [ <right> ) or <left> [ ) <right>, etc
-		this.count += this.intervals[start].start - left
-		this.intervals[start].start = left
+		this.count += this.intervals[first].start - left
+		this.intervals[first].start = left
 	} else {
 		// <left> is inside the interval - no need to update
 	}
 
-	// Merge. These actions are a no-op when end == start
-	for j := start + 1; j <= end; j++ {
+	// If first != second, merge intervals. These actions will do nothing when
+	// start == end so no need to check.
+	for j := first + 1; j <= second; j++ {
 		this.count += this.intervals[j].start - this.intervals[j-1].end
 	}
-	this.intervals[end].start = this.intervals[start].start
-	copy(this.intervals[start:], this.intervals[end:])
-	this.intervals = this.intervals[:len(this.intervals)-(end-start)]
+	this.intervals[second].start = this.intervals[first].start
+	copy(this.intervals[first:], this.intervals[second:])
+	this.intervals = this.intervals[:len(this.intervals)-(second-first)]
 }
 
 func (this *CountIntervals) Count() int {
