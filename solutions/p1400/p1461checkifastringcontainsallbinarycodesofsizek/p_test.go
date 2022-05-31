@@ -27,21 +27,20 @@ func Test_hasAllCodes(t *testing.T) {
 }
 
 func hasAllCodes(s string, k int) bool {
-	h1 := 0
+	seen := make([]bool, 1<<k)
 	pow := 1 << (k - 1)
-	// n := len(s)
-	seen := make(map[int]struct{})
+	var val int
 	for i, ch := range s {
-		h1 = (h1*2 + int(ch-'0'))
+		val <<= 1
+		val += int(ch - '0')
 		if i < k-1 {
 			continue
 		}
-		seen[h1] = struct{}{}
-		// Remove "oldest" element
-		h1 = (h1 - int(s[i-k+1]-'0')*pow)
+		seen[val] = true
+		val -= int(s[i-k+1]-'0') * pow
 	}
 	for n := 0; n < 1<<k; n++ {
-		if _, exists := seen[n]; !exists {
+		if !seen[n] {
 			return false
 		}
 	}
