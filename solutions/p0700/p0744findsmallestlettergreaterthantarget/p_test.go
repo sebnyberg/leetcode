@@ -1,4 +1,4 @@
-package p1
+package p0744findsmallestlettergreaterthantarget
 
 import "sort"
 
