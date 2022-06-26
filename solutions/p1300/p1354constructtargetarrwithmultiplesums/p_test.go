@@ -26,59 +26,40 @@ func Test_isPossible(t *testing.T) {
 }
 
 func isPossible(target []int) bool {
-	n := len(target)
-	if n == 1 {
-		return target[0] == 1
+	var sum int
+	for _, t := range target {
+		sum += t
 	}
-	pq := make(PQ, n)
-	var total int
-	for i, n := range target {
-		total += n
-		pq[i] = &Item{idx: i, val: n}
-	}
-	heap.Init(&pq)
-	for pq[0].val > 1 {
-		rest := total - pq[0].val
-		if rest == 1 {
+
+	h := maxHeap(target)
+	heap.Init(&h)
+	for {
+		sum -= h[0]
+		if h[0] == 1 || sum == 1 {
 			return true
 		}
-		x := pq[0].val % rest
-		if x == 0 || x == pq[0].val {
+		if sum >= h[0] || sum == 0 || h[0]%sum == 0 {
 			return false
 		}
-		total = total - pq[0].val + x
-		pq[0].val = x
-		heap.Fix(&pq, pq[0].idx)
+		h[0] %= sum
+		sum += h[0]
+		heap.Fix(&h, 0)
 	}
-
-	for _, item := range pq {
-		if item.val != 1 {
-			return false
-		}
-	}
-	return true
 }
 
-type Item struct {
-	idx int
-	val int
-}
+type maxHeap []int
 
-type PQ []*Item
-
-func (h PQ) Len() int { return len(h) }
-func (h PQ) Swap(i, j int) {
+func (h maxHeap) Len() int { return len(h) }
+func (h maxHeap) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
-	h[i].idx = i
-	h[j].idx = j
 }
-func (h PQ) Less(i, j int) bool {
-	return h[i].val > h[j].val
+func (h maxHeap) Less(i, j int) bool {
+	return h[i] > h[j]
 }
-func (h *PQ) Push(x interface{}) {
-	*h = append(*h, x.(*Item))
+func (h *maxHeap) Push(x interface{}) {
+	*h = append(*h, x.(int))
 }
-func (h *PQ) Pop() interface{} {
+func (h *maxHeap) Pop() interface{} {
 	n := len(*h)
 	it := (*h)[n-1]
 	*h = (*h)[:n-1]
