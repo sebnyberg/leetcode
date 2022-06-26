@@ -13,11 +13,43 @@ func Test_cherryPickup(t *testing.T) {
 		grid [][]int
 		want int
 	}{
-		{[][]int{
-			{0, 1, -1},
-			{1, 0, -1},
-			{1, 1, 1},
-		}, 5,
+		{
+			[][]int{
+				{1, 1, 1, 1, 0, 0, 0},
+				{0, 0, 0, 1, 0, 0, 0},
+				{0, 0, 0, 1, 0, 0, 1},
+				{1, 0, 0, 1, 0, 0, 0},
+				{0, 0, 0, 1, 0, 0, 0},
+				{0, 0, 0, 1, 0, 0, 0},
+				{0, 0, 0, 1, 1, 1, 1},
+			},
+			15,
+		},
+		{
+			[][]int{
+				{1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1},
+				{-1, -1, 1, 1, -1},
+				{1, 1, 1, 1, 1},
+				{1, 1, 1, -1, 1},
+			},
+			14,
+		},
+		{
+			[][]int{
+				{0, 1, -1},
+				{1, 0, -1},
+				{1, 1, 1},
+			},
+			5,
+		},
+		{
+			[][]int{
+				{1, 1, -1},
+				{1, -1, 1},
+				{-1, 1, 1},
+			},
+			0,
 		},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.grid), func(t *testing.T) {
@@ -26,44 +58,64 @@ func Test_cherryPickup(t *testing.T) {
 	}
 }
 
+const (
+	wall   = -1
+	empty  = 0
+	cherry = 1
+)
+
 func cherryPickup(grid [][]int) int {
-	m, n := len(grid), len(grid[0])
-	dp := make([][][]int, m+1)
-	for i := range dp {
-		dp[i] = make([][]int, n+1)
-		for j := range dp[i] {
-			dp[i][j] = make([]int, n+1)
-			for k := range dp[i][j] {
-				dp[i][j][k] = math.MinInt32
+	n := len(grid)
+
+	dp := make([][][]int16, n)
+	for i1 := range dp {
+		dp[i1] = make([][]int16, n)
+		for j1 := range dp[i1] {
+			dp[i1][j1] = make([]int16, n)
+			for i2 := range dp[i1][j1] {
+				dp[i1][j1][i2] = -1
 			}
 		}
 	}
-	return max(0, helper(dp, grid, m, n, 0, 0, 0))
+
+	res := visit(dp, grid, 0, 0, 0, n)
+	return max(0, res)
 }
 
-func helper(dp [][][]int, grid [][]int, m, n, r1, c1, c2 int) int {
-	r2 := r1 + c1 - c2
-	switch {
-	case
-		r1 >= m, c1 >= n, c2 >= n, r2 >= m,
-		grid[r1][c1] == -1,
-		grid[r2][c2] == -1:
-		return math.MinInt32
-	case r1 == n-1 && c1 == m-1:
-		return grid[r1][c1]
-	case dp[r1][c1][c2] != math.MinInt32:
-		return dp[r1][c1][c2]
+func visit(dp [][][]int16, grid [][]int, i1, j1, i2, n int) int {
+	// Edge-cases
+	j2 := i1 + j1 - i2
+	if i1 < 0 || j1 < 0 || i2 < 0 || j2 < 0 ||
+		i1 >= n || j1 >= n || i2 >= n || j2 >= n ||
+		grid[i1][j1] == wall || grid[i2][j2] == wall {
+		return math.MinInt16
 	}
-	cherries := grid[r1][c1]
-	if c1 != c2 {
-		cherries += grid[r2][c2]
+	if dp[i1][j1][i2] != -1 {
+		return int(dp[i1][j1][i2])
 	}
-	cherries += max(
-		max(helper(dp, grid, m, n, r1+1, c1, c2), helper(dp, grid, m, n, r1, c1+1, c2)),
-		max(helper(dp, grid, m, n, r1+1, c1, c2+1), helper(dp, grid, m, n, r1, c1+1, c2+1)),
-	)
-	dp[r1][c1][c2] = cherries
-	return cherries
+
+	// Account for cherries in current positions (if any)
+	cherries := grid[i1][j1] + grid[i2][j2]
+	if i1 == i2 && j1 == j2 {
+		cherries -= grid[i1][j1]
+	}
+
+	res := math.MinInt16
+	if i1 != n-1 || j1 != n-1 {
+		res = max(res, visit(dp, grid, i1+1, j1, i2+1, n))
+		res = max(res, visit(dp, grid, i1, j1+1, i2+1, n))
+		res = max(res, visit(dp, grid, i1+1, j1, i2, n))
+		res = max(res, visit(dp, grid, i1, j1+1, i2, n))
+	} else {
+		res = 0
+	}
+
+	// Try all possible paths
+	if res != math.MinInt16 {
+		res += cherries
+	}
+	dp[i1][j1][i2] = int16(res)
+	return res
 }
 
 func max(a, b int) int {
