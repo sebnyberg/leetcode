@@ -26,77 +26,61 @@ func Test_convert(t *testing.T) {
 	}
 }
 
-func Test_createIndices(t *testing.T) {
-	tcs := []struct {
-		nrows int
-		ntot  int
-		want  []int
-	}{
-		{1, 2, []int{0, 1}},
-		{2, 2, []int{0, 1}},
-		{1, 5, []int{0, 1, 2, 3, 4}},
-		{2, 5, []int{0, 2, 4, 1, 3}},
-		{3, 5, []int{0, 4, 1, 3, 2}},
-		{3, 14, []int{0, 4, 8, 12, 1, 3, 5, 7, 9, 11, 13, 2, 6, 10}},
-		{4, 5, []int{0, 1, 2, 4, 3}},
-	}
-	for _, tc := range tcs {
-		t.Run(fmt.Sprintf("%v/%v", tc.nrows, tc.ntot), func(t *testing.T) {
-			require.Equal(t, tc.want, createIndices(tc.nrows, tc.ntot))
-		})
-	}
-}
+func convert(s string, numRows int) string {
+	// The are two kinds of rows:
+	// 1. First and last rows
+	// 2. Middle rows
+	//
+	// There are max(0, numRows-2) middle rows.
+	// The middle rows require twice as many characters as the first and last
+	// rows.
+	// This gives us cycleLength = numRows
+	cycleLength := numRows + max(0, numRows-2)
 
-func createIndices(nrows int, ntot int) []int {
-	res := make([]int, ntot)
-	if nrows == 1 {
-		for i := range res {
-			res[i] = i
-		}
-		return res
-	}
-	nperzigzag := nrows + nrows - 2
+	// Top and bottom rows have one character per cycle length
+	// Middle rows have two characters per cycle length: one at the nth index from
+	// the start, and one at the end-nth index.
 
-	// first row
-	var i int
-	for j := 0; j < ntot; j += nperzigzag {
-		res[i] = j
-		i++
+	// Time: O(n)
+	// Space: O(n)
+
+	n := len(s)
+	res := make([]byte, 0, n)
+
+	// Fill top row
+	for i := 0; i < n; i += cycleLength {
+		res = append(res, s[i])
 	}
 
-	// intermediate rows
-	for row := 1; row < nrows-1; row++ {
-		// current zigzag
-		j := 0
-		for {
-			if row+j*nperzigzag >= ntot {
-				break
+	// Fill middle rows
+	for k := 1; k <= numRows-2; k++ {
+		l := k
+		r := cycleLength - k
+		for l < n || r < n {
+			if l < n {
+				res = append(res, s[l])
 			}
-			res[i] = row + j*nperzigzag
-			i++
-			j++
-			if j*nperzigzag-row >= ntot {
-				break
+			if r < n {
+				res = append(res, s[r])
 			}
-			res[i] = j*nperzigzag - row
-			i++
+			l += cycleLength
+			r += cycleLength
 		}
 	}
 
-	// last row
-	for j := nrows - 1; j < ntot; j += nperzigzag {
-		res[i] = j
-		i++
+	// Fill bottom row
+	if numRows > 1 {
+		for i := numRows - 1; i < n; i += cycleLength {
+			res = append(res, s[i])
+		}
 	}
 
-	return res
-}
-
-func convert(s string, nrows int) string {
-	idx := createIndices(nrows, len(s))
-	res := make([]rune, len(s))
-	for i, idx := range idx {
-		res[i] = rune(s[idx])
-	}
 	return string(res)
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
