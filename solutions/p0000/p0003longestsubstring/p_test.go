@@ -30,6 +30,9 @@ func lengthOfLongestSubstring(s string) int {
 	// Greedy approach: move a right pointer until there's a duplicate.
 	// Keep track of where each character was last seen so that the left pointer
 	// is easy to move. Otherwise we'd have to scan through the string.
+	//
+	// Time: O(n)
+	// Space: O(1)
 	var seenAt [256]int
 	for i := range seenAt {
 		seenAt[i] = -1

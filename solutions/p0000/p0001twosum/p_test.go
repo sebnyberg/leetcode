@@ -25,6 +25,10 @@ func Test_twoSum(t *testing.T) {
 }
 
 func twoSum(nums []int, target int) []int {
+	// For each number, check whether a prior index holds the value required to
+	// form the target.
+	// Time and space complexity: O(n)
+
 	numIdx := make(map[int]int, len(nums))
 	for i, n1 := range nums {
 		if j, exists := numIdx[target-n1]; exists {

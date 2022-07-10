@@ -78,6 +78,11 @@ func Test_addTwoNumbers(t *testing.T) {
 }
 
 func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
+	// Very straight-forward exercise.
+	//
+	// With n = len(l1) + len(l2);
+	// Time: O(n)
+	// Space: O(n)
 	dummy := &ListNode{}
 	val := func(l *ListNode) int {
 		if l != nil {
