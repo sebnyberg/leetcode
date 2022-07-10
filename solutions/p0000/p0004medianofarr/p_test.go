@@ -23,6 +23,9 @@ func Test_findMedianSortedArrays(t *testing.T) {
 }
 
 func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
+	// Since the two lists are sorted, we can use two indices to read from the
+	// lists in non-decreasing order. Then it's just a matter of skipping the
+	// right number of entries to end up in the middle position(s).
 	n1 := len(nums1)
 	n2 := len(nums2)
 	n := n1 + n2
