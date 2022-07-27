@@ -11,6 +11,7 @@ func Test_longestPalindrome(t *testing.T) {
 		in   string
 		want string
 	}{
+		{"bb", "bb"},
 		{"babad", "bab"},
 		{"cbbd", "bb"},
 		{"a", "a"},
@@ -25,44 +26,33 @@ func Test_longestPalindrome(t *testing.T) {
 	}
 }
 
-func Benchmark_longestPalindrome(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		longestPalindrome("bananas")
-	}
-}
-
 func longestPalindrome(s string) string {
-	// mid, left, right
-	var m, l, r, nmax, maxL, maxR int
-	for m < len(s) {
-		if nmax/2 > len(s)-m {
-			break
-		}
+	// There are better approaches here, but since it's only a length 1000 string,
+	// I'm going with straight-forward window checking.
 
-		// Look for odd palindrome
-		l, r = m, m
-		for l >= 0 && r < len(s) && s[l] == s[r] {
-			l--
-			r++
-		}
-		if r-l-1 > nmax {
-			nmax = r - l - 1
-			maxL, maxR = l, r
-		}
+	// Time: O(n^2)
+	// Space: O(1)
 
-		// Look for an even palindrome
-		l, r = m-1, m
-		for l >= 0 && r < len(s) && s[l] == s[r] {
-			l--
-			r++
+	isPalindrome := func(l, r int) bool {
+		for ; l < r; l, r = l+1, r-1 {
+			if s[l] != s[r] {
+				return false
+			}
 		}
-		if r-l-1 > nmax {
-			nmax = r - l - 1
-			maxL, maxR = l, r
-		}
-
-		// move m one step to the right
-		m++
+		return true
 	}
-	return s[maxL+1 : maxR]
+
+	maxL, maxR, maxLen := 0, 1, 1
+	for l := 0; l < len(s)-1; l++ {
+		for r := l + 1; r <= len(s); r++ {
+			if r-l <= maxLen || !isPalindrome(l, r-1) {
+				continue
+			}
+			maxLen = r - l
+			maxL = l
+			maxR = r
+		}
+	}
+
+	return s[maxL:maxR]
 }

@@ -27,41 +27,29 @@ func Test_lengthOfLongestSubstring(t *testing.T) {
 }
 
 func lengthOfLongestSubstring(s string) int {
-	if len(s) <= 1 {
-		return len(s)
+	// Greedy approach: move a right pointer until there's a duplicate.
+	// Keep track of where each character was last seen so that the left pointer
+	// is easy to move. Otherwise we'd have to scan through the string.
+	//
+	// Time: O(n)
+	// Space: O(1)
+	var seenAt [256]int
+	for i := range seenAt {
+		seenAt[i] = -1
 	}
-	var (
-		nuniq  int  = 1
-		i      int  // current index
-		r      rune // current rune
-		gcFrom int  // previous end index
-	)
-	seenAt := map[rune]int{}
-
-	for i, r = range s {
-		// If rune is not in map, add it and continue
-		if _, exists := seenAt[r]; !exists {
-			seenAt[r] = i
-			continue
-		}
-
-		if len(seenAt) > nuniq {
-			nuniq = len(seenAt)
-		}
-
-		// Clean from previous gc until (but not including) s[seenAt[r]]
-		for _, k := range s[gcFrom:seenAt[r]] {
-			delete(seenAt, k)
-		}
-		gcFrom = seenAt[r] + 1
-
-		seenAt[r] = i
+	var res int
+	l := -1 // left pointer
+	for i, ch := range s {
+		l = max(l, seenAt[ch])
+		res = max(res, i-l)
+		seenAt[ch-'a'] = i
 	}
+	return res
+}
 
-	// In case the last element was unique
-	if len(seenAt) > nuniq {
-		nuniq = len(seenAt)
+func max(a, b int) int {
+	if a > b {
+		return a
 	}
-
-	return nuniq
+	return b
 }
