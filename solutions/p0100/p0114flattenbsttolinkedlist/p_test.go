@@ -32,28 +32,23 @@ type TreeNode struct {
 }
 
 func flatten(root *TreeNode) {
-	if root == nil {
-		return
-	}
-	var c nodeCollector
-	c.collect(root)
-	for i := 0; i < len(c.nodes)-1; i++ {
-		c.nodes[i].Right = c.nodes[i+1]
-		c.nodes[i].Left = nil
-	}
-	c.nodes[len(c.nodes)-1].Right = nil
-	c.nodes[len(c.nodes)-1].Left = nil
-}
+	// Create a dummy prev-node to avoid the if-nil statement
+	// If-statements (branches) reduce the efficiency of pipelined CPUs
+	prev := &TreeNode{}
 
-type nodeCollector struct {
-	nodes []*TreeNode
-}
-
-func (c *nodeCollector) collect(node *TreeNode) {
-	if node == nil {
-		return
+	var visit func(*TreeNode)
+	visit = func(cur *TreeNode) {
+		if cur == nil {
+			return
+		}
+		prev.Right = cur
+		prev = cur
+		// cur.Right will be overwritten by the next call to visit
+		// store it as a function-local variable
+		right := cur.Right
+		visit(cur.Left)
+		cur.Left = nil
+		visit(right)
 	}
-	c.nodes = append(c.nodes, node)
-	c.collect(node.Left)
-	c.collect(node.Right)
+	visit(root)
 }
