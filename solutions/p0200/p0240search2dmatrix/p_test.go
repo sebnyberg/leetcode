@@ -2,6 +2,7 @@ package search2dmatrix
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -23,12 +24,14 @@ func Test_searchMatrix(t *testing.T) {
 }
 
 func searchMatrix(matrix [][]int, target int) bool {
-	// Naive search
-	for i := 0; i < len(matrix) && matrix[i][0] <= target; i++ {
-		for j := 0; j < len(matrix[i]) && matrix[i][j] <= target; j++ {
-			if matrix[i][j] == target {
-				return true
-			}
+	// Continuously binary search each row with a
+	// smaller upper bound each time.
+	n := len(matrix[0])
+	hi := n // upper bound
+	for _, row := range matrix {
+		hi = sort.SearchInts(row[:hi], target)
+		if hi < n && row[hi] == target {
+			return true
 		}
 	}
 	return false
