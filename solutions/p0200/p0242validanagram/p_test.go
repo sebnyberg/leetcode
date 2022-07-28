@@ -22,18 +22,14 @@ func Test_isAnagram(t *testing.T) {
 }
 
 func isAnagram(s string, t string) bool {
-	sstrs := make(map[rune]int)
-	var n int
-	for _, r := range s {
-		sstrs[r]++
-		n++
-	}
-	for _, r := range t {
-		if sstrs[r] <= 0 {
-			return false
+	countChars := func(ss string) [26]int {
+		var count [26]int
+		for _, ch := range ss {
+			count[ch-'a']++
 		}
-		sstrs[r]--
-		n--
+		return count
 	}
-	return n == 0
+	a := countChars(s)
+	b := countChars(t)
+	return a == b
 }
