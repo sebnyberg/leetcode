@@ -22,30 +22,25 @@ func Test_findAndReplacePattern(t *testing.T) {
 }
 
 func findAndReplacePattern(words []string, pattern string) []string {
-	// re-format each word so that the first unique character becomes 'a',
-	// second becomes 'b', etc
-	// aqq => abb
-	// cctqq => aabcc
-	transPat := transform(pattern)
-	res := make([]string, 0)
-	for _, word := range words {
-		if t := transform(word); t == transPat {
-			res = append(res, word)
+	buf := make([]byte, len(pattern))
+	normalize := func(s string) string {
+		i := byte('a')
+		var mapping [26]byte
+		for j, ch := range s {
+			if mapping[ch-'a'] == 0 {
+				mapping[ch-'a'] = i
+				i++
+			}
+			buf[j] = mapping[ch-'a']
+		}
+		return string(buf)
+	}
+	pattern = normalize(pattern)
+	var res []string
+	for _, w := range words {
+		if normalize(w) == pattern {
+			res = append(res, w)
 		}
 	}
 	return res
-}
-
-func transform(a string) string {
-	var charPos [26]int
-	res := make([]byte, len(a))
-	pos := 1
-	for i, ch := range a {
-		if charPos[ch-'a'] == 0 {
-			charPos[ch-'a'] = pos
-			pos++
-		}
-		res[i] = byte(charPos[ch-'a'] - 1 + 'a')
-	}
-	return string(res)
 }
