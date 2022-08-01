@@ -25,25 +25,15 @@ func Test_uniquePaths(t *testing.T) {
 }
 
 func uniquePaths(m int, n int) int {
-	// DP-solution
-	// Since the robot can only move down or right, the number of
-	// ways to reach the top and left cells in the grid is one
-	grid := make([][]int, m)
-	for i := range grid {
-		grid[i] = make([]int, n)
-		grid[i][0] = 1
-	}
-	for i := range grid[0] {
-		grid[0][i] = 1
-	}
-
-	// The number of ways the robot can reach any other point in the
-	// grid is the sum of the ways it can reach the position above,
-	// and to the left
-	for i := 1; i < m; i++ {
+	// The way to construct the solution below is to go from a memoization of size
+	// NxN to 2xN to N. Without those steps, it will be very hard to understand
+	// how the solution was conceived.
+	var nways [101]int
+	nways[0] = 1
+	for i := 0; i < m; i++ {
 		for j := 1; j < n; j++ {
-			grid[i][j] = grid[i-1][j] + grid[i][j-1]
+			nways[j] = nways[j-1] + nways[j]
 		}
 	}
-	return grid[m-1][n-1]
+	return nways[n-1]
 }
