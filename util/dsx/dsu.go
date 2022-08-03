@@ -17,18 +17,18 @@ func NewDSU(n int) *DSU {
 	return dsu
 }
 
-func (d *DSU) find(a int) int {
+func (d *DSU) Find(a int) int {
 	if d.parent[a] == a {
 		return a
 	}
-	root := d.find(d.parent[a])
+	root := d.Find(d.parent[a])
 	d.parent[a] = root
 	return root
 }
 
-func (d *DSU) union(a, b int) {
-	a = d.find(a)
-	b = d.find(b)
+func (d *DSU) Union(a, b int) {
+	a = d.Find(a)
+	b = d.Find(b)
 	if a != b {
 		if d.size[a] < d.size[b] {
 			a, b = b, a
