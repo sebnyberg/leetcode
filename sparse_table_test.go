@@ -1,7 +1,7 @@
 package leetcode_test
 
 import (
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"testing"
 
 	"github.com/stretchr/testify/require"

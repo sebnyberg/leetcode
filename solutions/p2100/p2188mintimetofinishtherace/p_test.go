@@ -2,7 +2,7 @@ package p2188mintimetofinishtherace
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"sort"
 	"testing"

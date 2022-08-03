@@ -2,7 +2,7 @@ package p0699fallingsquares
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

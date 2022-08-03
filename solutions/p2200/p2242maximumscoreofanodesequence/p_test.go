@@ -2,7 +2,7 @@ package p2242
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

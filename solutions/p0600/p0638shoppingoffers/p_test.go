@@ -2,7 +2,7 @@ package p0638shoppingoffers
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"strconv"
 	"strings"
 	"testing"

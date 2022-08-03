@@ -3,7 +3,7 @@ package p2203minimumweightedsubgraphwiththerequiredpaths
 import (
 	"container/heap"
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"testing"
 

@@ -2,7 +2,7 @@ package p0646maximumlengthofpairchain
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

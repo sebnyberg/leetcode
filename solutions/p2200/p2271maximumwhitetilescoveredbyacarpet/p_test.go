@@ -2,7 +2,7 @@ package p2271maximumwhitetilescoveredbyacarpet
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

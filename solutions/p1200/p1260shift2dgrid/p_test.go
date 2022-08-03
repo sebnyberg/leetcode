@@ -2,7 +2,7 @@ package p1260shift2dgrid
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"testing"
 
 	"github.com/stretchr/testify/require"

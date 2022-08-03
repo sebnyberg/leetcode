@@ -3,7 +3,7 @@ package p2196createbinarytreefromdescriptions
 import (
 	"container/list"
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"log"
 	"strconv"
 	"strings"

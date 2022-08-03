@@ -3,7 +3,7 @@ package p0499themazeiii
 import (
 	"container/heap"
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"testing"
 

@@ -2,7 +2,7 @@ package p2251numberofflowersinfullbloom
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

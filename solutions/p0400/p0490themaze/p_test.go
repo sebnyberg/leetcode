@@ -2,8 +2,9 @@ package p0490themaze
 
 import (
 	"fmt"
-	"leetcode"
 	"testing"
+
+	"github.com/sebnyberg/leetcode"
 
 	"github.com/stretchr/testify/require"
 )

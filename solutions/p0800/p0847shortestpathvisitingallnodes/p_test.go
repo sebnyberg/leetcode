@@ -2,7 +2,7 @@ package p0847shortestpathvisitingallnodes
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"testing"
 
 	"github.com/stretchr/testify/require"

@@ -2,7 +2,7 @@ package p0407trappingrainwater2
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

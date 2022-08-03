@@ -2,7 +2,7 @@ package p0498diagonaltraverse
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"testing"
 
 	"github.com/stretchr/testify/require"

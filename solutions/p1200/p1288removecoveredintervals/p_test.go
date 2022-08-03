@@ -2,7 +2,7 @@ package p1288removecoveredintervals
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

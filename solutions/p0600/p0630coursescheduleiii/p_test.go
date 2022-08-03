@@ -3,7 +3,7 @@ package p0630coursescheduleiii
 import (
 	"container/heap"
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

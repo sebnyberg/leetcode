@@ -2,7 +2,7 @@ package p2322maximumscoreafterremovalsonatree
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"testing"
 

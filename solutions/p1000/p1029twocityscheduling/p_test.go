@@ -2,7 +2,7 @@ package p1029twocityscheduling
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"sort"
 	"testing"

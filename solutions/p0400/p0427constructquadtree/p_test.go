@@ -1,8 +1,9 @@
 package p0427constructquadtree
 
 import (
-	"leetcode"
 	"testing"
+
+	"github.com/sebnyberg/leetcode"
 )
 
 func TestConstruct(t *testing.T) {

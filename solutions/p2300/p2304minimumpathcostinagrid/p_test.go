@@ -2,7 +2,7 @@ package p2304minimumpathcostinagrid
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"testing"
 

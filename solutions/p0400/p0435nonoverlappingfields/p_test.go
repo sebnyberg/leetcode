@@ -2,10 +2,11 @@ package p0435nonoverlappingintervals
 
 import (
 	"fmt"
-	"leetcode"
 	"math"
 	"sort"
 	"testing"
+
+	"github.com/sebnyberg/leetcode"
 
 	"github.com/stretchr/testify/require"
 )

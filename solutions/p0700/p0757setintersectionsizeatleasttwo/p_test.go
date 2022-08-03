@@ -2,7 +2,7 @@ package p0757setintersectionsizeatleasttwo
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

@@ -3,7 +3,7 @@ package p2158amountofnewareapaintedeachday
 import (
 	"container/heap"
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"testing"
 
 	"github.com/stretchr/testify/require"

@@ -2,7 +2,7 @@ package p0573squirrelsimulation
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"math"
 	"testing"
 

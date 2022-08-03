@@ -2,7 +2,7 @@ package p2312sellingpiecesofwood
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

@@ -2,7 +2,7 @@ package p1057campusbikes
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 

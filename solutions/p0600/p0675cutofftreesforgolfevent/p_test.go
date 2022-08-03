@@ -2,7 +2,7 @@ package p0675cutofftreesforgolfevent
 
 import (
 	"fmt"
-	"leetcode"
+	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
 
