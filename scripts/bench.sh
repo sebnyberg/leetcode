@@ -2,15 +2,15 @@
 
 set -eu
 
-rm -rf tmp
-mkdir tmp
+rm -rf tmp/old.txt tmp/new.txt tmp/res.txt
+[[ ! -e "tmp" ]] && mkdir
 touch tmp/res.txt
 
-for i in {1..200} ; do
-    # go test -run=None -bench=BenchmarkHashSet -benchmem ./done/p0700/p0705designhashsetotherbefore/... | grep HashSet | tee tmp/old.txt 
-    go test -run=None -bench=BenchmarkHashSet -benchmem ./done/p0700/p0705designhashsetotherafter/... | grep HashSet | tee tmp/old.txt 
+for i in {1..5} ; do
+    go test -run=None -bench=BenchmarkA -benchmem ./tmp | tee tmp/old.txt 
 done
 
+benchstat tmp/old.txt
 # benchstat tmp/old.txt tmp/new.txt
 # rm -rf tmp
 
