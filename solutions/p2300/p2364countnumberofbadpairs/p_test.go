@@ -21,14 +21,19 @@ func Test_countBadPairs(t *testing.T) {
 	}
 }
 
+// https://www.github.com/sebnyberg/leetcode
 func countBadPairs(nums []int) int64 {
-	count := make(map[int]int)
+	// The idea here is to adjust each number so that its position is subtracted
+	// from its value.
+	// That way numbers from the same sequence have the same number.
+	// Counting bad pairs is then a matter of counting non-equal prior numbers.
+	count := make(map[int]int, len(nums)/10)
 	var res int64
 	for i := range nums {
-		adj := nums[i] - i
-		totalCount := i - count[adj]
+		x := nums[i] - i
+		totalCount := i - count[x]
 		res += int64(totalCount)
-		count[adj]++
+		count[x]++
 	}
 	return res
 }

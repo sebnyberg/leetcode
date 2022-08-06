@@ -24,16 +24,16 @@ func Test_taskSchedulerII(t *testing.T) {
 	}
 }
 
+// https://www.github.com/sebnyberg/leetcode
 func taskSchedulerII(tasks []int, space int) int64 {
 	m := make(map[int]int64)
-	t := int64(0)
+	var t int64
 	for _, task := range tasks {
 		if _, exists := m[task]; !exists {
 			t++
-			m[task] = t + int64(space) + 1
-			continue
+		} else {
+			t = max(t+1, m[task])
 		}
-		t = max(t+1, m[task])
 		m[task] = t + int64(space) + 1
 	}
 	return t
