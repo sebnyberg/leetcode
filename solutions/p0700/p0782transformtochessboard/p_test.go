@@ -62,9 +62,8 @@ func movesToChessboard(board [][]int) int {
 			colSwap++
 		}
 	}
-	// Row sum and col sum must be half/half (even case), or
-	// half+1/half (odd case). When n is even, n/2 and (n+1)/2 evaluates to the
-	// same number (half).
+	// Row and col sum must be half/half (even case), or half+1/half (odd case).
+	// When n is even, n/2 and (n+1)/2 evaluates to the same number (half).
 	if rowSum != n/2 && rowSum != (n+1)/2 ||
 		colSum != n/2 && colSum != (n+1)/2 {
 		return -1
