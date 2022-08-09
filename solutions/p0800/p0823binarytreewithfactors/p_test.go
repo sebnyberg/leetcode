@@ -23,25 +23,35 @@ func Test_numFactoredBinaryTrees(t *testing.T) {
 	}
 }
 
-const mod = int(1e9 + 7)
+// https://www.github.com/sebnyberg/leetcode
+const mod = 1e9 + 7
 
 func numFactoredBinaryTrees(arr []int) int {
 	sort.Ints(arr)
-	subTrees := make(map[int]int, len(arr))
+	subtrees := make([]int, len(arr))
 	var res int
-	for i, a := range arr {
-		subTrees[a] = 1
-		for j := i - 1; j >= 0; j-- {
-			if a%arr[j] != 0 {
-				continue
-			}
-			v := a / arr[j]
-			if n, exists := subTrees[v]; exists {
-				subTrees[a] += n * subTrees[arr[j]]
+	for i, x := range arr {
+		subtrees[i] = 1 // always at least one element
+		var l int
+		r := i - 1
+		// Find factors that have the product x
+		for l <= r {
+			product := arr[l] * arr[r]
+			if product == x {
+				if l == r {
+					subtrees[i] = (subtrees[i] + subtrees[l]*subtrees[r]) % mod
+				} else {
+					subtrees[i] = (subtrees[i] + 2*subtrees[l]*subtrees[r]) % mod
+				}
+				l++
+				r--
+			} else if product < x {
+				l++
+			} else {
+				r--
 			}
 		}
-		res += subTrees[a] % mod
+		res = (res + subtrees[i]) % mod
 	}
-
 	return res
 }
