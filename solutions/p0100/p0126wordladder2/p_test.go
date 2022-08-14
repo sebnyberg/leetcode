@@ -2,6 +2,7 @@ package p0127wordladder
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -28,73 +29,107 @@ func Test_findLadders(t *testing.T) {
 }
 
 func findLadders(beginWord string, endWord string, wordList []string) [][]string {
-	considered := make([]bool, len(wordList))
-	resIndices := make([][]int, 0)
-	lastWordIdx := -1
-	for i, word := range wordList {
-		if word == endWord {
-			lastWordIdx = i
-		}
-		if isAdj(beginWord, word) {
-			resIndices = append(resIndices, []int{i})
-			considered[i] = true
-		}
-	}
-	if lastWordIdx == -1 {
-		return [][]string{}
-	}
+	n := len(wordList)
+	m := len(wordList[0])
 
-	listLen := 1
-	for len(resIndices) > 0 {
-		if considered[lastWordIdx] {
-			break
+	// Join words together using wildcards
+	// E.g. abcd will be put into the mask-lists *bcd, a*cd, ab*d and abc*
+	encode := func(w []byte) uint32 {
+		var res uint32
+		for _, ch := range w {
+			res = (res * 27) + uint32(ch-'a')
 		}
-		newIndices := make([][]int, 0, 10)
-		for i, otherWord := range wordList {
-			if considered[i] {
-				continue
-			}
-			for _, words := range resIndices {
-				if isAdj(wordList[words[listLen-1]], otherWord) {
-					considered[i] = true
-					wordsCpy := make([]int, listLen+1)
-					copy(wordsCpy, words)
-					wordsCpy[listLen] = i
-					newIndices = append(newIndices, wordsCpy)
-				}
-			}
-		}
-		resIndices = newIndices
-		listLen++
+		return res
 	}
-
-	res := make([][]string, 0, len(resIndices))
-	for _, r := range resIndices {
-		if r[listLen-1] != lastWordIdx {
+	const wildcard = 'a' + 26
+	maskList := make(map[uint32][]uint16)
+	wordList = append(wordList, beginWord)
+	adj := make([][]uint16, n+1)
+	addWord := func(w string, j uint16) {
+		s := []byte(w)
+		adj[j] = make([]uint16, 0, 10)
+		for i := 0; i < m; i++ {
+			s[i] = wildcard
+			e := encode(s)
+			for _, nei := range maskList[e] {
+				adj[nei] = append(adj[nei], j)
+				adj[j] = append(adj[j], nei)
+			}
+			maskList[e] = append(maskList[e], j)
+			s[i] = w[i]
+		}
+	}
+	beginIdx := uint16(n)
+	var endIdx uint16 = math.MaxUint16
+	for i, w := range wordList {
+		if i < n && w == beginWord {
 			continue
 		}
-		ws := make([]string, listLen+1)
-		ws[0] = beginWord
-		for j, idx := range r {
-			ws[j+1] = wordList[idx]
+		if w == endWord {
+			endIdx = uint16(i)
 		}
-		res = append(res, ws)
+		addWord(w, uint16(i))
 	}
-	return res
-}
+	if endIdx == math.MaxUint16 {
+		return [][]string{}
+	}
+	n++
 
-func isAdj(a, b string) bool {
-	if len(a) != len(b) {
-		return false
+	// Next, perform a BFS-based version of Dijkstra
+	// Note! In order to quickly assemble paths from start->end, we search from
+	// end->start during the path search. This way, appending during Dijkstra's
+	// will lead to the correct order.
+	predecessors := make([][]uint16, n)
+	curr := []uint16{endIdx}
+	next := []uint16{}
+	dist := make([]uint16, n)
+	for i := range dist {
+		dist[i] = math.MaxUint16
 	}
-	var dist int
-	for i := range a {
-		if a[i] != b[i] {
-			dist++
+	dist[endIdx] = 0
+	for k := uint16(1); len(curr) > 0; k++ {
+		next = next[:0]
+		for _, x := range curr {
+			if x == beginIdx {
+				goto done
+			}
+			for _, nei := range adj[x] {
+				if dist[nei] < k {
+					continue
+				}
+				if dist[nei] > k {
+					next = append(next, nei)
+				}
+				dist[nei] = k
+				predecessors[nei] = append(predecessors[nei], x)
+			}
 		}
-		if dist > 1 {
-			return false
+		curr, next = next, curr
+	}
+done:
+
+	// Collect results (if any)
+	res := [][]string{}
+	if dist[beginIdx] == math.MaxUint16 {
+		return [][]string{}
+	}
+	pathLen := dist[beginIdx] + 1
+	path := make([]string, pathLen)
+	path[0] = beginWord
+	var j int
+	var buildResult func(curr uint16, i int)
+	buildResult = func(curr uint16, i int) {
+		if curr == endIdx {
+			res = append(res, make([]string, pathLen))
+			copy(res[j], path)
+			j++
+			return
+		}
+		for _, p := range predecessors[curr] {
+			path[i] = wordList[p]
+			buildResult(p, i+1)
 		}
 	}
-	return dist == 1
+	buildResult(beginIdx, 1)
+	return res
 }
