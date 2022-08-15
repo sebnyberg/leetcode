@@ -1,17 +1,10 @@
 package p0013romantoint
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
-
-func check(err error) {
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
 
 func Test_romanToInt(t *testing.T) {
 	for _, tc := range []struct {
@@ -30,64 +23,29 @@ func Test_romanToInt(t *testing.T) {
 	}
 }
 
-const (
-	romanI int = 1
-	romanV int = 5
-	romanX int = 10
-	romanL int = 50
-	romanC int = 100
-	romanD int = 500
-	romanM int = 1000
-)
+var deltaOne [26]int16 = [26]int16{
+	'I' - 'A': 1,
+	'V' - 'A': 5,
+	'X' - 'A': 10,
+	'L' - 'A': 50,
+	'C' - 'A': 100,
+	'D' - 'A': 500,
+	'M' - 'A': 1000,
+}
+
+var deltaTwo [26][26]int16 = [26][26]int16{
+	'I' - 'A': {'X' - 'A': -2, 'V' - 'A': -2},
+	'X' - 'A': {'L' - 'A': -20, 'C' - 'A': -20},
+	'C' - 'A': {'D' - 'A': -200, 'M' - 'A': -200},
+}
 
 func romanToInt(s string) int {
-	if len(s) == 0 {
-		return 0
+	var res int16
+	for i := range s {
+		res += deltaOne[s[i]-'A']
 	}
-	var res int
-	prev := romanM
-	for _, ch := range s {
-		switch ch {
-		case 'I':
-			res += romanI
-			prev = romanI
-		case 'V':
-			res += romanV
-			if prev == romanI {
-				res -= 2
-			}
-			prev = romanV
-		case 'X':
-			res += romanX
-			if prev == romanI {
-				res -= 2
-			}
-			prev = romanX
-		case 'L':
-			res += romanL
-			if prev == romanX {
-				res -= 20
-			}
-			prev = romanL
-		case 'C':
-			res += romanC
-			if prev == romanX {
-				res -= 20
-			}
-			prev = romanC
-		case 'D':
-			res += romanD
-			if prev == romanC {
-				res -= 200
-			}
-			prev = romanD
-		case 'M':
-			res += romanM
-			if prev == romanC {
-				res -= 200
-			}
-			prev = romanM
-		}
+	for i := 1; i < len(s); i++ {
+		res += deltaTwo[s[i-1]-'A'][s[i]-'A']
 	}
-	return res
+	return int(res)
 }
