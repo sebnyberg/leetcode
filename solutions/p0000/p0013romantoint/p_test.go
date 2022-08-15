@@ -23,29 +23,29 @@ func Test_romanToInt(t *testing.T) {
 	}
 }
 
-var deltaOne [26]int16 = [26]int16{
-	'I' - 'A': 1,
-	'V' - 'A': 5,
-	'X' - 'A': 10,
-	'L' - 'A': 50,
-	'C' - 'A': 100,
-	'D' - 'A': 500,
-	'M' - 'A': 1000,
+var deltaOne [22]int16 = [22]int16{
+	'I' - 'C': 1,
+	'V' - 'C': 5,
+	'X' - 'C': 10,
+	'L' - 'C': 50,
+	'C' - 'C': 100,
+	'D' - 'C': 500,
+	'M' - 'C': 1000,
 }
 
-var deltaTwo [26][26]int16 = [26][26]int16{
-	'I' - 'A': {'X' - 'A': -2, 'V' - 'A': -2},
-	'X' - 'A': {'L' - 'A': -20, 'C' - 'A': -20},
-	'C' - 'A': {'D' - 'A': -200, 'M' - 'A': -200},
+var deltaTwo [22][22]int16 = [22][22]int16{
+	'I' - 'C': {'X' - 'C': -2, 'V' - 'C': -2},
+	'X' - 'C': {'L' - 'C': -20, 'C' - 'C': -20},
+	'C' - 'C': {'D' - 'C': -200, 'M' - 'C': -200},
 }
 
 func romanToInt(s string) int {
 	var res int16
 	for i := range s {
-		res += deltaOne[s[i]-'A']
+		res += deltaOne[s[i]-'C']
 	}
 	for i := 1; i < len(s); i++ {
-		res += deltaTwo[s[i-1]-'A'][s[i]-'A']
+		res += deltaTwo[s[i-1]-'C'][s[i]-'C']
 	}
 	return int(res)
 }
