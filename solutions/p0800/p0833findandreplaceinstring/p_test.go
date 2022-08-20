@@ -10,60 +10,50 @@ import (
 
 func Test_findReplaceString(t *testing.T) {
 	for _, tc := range []struct {
-		S       string
-		indexes []int
+		s       string
+		indices []int
 		sources []string
-		target  []string
+		targets []string
 		want    string
 	}{
-		{"vmokgggqzp", []int{3, 5, 1}, []string{"kg", "ggq", "mo"}, []string{"s", "so", "bfr"}, "vbfrssozp"},
 		{"abcd", []int{0, 2}, []string{"a", "cd"}, []string{"eee", "ffff"}, "eeebffff"},
-		{"abcd", []int{0, 2}, []string{"ab", "ec"}, []string{"eee", "ffff"}, "eeecd"},
+		{"abcde", []int{2, 2}, []string{"cdef", "bc"}, []string{"f", "fe"}, "abcde"},
 	} {
-		t.Run(fmt.Sprintf("%+v", tc.S), func(t *testing.T) {
-			require.Equal(t, tc.want, findReplaceString(tc.S, tc.indexes, tc.sources, tc.target))
+		t.Run(fmt.Sprintf("%+v", tc.s), func(t *testing.T) {
+			require.Equal(t, tc.want, findReplaceString(tc.s, tc.indices, tc.sources, tc.targets))
 		})
 	}
 }
 
-type wordReplacer struct {
-	idx       int
-	source    string
-	sourceLen int
-	target    string
-}
-
-func findReplaceString(S string, indexes []int, sources []string, target []string) string {
-	if len(indexes) == 0 {
-		return S
+func findReplaceString(s string, indices []int, sources []string, targets []string) string {
+	type replacement struct {
+		idx    int
+		source string
+		target string
 	}
-	replacers := make([]wordReplacer, len(indexes))
-	for i := range indexes {
-		replacers[i] = wordReplacer{indexes[i], sources[i], len(sources[i]), target[i]}
+	n := len(indices)
+	rs := make([]replacement, n)
+	for i := range indices {
+		rs[i] = replacement{indices[i], sources[i], targets[i]}
 	}
-	sort.Slice(replacers, func(i, j int) bool {
-		return replacers[i].idx < replacers[j].idx
+	// rs = append(rs, replacement{len(s), "", ""})
+	sort.Slice(rs, func(i, j int) bool {
+		return rs[i].idx < rs[j].idx
 	})
-	m := len(replacers)
-	var matchIdx int
-	res := make([]byte, 0)
-	for i := 0; i < len(S); i++ {
-		if matchIdx >= m || i < replacers[matchIdx].idx {
-			res = append(res, S[i])
+	res := make([]byte, 0, len(s))
+	var i int
+	for _, r := range rs {
+		res = append(res, s[i:r.idx]...)
+		j := r.idx + len(r.source)
+		i = r.idx
+		if j > len(s) || s[r.idx:j] != r.source {
 			continue
 		}
-		r := replacers[matchIdx]
-		// Attempt to match
-		if len(S[i:]) < r.sourceLen || S[i:i+r.sourceLen] != r.source {
-			// fail
-			matchIdx++
-			res = append(res, S[i])
-			continue
-		}
-		// success
-		i += r.sourceLen - 1
-		res = append(res, []byte(r.target)...)
-		matchIdx++
+		i = r.idx + len(r.source)
+		res = append(res, r.target...)
+	}
+	if i != len(s) {
+		res = append(res, s[i:]...)
 	}
 	return string(res)
 }
