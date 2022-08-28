@@ -23,29 +23,27 @@ func Test_answerQueries(t *testing.T) {
 	}
 }
 
-type itemsWithIdx struct {
-	items []int
-	idx   []int
-}
-
-func (l *itemsWithIdx) Less(i, j int) bool { return l.items[i] < l.items[j] }
-func (l *itemsWithIdx) Swap(i, j int) {
-	l.items[i], l.items[j] = l.items[j], l.items[i]
-	l.idx[i], l.idx[j] = l.idx[j], l.idx[i]
-}
-func (l *itemsWithIdx) Len() int { return len(l.items) }
-
 func answerQueries(nums []int, queries []int) []int {
+	// There are plenty of approaches to this problem.
+	// The first insight is that sorting the numbers will allow us to find the
+	// smallest subsequence sums in order.
+	// Then you may either sort queries by size then traverse nums, or form a
+	// presum list and use binary search to find the subsequence length.
+	// I opted to sort queries. It requires keeping track of each queries'
+	// original location.
+	type queryIdx struct {
+		sum int
+		idx int
+	}
 	n := len(queries)
-	itemsWithIdx := itemsWithIdx{
-		items: queries,
-		idx:   make([]int, n),
+	qs := make([]queryIdx, n)
+	for i, q := range queries {
+		qs[i] = queryIdx{q, i}
 	}
-	for i := range itemsWithIdx.idx {
-		itemsWithIdx.idx[i] = i
-	}
-	sort.Sort(&itemsWithIdx)
 	sort.Ints(nums)
+	sort.Slice(qs, func(i, j int) bool {
+		return qs[i].sum < qs[j].sum
+	})
 	res := make([]int, n)
 	for i := range res {
 		res[i] = len(nums)
@@ -53,8 +51,8 @@ func answerQueries(nums []int, queries []int) []int {
 	var sum int
 	var j int
 	for i, x := range nums {
-		for j < n && sum+x > itemsWithIdx.items[j] {
-			res[itemsWithIdx.idx[j]] = i
+		for j < n && sum+x > qs[j].sum {
+			res[qs[j].idx] = i
 			j++
 		}
 		sum += x
@@ -62,6 +60,5 @@ func answerQueries(nums []int, queries []int) []int {
 			break
 		}
 	}
-
 	return res
 }

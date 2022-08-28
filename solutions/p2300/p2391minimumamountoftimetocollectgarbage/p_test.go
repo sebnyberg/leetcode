@@ -23,9 +23,8 @@ func Test_garbageCollection(t *testing.T) {
 }
 
 func garbageCollection(garbage []string, travel []int) int {
-	// The result will be determined by the shortest time for a truck to finish
-	// all houses.
-	// Let's just calculate it
+	// This problem was a bit confusing in its description. There is no "minimal"
+	// time - it's just the total time for all trucks to do their work.
 	n := len(garbage)
 	countUnits := func(s string, r rune) int {
 		var res int
@@ -36,9 +35,8 @@ func garbageCollection(garbage []string, travel []int) int {
 		}
 		return res
 	}
-	// Time[0] = time without going
-	var time [3][2]int
-	for i, ch := range []rune{'G', 'P', 'M'} {
+	var time int
+	for _, ch := range []rune{'G', 'P', 'M'} {
 		// Skip any trailing houses
 		j := n - 1
 		for j >= 0 && countUnits(garbage[j], ch) == 0 {
@@ -46,11 +44,11 @@ func garbageCollection(garbage []string, travel []int) int {
 		}
 		// Count time
 		for k := 0; k <= j; k++ {
-			time[i][0] += countUnits(garbage[k], ch)
+			time += countUnits(garbage[k], ch)
 			if k < j {
-				time[i][0] += travel[k]
+				time += travel[k]
 			}
 		}
 	}
-	return time[0][0] + time[1][0] + time[2][0]
+	return time
 }
