@@ -22,19 +22,29 @@ func Test_rotate(t *testing.T) {
 }
 
 func rotate(matrix [][]int) {
-	// To achieve a rotation, transpose on the diagonal, then swap along an axis
-	// Transposition on the \ diagonal results in a swap along the
-	// x-axis which is more cache-efficient
-	n := len(matrix)
-	for r := 0; r < n-1; r++ {
-		for c := r + 1; c < n; c++ {
-			matrix[r][c], matrix[c][r] = matrix[c][r], matrix[r][c]
+	// There are two options:
+	//
+	// 1. Flip along y axis, then flip along anti-diagonal
+	// 2. Flip along x axis, then flip along diagonal
+	//
+	// Flipping along the diagonal is bad for the CPU cache no matter which
+	// direction. However, when it comes to flipping the y versus x axis, the
+	// y-axis is more cache friendly (data is laid out per-row in memory), so
+	// let's go with option 1.
+	//
+	for i := range matrix {
+		for l, r := 0, len(matrix)-1; l < r; l, r = l+1, r-1 {
+			matrix[i][l], matrix[i][r] = matrix[i][r], matrix[i][l]
 		}
 	}
-
-	for r := 0; r < n; r++ {
-		for c := 0; c < n/2; c++ {
-			matrix[r][c], matrix[r][n-c-1] = matrix[r][n-c-1], matrix[r][c]
+	// Flip along anti-diagonal
+	n := len(matrix[0])
+	for i := range matrix {
+		k := n - i - 1
+		for j := 0; j < k; j++ {
+			col := n - i - 1
+			row := n - j - 1
+			matrix[i][j], matrix[row][col] = matrix[row][col], matrix[i][j]
 		}
 	}
 }
