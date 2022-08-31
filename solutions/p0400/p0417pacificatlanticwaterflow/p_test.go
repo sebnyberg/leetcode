@@ -87,7 +87,7 @@ func pacificAtlantic(matrix [][]int) [][]int {
 	}
 
 	for len(curr) > 0 {
-		newTodos := make([]position, 0)
+		next = next[:0]
 		for _, t := range curr {
 			for _, pos := range []position{
 				{t.i - 1, t.j},
@@ -99,12 +99,12 @@ func pacificAtlantic(matrix [][]int) [][]int {
 					continue
 				}
 				if !atlantic[pos.i][pos.j] && matrix[pos.i][pos.j] >= matrix[t.i][t.j] {
-					newTodos = append(newTodos, pos)
+					next = append(next, pos)
 					atlantic[pos.i][pos.j] = true
 				}
 			}
 		}
-		curr = newTodos
+		curr, next = next, curr
 	}
 
 	res := make([][]int, 0)
