@@ -44,19 +44,20 @@ func pacificAtlantic(matrix [][]int) [][]int {
 	}
 
 	// Pacific
-	todos := make([]position, 0, n+m-1)
+	curr := make([]position, 0, n+m-1)
 	for i := range pacific {
 		pacific[i][0] = true
-		todos = append(todos, position{i, 0})
+		curr = append(curr, position{i, 0})
 	}
 	for i := range pacific[0] {
 		pacific[0][i] = true
-		todos = append(todos, position{0, i})
+		curr = append(curr, position{0, i})
 	}
 
-	for len(todos) > 0 {
-		newTodos := make([]position, 0)
-		for _, t := range todos {
+	next := []position{}
+	for len(curr) > 0 {
+		next = next[:0]
+		for _, t := range curr {
 			for _, pos := range []position{
 				{t.i, t.j - 1},
 				{t.i, t.j + 1},
@@ -67,27 +68,27 @@ func pacificAtlantic(matrix [][]int) [][]int {
 					continue
 				}
 				if !pacific[pos.i][pos.j] && matrix[pos.i][pos.j] >= matrix[t.i][t.j] {
-					newTodos = append(newTodos, pos)
+					next = append(next, pos)
 					pacific[pos.i][pos.j] = true
 				}
 			}
 		}
-		todos = newTodos
+		curr, next = next, curr
 	}
 
 	// Atlantic
 	for i := range atlantic {
 		atlantic[i][n-1] = true
-		todos = append(todos, position{i, n - 1})
+		curr = append(curr, position{i, n - 1})
 	}
 	for i := range atlantic[0] {
 		atlantic[m-1][i] = true
-		todos = append(todos, position{m - 1, i})
+		curr = append(curr, position{m - 1, i})
 	}
 
-	for len(todos) > 0 {
+	for len(curr) > 0 {
 		newTodos := make([]position, 0)
-		for _, t := range todos {
+		for _, t := range curr {
 			for _, pos := range []position{
 				{t.i - 1, t.j},
 				{t.i + 1, t.j},
@@ -103,7 +104,7 @@ func pacificAtlantic(matrix [][]int) [][]int {
 				}
 			}
 		}
-		todos = newTodos
+		curr = newTodos
 	}
 
 	res := make([][]int, 0)
