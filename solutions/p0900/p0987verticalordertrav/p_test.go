@@ -80,8 +80,8 @@ func NewTreeFromList(nodesList []int) *TreeNode {
 }
 
 type nodepos struct {
-	x   int
-	y   int
+	i   int
+	j   int
 	val int
 }
 
@@ -89,22 +89,22 @@ func verticalTraversal(root *TreeNode) [][]int {
 	l := make([]nodepos, 0)
 	fill(root, 0, 0, &l)
 	sort.Slice(l, func(i, j int) bool {
-		if l[i].x == l[j].x {
-			if l[i].y == l[j].y {
+		if l[i].j == l[j].j {
+			if l[i].i == l[j].i {
 				return l[i].val < l[j].val
 			}
-			return l[i].y > l[j].y
+			return l[i].i > l[j].i
 		}
-		return l[i].x < l[j].x
+		return l[i].j < l[j].j
 	})
-	res := [][]int{{int(l[0].val)}}
+	res := [][]int{{l[0].val}}
 	j := 0
 	for i := 1; i < len(l); i++ {
-		if l[i].x != l[i-1].x {
+		if l[i].j != l[i-1].j {
 			j++
 			res = append(res, make([]int, 0))
 		}
-		res[j] = append(res[j], int(l[i].val))
+		res[j] = append(res[j], l[i].val)
 	}
 	return res
 }
