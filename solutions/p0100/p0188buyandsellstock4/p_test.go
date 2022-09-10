@@ -1,39 +1,12 @@
-package p0123buyandsellstock3
+package p0188buyandsellstock4
 
 import (
-	"bytes"
 	"fmt"
-	"strconv"
-	"strings"
+	"math"
 	"testing"
-	"text/tabwriter"
 
 	"github.com/stretchr/testify/require"
 )
-
-func dpString(dp [][]int, colname string, rowname string) string {
-	var s bytes.Buffer
-	w := tabwriter.NewWriter(&s, 0, 0, 1, ' ', 0)
-
-	// Write header
-	colIndices := make([]string, len(dp[0]))
-	for i := range dp[0] {
-		colIndices[i] = strconv.Itoa(i)
-	}
-	w.Write([]byte(" \t" + colname + "\t" + strings.Join(colIndices, "\t") + "\n"))
-	fmt.Println(string(rune(218)))
-	w.Write([]byte(rowname + "\t\\\t" + string(strings.Repeat("-\t", len(dp[0]))[:len(dp[0])*2]) + "\n"))
-
-	for i, row := range dp {
-		vals := make([]string, len(row))
-		for j, entry := range row {
-			vals[j] = strconv.Itoa(entry)
-		}
-		w.Write([]byte(strconv.Itoa(i) + "\t|\t" + strings.Join(vals, "\t") + "\n"))
-	}
-	w.Flush()
-	return s.String()
-}
 
 func Test_maxProfit(t *testing.T) {
 	for _, tc := range []struct {
@@ -50,35 +23,48 @@ func Test_maxProfit(t *testing.T) {
 	}
 }
 
-func maxProfit(k int, prices []int) (profit int) {
-	if len(prices) <= 1 {
-		return 0
+func maxProfit(k int, prices []int) int {
+	// For a given day, you can either hold, sell, or buy.
+	//
+	// Since prices are non-negative, the optimal result will be given by selling
+	// 0 to k times.
+	//
+	// Since the optimal is given by selling, it doesn't matter whether we
+	// consider selling or buying to be a "transaction increaser". Here I consider
+	// buying to be a transaction increaser, but it doesn't really matter.
+	//
+	// For a given price, we must consider all possible states: holding with k
+	// transactions, and not holding with k transactions. We can then choose
+	// either to sell when we hold, buy so that we start to hold (and increase the
+	// number of transactions), or not do anything.
+	//
+	// Initially I wrote this as a curr + next state, but by going from end=k to
+	// start I could use only a single state array.
+	var curr [101][2]int
+	const (
+		notHolding = 0
+		holding    = 1
+	)
+	for i := range curr {
+		curr[i][notHolding] = math.MinInt32
+		curr[i][holding] = math.MinInt32
 	}
-	ndays := len(prices)
-	profits := make([]int, ndays)
-	ntrades := k
+	curr[0][notHolding] = 0
+	var maxProfit int
 
-	var minPrice int
-	for k := 0; k < min(ntrades, ndays/2); k++ {
-		minPrice = prices[0]
-		for i := 1; i < ndays; i++ {
-			profits[i], minPrice = max(profits[i-1], prices[i]-minPrice),
-				min(minPrice, prices[i]-profits[i])
+	for _, v := range prices {
+		for j := k; j >= 1; j-- {
+			curr[j][notHolding] = max(curr[j][notHolding], curr[j][holding]+v)
+			curr[j][holding] = max(curr[j][holding], curr[j-1][notHolding]-v)
+			maxProfit = max(maxProfit, curr[j][notHolding])
 		}
 	}
 
-	return profits[ndays-1]
+	return maxProfit
 }
 
 func max(a, b int) int {
 	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
 		return a
 	}
 	return b
