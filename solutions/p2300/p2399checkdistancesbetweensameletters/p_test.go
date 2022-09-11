@@ -22,6 +22,8 @@ func Test_checkDistances(t *testing.T) {
 }
 
 func checkDistances(s string, distance []int) bool {
+	// Store the position of the first occurrence of each character and verify
+	// that the distance to the second occurrence is correct.
 	var pos [26]int
 	for x := range pos {
 		pos[x] = -1
