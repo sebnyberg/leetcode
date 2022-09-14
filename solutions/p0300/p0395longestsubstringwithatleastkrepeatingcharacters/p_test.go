@@ -1,4 +1,4 @@
-package p0393utf8validation
+package p0395longestsubstringwithatleastkrepeatingcharacters
 
 import (
 	"fmt"

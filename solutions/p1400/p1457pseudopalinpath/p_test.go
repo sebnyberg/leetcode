@@ -81,19 +81,15 @@ func Test_pseudoPalindromicPaths(t *testing.T) {
 	}
 }
 
-func init() {
+func pseudoPalindromicPaths(root *TreeNode) int {
+	var bitMasks [10]int16
 	for i := 1; i < 10; i++ {
 		bitMasks[i] = 1 << (i - 1)
 	}
+	return explore(root, 0, bitMasks)
 }
 
-var bitMasks [10]int16
-
-func pseudoPalindromicPaths(root *TreeNode) int {
-	return explore(root, 0)
-}
-
-func explore(node *TreeNode, oddBits int16) int {
+func explore(node *TreeNode, oddBits int16, bitMasks [10]int16) int {
 	if node == nil {
 		return 0
 	}
@@ -116,5 +112,5 @@ func explore(node *TreeNode, oddBits int16) int {
 		return 1
 	}
 
-	return explore(node.Left, oddBits) + explore(node.Right, oddBits)
+	return explore(node.Left, oddBits, bitMasks) + explore(node.Right, oddBits, bitMasks)
 }
