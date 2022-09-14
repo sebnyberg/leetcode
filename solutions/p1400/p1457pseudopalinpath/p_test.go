@@ -4,6 +4,8 @@ import (
 	"container/list"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,102 +17,97 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
-var nilNode *TreeNode
+func ParseTree(input string) *TreeNode {
+	// Trim start/end []
+	input = input[1 : len(input)-1]
 
-func parseTree(nodes []int) *TreeNode {
-	if len(nodes) == 0 {
-		log.Fatalln("more than one node is required to parse a tree")
+	// Split by comma
+	inputParts := strings.Split(input, ",")
+	n := len(inputParts)
+
+	if n == 0 || inputParts[0] == "" {
+		return nil
 	}
-	root := &TreeNode{Val: nodes[0]}
+
+	// Create one node per element in the array
+	nodes := make([]*TreeNode, n)
+	for i, part := range inputParts {
+		if part != "null" {
+			val, err := strconv.Atoi(part)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			nodes[i] = &TreeNode{Val: val}
+		}
+	}
+
 	q := list.New()
-	n := len(nodes)
-	q.PushBack(root)
-	idx := 1
+	q.PushBack(nodes[0])
 
-	for {
-		if q.Len() == 0 {
-			return root
+	i := 1
+	for q.Len() > 0 && i < n {
+		el := q.Remove(q.Front()).(*TreeNode)
+		if nodes[i] != nil {
+			el.Left = nodes[i]
+			q.PushBack(nodes[i])
 		}
-		for size := q.Len(); size > 0; size-- {
-			el := q.Remove(q.Front()).(*TreeNode)
-			if el == nilNode {
-				idx += 2
-				continue
-			}
-			// Left side
-			if idx >= n {
-				return root
-			}
-			if nodes[idx] == -1 {
-				q.PushBack(nilNode)
-			} else {
-				el.Left = &TreeNode{Val: nodes[idx]}
-				q.PushBack(el.Left)
-			}
-			idx++
-
-			// Right side
-			if idx >= n {
-				return root
-			}
-			if nodes[idx] == -1 {
-				q.PushBack(nilNode)
-			} else {
-				el.Right = &TreeNode{Val: nodes[idx]}
-				q.PushBack(el.Right)
-			}
-			idx++
+		i++
+		if i >= n {
+			break
 		}
+		if nodes[i] != nil {
+			el.Right = nodes[i]
+			q.PushBack(nodes[i])
+		}
+		i++
 	}
+
+	return nodes[0]
 }
 
 func Test_pseudoPalindromicPaths(t *testing.T) {
 	for _, tc := range []struct {
-		nodes []int
-		want  int
+		tree string
+		want int
 	}{
-		{[]int{2, 3, 1, 3, 1, -1, 1}, 2},
-		{[]int{2, 1, 1, 1, 3, -1, -1, -1, -1, -1, 1}, 1},
-		{[]int{2, 1, 1, 1, 3, -1, -1, -1, -1, -1, 1}, 1},
-		{[]int{9}, 1},
+		{"[2,3,1,3,1,null,1]", 2},
+		{"[2,1,1,1,3,null,null,null,null,null,1]", 1},
+		{"[9]", 1},
 	} {
-		t.Run(fmt.Sprintf("%v", tc.nodes), func(t *testing.T) {
-			tree := parseTree(tc.nodes)
+		t.Run(fmt.Sprintf("%+v", tc.tree), func(t *testing.T) {
+			tree := ParseTree(tc.tree)
 			require.Equal(t, tc.want, pseudoPalindromicPaths(tree))
 		})
 	}
 }
 
 func pseudoPalindromicPaths(root *TreeNode) int {
-	var bitMasks [10]int16
-	for i := 1; i < 10; i++ {
-		bitMasks[i] = 1 << (i - 1)
-	}
-	return explore(root, 0, bitMasks)
+	var count [10]int
+	return explore(root, count)
 }
 
-func explore(node *TreeNode, oddBits int16, bitMasks [10]int16) int {
+func explore(node *TreeNode, count [10]int) int {
 	if node == nil {
 		return 0
 	}
-	if oddBits&bitMasks[node.Val] == 0 {
-		oddBits |= bitMasks[node.Val]
-	} else {
-		oddBits -= bitMasks[node.Val]
-	}
-
-	if node.Left == nil && node.Right == nil {
-		var foundodd bool
-		for i := 1; i < 10; i++ {
-			if oddBits&bitMasks[i] == bitMasks[i] {
-				if foundodd {
-					return 0
-				}
-				foundodd = true
+	count[node.Val]++
+	res := explore(node.Left, count) + explore(node.Right, count)
+	calc := func() int {
+		var hasOdd bool
+		for _, x := range count {
+			if x&1 == 0 {
+				continue
 			}
+			if hasOdd {
+				return 0
+			}
+			hasOdd = true
 		}
 		return 1
 	}
-
-	return explore(node.Left, oddBits, bitMasks) + explore(node.Right, oddBits, bitMasks)
+	if node.Left == nil && node.Right == nil {
+		res += calc()
+	}
+	count[node.Val]--
+	return res
 }
