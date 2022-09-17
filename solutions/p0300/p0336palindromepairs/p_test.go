@@ -2,11 +2,8 @@ package p0336palindromepairs
 
 import (
 	"fmt"
-	"io"
-	"os"
-	"strings"
+	"sort"
 	"testing"
-	"unsafe"
 
 	"github.com/stretchr/testify/require"
 )
@@ -26,82 +23,102 @@ func Test_palindromePairs(t *testing.T) {
 	}
 }
 
-var res [][]int
-
-func BenchmarkPalindromePairs(b *testing.B) {
-	f, _ := os.Open("testdata/input")
-	bs, _ := io.ReadAll(f)
-	words := make([]string, 0)
-	for _, quotedWord := range strings.Split(string(bs), ",") {
-		words = append(words, quotedWord[1:len(quotedWord)-1])
-	}
-	for i := 0; i < b.N; i++ {
-		b := palindromePairs(words)
-		res = b
-	}
-}
-
 func palindromePairs(words []string) [][]int {
-	n := len(words)
-	wordIndices := make(map[string][]uint16, n)
-	// starWordIndices are words for which the first letter can be anything
-	midPalinWordIndices := make(map[string][]uint16, n)
-	revWords := make([][]byte, n)
-	for wordIdx, word := range words {
-		wordIndices[word] = append(wordIndices[word], uint16(wordIdx))
-		bs := []byte(word)
-		m := len(word)
-		// For each position in the word, try to make a palindrome and add
-		// the remainder to the midPalinWordIndices.
-		for i := 1; i <= m; i++ {
-			if isPalin(bs[:i]) {
-				midPalinWordIndices[word[i:]] = append(midPalinWordIndices[word[i:]], uint16(wordIdx))
-			}
-		}
-		// Store reverse in revWords
-		for l, r := 0, m-1; l < r; l, r = l+1, r-1 {
-			bs[l], bs[r] = bs[r], bs[l]
-		}
-		revWords[wordIdx] = bs
-	}
-
-	res := make([][]int, 0)
-	rhs := make(map[uint16]struct{})
-	for i := range words {
-		m := len(words[i])
-		rev := revWords[i]
-		// right side has palindrome in the middle
-		for _, idx := range midPalinWordIndices[toStr(rev)] {
-			rhs[idx] = struct{}{}
-		}
-		// this side has palindrome in the middle
-		for i := 0; i <= m; i++ {
-			if isPalin(rev[:i]) {
-				for _, idx := range wordIndices[toStr(rev[i:])] {
-					rhs[idx] = struct{}{}
+	// Combining and checking all pairs of words is O((n*m)^2),
+	// where:
+	// n is the number of words, and
+	// m is the length of the combined word.
+	//
+	// However, when considering a certain word, there are only
+	// so many ways to combine that word with another word to
+	// form a new word.
+	// For example, we start with sorting words by length.
+	// Then for each word, we check all possible words that the
+	// word could be combined with to form a palindrome, such that
+	// the other word has shorter or equal length to the current
+	// word. Any such word is counted.
+	//
+	// First, we create an auxiliary item which retains the original
+	// position along with the word
+	//
+	// Then, let's consider the example words:
+	// ["a", "lls", "abcd", "dcba", "sssll"]
+	//
+	// We need to find all candidates which could be added to "a" on
+	// either its left or right side such that the candidate is smaller
+	// or equal in length to "a".
+	//
+	// We can do that by moving a window on left and right side such that the
+	// windows left or right boundary always falls within the word, and the other
+	// boundary falls outside.
+	//
+	// If the missing portion of the word has been seen already, then there is a
+	// match.
+	buf := []byte{}
+	findMatches := func(seenAtIdx map[string][]int, l, r int, word string) []int {
+		buf = buf[:0]
+		doReverse := r >= len(word)
+		for ; l < r; l, r = l+1, r-1 {
+			if l < 0 {
+				buf = append(buf, word[r])
+			} else if r >= len(word) {
+				buf = append(buf, word[l])
+			} else {
+				if word[l] != word[r] {
+					return nil
 				}
 			}
 		}
-		delete(rhs, uint16(i)) // in case there was a self-reference
-		for rhsIdx := range rhs {
-			res = append(res, []int{i, int(rhsIdx)})
+		if doReverse {
+			for ll, rr := 0, len(buf)-1; ll < rr; ll, rr = ll+1, rr-1 {
+				buf[ll], buf[rr] = buf[rr], buf[ll]
+			}
 		}
-		for k := range rhs {
-			delete(rhs, k)
+		return seenAtIdx[string(buf)]
+	}
+	type item struct {
+		idx  int
+		word string
+	}
+	n := len(words)
+	ws := make([]item, n)
+	for i, w := range words {
+		ws[i] = item{idx: i, word: w}
+	}
+	sort.Slice(ws, func(i, j int) bool {
+		return len(ws[i].word) < len(ws[j].word)
+	})
+	seenAtIdx := make(map[string][]int)
+	isPalindrome := func(s string) bool {
+		for l, r := 0, len(s)-1; l < r; l, r = l+1, r-1 {
+			if s[l] != s[r] {
+				return false
+			}
 		}
+		return true
+	}
+
+	var res [][]int
+	for _, w := range ws {
+		// Move a window over the word and find possible matches
+		for l := -len(w.word); l < 0; l++ {
+			for _, w2Idx := range findMatches(seenAtIdx, l, len(w.word)-1, w.word) {
+				res = append(res, []int{w2Idx, w.idx})
+			}
+		}
+		// Move a window over the word and find possible matches
+		for r := len(w.word)*2 - 1; r >= len(w.word); r-- {
+			for _, w2Idx := range findMatches(seenAtIdx, 0, r, w.word) {
+				res = append(res, []int{w.idx, w2Idx})
+			}
+		}
+		// Annoying, special case of adding nothing at all...
+		if isPalindrome(w.word) {
+			for _, w2Idx := range seenAtIdx[""] {
+				res = append(res, []int{w2Idx, w.idx}, []int{w.idx, w2Idx})
+			}
+		}
+		seenAtIdx[w.word] = append(seenAtIdx[w.word], w.idx)
 	}
 	return res
-}
-
-func toStr(bs []byte) string {
-	return *(*string)(unsafe.Pointer(&bs))
-}
-
-func isPalin(bs []byte) bool {
-	for l, r := 0, len(bs)-1; l < r; l, r = l+1, r-1 {
-		if bs[l] != bs[r] {
-			return false
-		}
-	}
-	return true
 }
