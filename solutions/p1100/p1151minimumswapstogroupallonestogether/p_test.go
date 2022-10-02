@@ -1,4 +1,4 @@
-package p1155minimumswapstogroupallonestogether
+package p1151minimumswapstogroupallonestogether
 
 import (
 	"fmt"
