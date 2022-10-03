@@ -14,9 +14,9 @@ func Test_numRollsToTarget(t *testing.T) {
 		target int
 		want   int
 	}{
+		{30, 30, 500, 222616187},
 		{1, 6, 3, 1},
 		{2, 6, 7, 6},
-		{30, 30, 500, 222616187},
 	} {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			require.Equal(t, tc.want, numRollsToTarget(tc.n, tc.k, tc.target))
