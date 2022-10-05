@@ -5,7 +5,7 @@
 ** Choosing between BFS and DFS
 For a binary tree, the worst-case complexity of BFS and DFS is the same.
 
-For BFS, the worst case scenario is a balanced tree, which requires iteration to
+For BFS, the worst-case scenario is a balanced tree, which requires iteration to
 hold two rows in memory (current and previous) at the same time. The last row of
 such a tree contains half of the total number of nodes, so BFS will need
 $\mathcal{O}(n)$ space.
@@ -15,9 +15,9 @@ nodes from root to leaf. Each time the function is recursively called, a new
 stack frame is allocated, which contains more than just the TreeNode. Please see
 [[https://github.com/golang/go/blob/ddc7d2a80cdac50cbbfb9108b443142f44a5ef1d/src/runtime/stack.go#L530][src/runtime/stack.go]].
 
-I prefer the BFS approach, because the problem is inherently about managing rows
-of the tree. The choice of algorithm is not only about complexity, but also
-about the message you are trying to convey.
+I prefer BFS for this problem, because it is inherently about managing rows of
+the tree. The choice of algorithm is not only about its time and space
+complexity, but also about the message you are trying to convey.
 
 ** BFS
 Iterate over the tree, row-by-row. Once depth is 2, insert the row below the current one.
