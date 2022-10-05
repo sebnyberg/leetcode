@@ -2,15 +2,29 @@
 #+author: Sebastian N
 #+auto_tangle: t
 
-* BFS
-Iterate over the tree, level by level. Once depth is 2, the children should be
-replaced with new TreeNodes.
+** Choosing between BFS and DFS
+For a binary tree, the worst-case complexity of BFS and DFS is the same.
 
-Pros: code is intuitive and sends the message that we are concerned with levels
-of the tree.
+For BFS, the worst case scenario is a balanced tree, which requires iteration to
+hold two rows in memory (current and previous) at the same time. The last row of
+such a tree contains half of the total number of nodes, so BFS will need
+$\mathcal{O}(n)$ space.
 
-Cons: memory grows with the width of the tree, i.e. $O\(w\)$ where w is the width of
-the tree. For a very large tree this can become a problem.
+For DFS, the worst-case scenario is an unbalanced tree consisting of a string of
+nodes from root to leaf. Each time the function is recursively called, a new
+stack frame is allocated, which contains more than just the TreeNode. Please see
+[[https://github.com/golang/go/blob/ddc7d2a80cdac50cbbfb9108b443142f44a5ef1d/src/runtime/stack.go#L530][src/runtime/stack.go]].
+
+I prefer the BFS approach, because the problem is inherently about managing rows
+of the tree. The choice of algorithm is not only about complexity, but also
+about the message you are trying to convey.
+
+** BFS
+Iterate over the tree, row-by-row. Once depth is 2, insert the row below the current one.
+
+Time: $\mathcal{O}(n)$
+
+Space: $\mathcal{O}(n/2) = \mathcal{O}(n)$
 
 #+begin_src go :tangle bfs.go
 package p0623addonerowtotree
@@ -40,7 +54,7 @@ Iterate over nodes until ~curr~ contains the parent of the row to be inserted.
 Note! A very common mistake that people make here is to allocate a new slice on
 each iteration. By swapping ~curr~ and ~next~ and re-slicing, we can re-use
 memory that would otherwise be lost (for the GC to collect). If you do this,
-then memory use is $O\(N\)$ rather than $O\(W\)$.
+then memory use is $O\left(N\right)$ rather than $O\left(W\right)$.
 #+begin_src go :tangle bfs.go
 	for i := 2; i < depth; i++ {
 		next = next[:0]
@@ -67,9 +81,13 @@ Insert the new row and return.
 }
 #+end_src
 
-* DFS
+** DFS
 With depth-first search, the tree is traversed while decrementing depth until
 depth is 2. Then, the current node's children with the new row.
+
+Time: $\mathcal{O}(n)$
+
+Space: $\mathcal{O}(n)$
 
 #+begin_src go :tangle dfs.go
 package p0623addonerowtotree
@@ -107,4 +125,3 @@ tree.
 	return root
 }
 #+end_src
-
