@@ -1,0 +1,110 @@
+#+title: 632. Add One Row to Tree
+#+author: Sebastian N
+#+auto_tangle: t
+
+* BFS
+Iterate over the tree, level by level. Once depth is 2, the children should be
+replaced with new TreeNodes.
+
+Pros: code is intuitive and sends the message that we are concerned with levels
+of the tree.
+
+Cons: memory grows with the width of the tree, i.e. $O\(w\)$ where w is the width of
+the tree. For a very large tree this can become a problem.
+
+#+begin_src go :tangle bfs.go
+package p0623addonerowtotree
+
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+func addOneRow(root *TreeNode, val int, depth int) *TreeNode {
+#+end_src
+
+Create a dummy node and list of nodes for the current and next rows. The dummy
+is often called a /sentinel/ value because it's used to deal with edge cases
+that would otherwise require conditional logic. For this problem, it handles
+the case where depth is 1 and the root node must be replaced.
+#+begin_src go :tangle bfs.go
+	dummy := &TreeNode{Left: root}
+	curr := []*TreeNode{dummy}
+	next := []*TreeNode{}
+
+#+end_src
+
+Iterate over nodes until ~curr~ contains the parent of the row to be inserted.
+
+Note! A very common mistake that people make here is to allocate a new slice on
+each iteration. By swapping ~curr~ and ~next~ and re-slicing, we can re-use
+memory that would otherwise be lost (for the GC to collect). If you do this,
+then memory use is $O\(N\)$ rather than $O\(W\)$.
+#+begin_src go :tangle bfs.go
+	for i := 2; i < depth; i++ {
+		next = next[:0]
+		for _, node := range curr {
+			if node.Left != nil {
+				next = append(next, node.Left)
+			}
+			if node.Right != nil {
+				next = append(next, node.Right)
+			}
+		}
+		curr, next = next, curr
+	}
+#+end_src
+
+Insert the new row and return.
+#+begin_src go :tangle bfs.go
+	for _, node := range curr {
+		node.Left = &TreeNode{Val: val, Left: node.Left}
+		node.Right = &TreeNode{Val: val, Left: node.Right}
+	}
+
+	return dummy.Left
+}
+#+end_src
+
+* DFS
+With depth-first search, the tree is traversed while decrementing depth until
+depth is 2. Then, the current node's children with the new row.
+
+#+begin_src go :tangle dfs.go
+package p0623addonerowtotree
+
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+func addOneRow(root *TreeNode, val int, depth int) *TreeNode {
+#+end_src
+
+Special case: replacing the root of the tree. It does not matter whether we set
+the Left or Right child.
+#+begin_src go :tangle dfs.go
+	if depth == 1 {
+		return &TreeNode{Val: val, Left: root}
+	}
+#+end_src
+
+Insert the new row once the depth is 2. Otherwise, traverse further down the
+tree.
+#+begin_src go :tangle dfs.go
+	if root == nil {
+		return nil
+	}
+	if depth == 2 {
+		root.Left = &TreeNode{Val: val, Left: root.Left}
+		root.Right = &TreeNode{Val: val, Right: root.Right}
+	} else {
+		root.Left = addOneRow(root.Left, val, depth-1)
+		root.Right = addOneRow(root.Right, val, depth-1)
+	}
+	return root
+}
+#+end_src
+
