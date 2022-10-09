@@ -1,0 +1,76 @@
+#+title:  981. Time Based Key-Value Store
+#+author: Sebastian Nyberg
+#+auto_tangle: t
+
+* Introduction
+Since timestamps are in ascending order, we can append to lists on ~set~ and use
+binary search on ~get~.
+
+The only real "trick" is to separate timestamps from values.
+
+To understand why that is important, you need to consider how a computer works.
+The CPU loads words from main memory into its registers to execute instructions.
+After that, the register contents are put into the CPU cache in case they are
+referenced again.
+
+The cache has multiple levels: typically L1, L2, and L3. Each cache is larger
+and takes longer to load from.
+
+When a program references less memory, the CPU is more likely to find that
+memory in a nearby cache, increasing execution speed significantly. This is why
+we can cut execution time by separating values from timestamps, even though the
+theoretical complexity does not change at all.
+
+Time: $\mathcal{O}(n\cdot\log{n})$
+
+Space: $\mathcal{O}(n)$
+
+* Insertion sort
+Define ~TimeMap~ and ~value~ containing each timestamp and value.
+
+#+begin_src go :tangle insert.go
+package p0981timebasedkeyvaluestore
+
+import (
+	"sort"
+)
+
+type TimeMap struct {
+	timestamps map[string][]int
+	values     map[string][]string
+}
+
+func Constructor() TimeMap {
+	return TimeMap{
+		timestamps: make(map[string][]int),
+		values:     make(map[string][]string),
+	}
+}
+#+end_src
+
+** Set
+Simply insert on set. Entries will be sorted by timestamp.
+#+begin_src go :tangle insert.go
+func (this *TimeMap) Set(key string, v string, timestamp int) {
+	this.timestamps[key] = append(this.timestamps[key], timestamp)
+	this.values[key] = append(this.values[key], v)
+}
+#+end_src
+
+** Get
+Use binary search to find the element (if such an element exists).
+#+begin_src go :tangle insert.go
+func (this *TimeMap) Get(key string, timestamp int) string {
+	if this.timestamps[key] == nil {
+		return ""
+	}
+	tss := this.timestamps[key]
+	i := sort.Search(len(tss), func(i int) bool {
+		return tss[i] > timestamp
+	})
+	if i == 0 {
+		return ""
+	}
+	return this.values[key][i-1]
+}
+#+end_src
