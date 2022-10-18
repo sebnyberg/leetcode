@@ -23,16 +23,21 @@ func Test_countAndSay(t *testing.T) {
 }
 
 func countAndSay(n int) string {
-	if n == 1 {
-		return "1"
-	}
-	s := countAndSay(n - 1)
-	res := make([]byte, 0)
-	var end int
-	for start := 0; start < len(s); start = end {
-		for end = start + 1; end < len(s) && s[end] == s[start]; end++ {
+	res := []byte("1")
+	next := []byte{}
+	for i := 1; i < n; i++ {
+		next = next[:0]
+		count := 0
+		for j := range res {
+			if j == len(res)-1 || res[j] != res[j+1] {
+				next = append(next, fmt.Sprint(count+1)...)
+				next = append(next, res[j])
+				count = 0
+			} else {
+				count++
+			}
 		}
-		res = append(res, byte(end-start+'0'), s[start])
+		res, next = next, res
 	}
-	return *(*string)(unsafe.Pointer(&res))
+	return string(res)
 }
