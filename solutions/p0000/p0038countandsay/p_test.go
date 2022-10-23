@@ -3,7 +3,6 @@ package p0038countandsay
 import (
 	"fmt"
 	"testing"
-	"unsafe"
 
 	"github.com/stretchr/testify/require"
 )
