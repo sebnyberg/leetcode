@@ -25,15 +25,15 @@ func Test_checkSubarraySum(t *testing.T) {
 
 func checkSubarraySum(nums []int, k int) bool {
 	modSum := nums[0] % k
-	seen := make(map[int]bool)
+	seen := make(map[int]struct{})
 	prev := modSum
 	for _, n := range nums[1:] {
 		modSum += n
 		modSum %= k
-		if modSum == 0 || seen[modSum] {
+		if _, exists := seen[modSum]; exists || modSum == 0 {
 			return true
 		}
-		seen[prev] = true
+		seen[prev] = struct{}{}
 		prev = modSum
 	}
 	return false
