@@ -1,8 +1,8 @@
 package p0835imageoverlap
 
-<<<<<<< HEAD
 import (
 	"fmt"
+	"math/bits"
 	"testing"
 
 	"github.com/sebnyberg/leetcode"
@@ -28,90 +28,45 @@ func Test_largestOverlap(t *testing.T) {
 }
 
 func largestOverlap(img1 [][]int, img2 [][]int) int {
-	// There are only 30*30 different offsets, so we can just try all options
 	m := len(img1)
 	n := len(img1[0])
-	shifted := make([][]int, m)
-	for i := range shifted {
-		shifted[i] = make([]int, n)
-	}
-	reset := func() {
-		for i := range shifted {
-			for j := range shifted[i] {
-				shifted[i][j] = 0
-			}
-		}
-	}
-	shift := func(dx, dy int) {
-		reset()
-		for i := range img1 {
-			for j, v := range img1[i] {
-				ii := i + dy
-				jj := j + dx
-				if ii < 0 || jj < 0 || ii >= m || jj >= n {
-					continue
-				}
-				shifted[ii][jj] = v
-			}
-		}
-	}
-	countOverlap := func() int {
-		var res int
-		for i := range img2 {
-			for j, v := range img2[i] {
-				res += v & shifted[i][j]
-			}
-		}
-		return res
-	}
-	max := func(a, b int) int {
-		if a > b {
-			return a
-		}
-		return b
-	}
-	var res int
-	for dy := -m; dy <= m; dy++ {
-		for dx := -n; dx <= n; dx++ {
-			shift(dx, dy)
-			res = max(res, countOverlap())
-=======
-func largestOverlap(img1 [][]int, img2 [][]int) int {
-	// Since the images are small, their possible states are enumerable and can
-	// be kept small with bitmaps.
-	//
-	// The idea is simply to try all possible mutations and match.
 
-	m := len(img1)
-	n := len(img1[0])
-	seen := make(map[[30][30]byte]struct{})
-	var i1 [30][30]byte
-	var i2 [30][30]byte
+	// Convert images to bitmaps
+	var image1 [30]uint32
+	var image2 [30]uint32
 	for i := range img1 {
 		for j := range img1[i] {
-			i1[i][j] = byte(img1[i][j])
-			i2[i][j] = byte(img2[i][j])
+			image1[i] = (image1[i] << 1) | uint32(img1[i][j])
+			image2[i] = (image2[i] << 1) | uint32(img2[i][j])
 		}
 	}
-	seen[i1] = struct{}{}
-	res := dfs(seen, i1, &i2, m, n)
-	return res
-}
 
-func overlap(i1, i2 *[30][30]byte, m, n int) int {
+	// For each possible shift in x and y axis, try it and count common bits
 	var res int
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			res += int(i1[i][j] & i2[i][j])
->>>>>>> f177715 (Start work on daily)
+	for dy := -m; dy <= m; dy++ {
+		for dx := 0; dx < n; dx++ {
+			var left int
+			var right int
+			for i := 0; i < m; i++ {
+				j := i + dy
+				if j < 0 || j >= m {
+					continue
+				}
+				// Note: we do not need to worry about going out of bounds
+				// because the other image could not share those bits.
+				left += bits.OnesCount32(image2[i] & (image1[j] << dx))
+				right += bits.OnesCount32(image2[i] & (image1[j] >> dx))
+			}
+			res = max(res, left)
+			res = max(res, right)
 		}
 	}
 	return res
 }
-<<<<<<< HEAD
-=======
 
-func dfs(seen map[[30][30]byte]struct{}, i1 [30][30]byte, i2 *[30][30]byte, m, n int) int {
-
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
->>>>>>> f177715 (Start work on daily)
