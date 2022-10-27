@@ -1,5 +1,6 @@
 package p0835imageoverlap
 
+<<<<<<< HEAD
 import (
 	"fmt"
 	"testing"
@@ -74,7 +75,43 @@ func largestOverlap(img1 [][]int, img2 [][]int) int {
 		for dx := -n; dx <= n; dx++ {
 			shift(dx, dy)
 			res = max(res, countOverlap())
+=======
+func largestOverlap(img1 [][]int, img2 [][]int) int {
+	// Since the images are small, their possible states are enumerable and can
+	// be kept small with bitmaps.
+	//
+	// The idea is simply to try all possible mutations and match.
+
+	m := len(img1)
+	n := len(img1[0])
+	seen := make(map[[30][30]byte]struct{})
+	var i1 [30][30]byte
+	var i2 [30][30]byte
+	for i := range img1 {
+		for j := range img1[i] {
+			i1[i][j] = byte(img1[i][j])
+			i2[i][j] = byte(img2[i][j])
+		}
+	}
+	seen[i1] = struct{}{}
+	res := dfs(seen, i1, &i2, m, n)
+	return res
+}
+
+func overlap(i1, i2 *[30][30]byte, m, n int) int {
+	var res int
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			res += int(i1[i][j] & i2[i][j])
+>>>>>>> f177715 (Start work on daily)
 		}
 	}
 	return res
 }
+<<<<<<< HEAD
+=======
+
+func dfs(seen map[[30][30]byte]struct{}, i1 [30][30]byte, i2 *[30][30]byte, m, n int) int {
+
+}
+>>>>>>> f177715 (Start work on daily)
