@@ -28,14 +28,13 @@ func Test_largestOverlap(t *testing.T) {
 }
 
 func largestOverlap(img1 [][]int, img2 [][]int) int {
-	m := len(img1)
 	n := len(img1[0])
 
 	// Convert images to bitmaps
 	var image1 [30]uint32
 	var image2 [30]uint32
 	for i := range img1 {
-		for j := range img1[i] {
+		for j := range img1 {
 			image1[i] = (image1[i] << 1) | uint32(img1[i][j])
 			image2[i] = (image2[i] << 1) | uint32(img2[i][j])
 		}
@@ -43,13 +42,13 @@ func largestOverlap(img1 [][]int, img2 [][]int) int {
 
 	// For each possible shift in x and y axis, try it and count common bits
 	var res int
-	for dy := -m; dy <= m; dy++ {
+	for dy := -n + 1; dy < n; dy++ {
 		for dx := 0; dx < n; dx++ {
 			var left int
 			var right int
-			for i := 0; i < m; i++ {
+			for i := 0; i < n; i++ {
 				j := i + dy
-				if j < 0 || j >= m {
+				if j < 0 || j >= n {
 					continue
 				}
 				// Note: we do not need to worry about going out of bounds
