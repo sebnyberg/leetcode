@@ -28,7 +28,7 @@ func Test_largestOverlap(t *testing.T) {
 }
 
 func largestOverlap(img1 [][]int, img2 [][]int) int {
-	n := len(img1[0])
+	n := len(img1)
 
 	// Convert images to bitmaps
 	var image1 [30]uint32

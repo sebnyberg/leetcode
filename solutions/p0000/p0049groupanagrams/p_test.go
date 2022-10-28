@@ -1,12 +1,5 @@
 package p0049groupanagrams
 
-import (
-	"fmt"
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
 func groupAnagrams(strs []string) [][]string {
 	m := make(map[[32]byte][]string)
 	for _, s := range strs {
