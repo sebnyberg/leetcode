@@ -26,22 +26,19 @@ func Test_reorderedPowerOf2(t *testing.T) {
 	}
 }
 
-// Version 1
-// Calculate all powers of 2 (up to 32 bits)
-// Convert to a sorted string of numbers
-// Convert N to a sorted string and check if it is in the list of numbers
-func reorderedPowerOf2(N int) bool {
-	powersOf2 := make(map[string]struct{})
-	n := 1
-	for i := 0; i < 32; i++ {
-		s := []byte(strconv.Itoa(n))
-		sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })
-		powersOf2[string(s)] = struct{}{}
-		n <<= 1
+func reorderedPowerOf2(n int) bool {
+	var numCount [10]int
+	for x := n; x > 0; x /= 10 {
+		numCount[x%10]++
 	}
-
-	s := []byte(strconv.Itoa(N))
-	sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })
-	_, exists := powersOf2[string(s)]
-	return exists
+	for a := 1; a <= (1 << 32); a <<= 1 {
+		var wantCount [10]int
+		for x := a; x > 0; x /= 10 {
+			wantCount[x%10]++
+		}
+		if wantCount == numCount {
+			return true
+		}
+	}
+	return false
 }

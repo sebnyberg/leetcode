@@ -23,57 +23,50 @@ func Test_advantageCount(t *testing.T) {
 	}
 }
 
-func advantageCount(A []int, B []int) []int {
-	// A high number in A is a "high value number"
-	// So, if we sort numbers in A by size (desc), the first occurrence will
-	// be the most valuable number in A.
-	// Similarly, a high value in B is difficult to beat, and low value
-	// numbers in B are easy to beat.
+type numSorter struct {
+	nums    []int
+	indices []int
+}
 
-	// Could use insertion sort here instead
-	bb := make([]int, len(B))
-	copy(bb, B)
+func (s *numSorter) Swap(i, j int) {
+	s.nums[i], s.nums[j] = s.nums[j], s.nums[i]
+	s.indices[i], s.indices[j] = s.indices[j], s.indices[i]
+}
 
-	sort.Slice(A, func(i, j int) bool { return A[i] > A[j] })
-	sort.Slice(bb, func(i, j int) bool { return bb[i] > bb[j] })
+func (s numSorter) Len() int {
+	return len(s.nums)
+}
 
-	// Count values in A
-	counts := make(map[int]int)
-	for _, n := range A {
-		counts[n]++
+func (s numSorter) Less(i, j int) bool {
+	return s.nums[i] < s.nums[j]
+}
+
+func advantageCount(nums1 []int, nums2 []int) []int {
+	n := len(nums1)
+	s := &numSorter{
+		nums:    nums2,
+		indices: make([]int, n),
 	}
-
-	// Match values in the sorted versions of A and B
-	matchedValues := make(map[int][]int)
-	var j int
-	for _, n := range bb {
-		switch {
-		case A[j] > n: // match - shift both i and j
-			matchedValues[n] = append(matchedValues[n], A[j])
-			counts[A[j]]--
+	for i := range nums2 {
+		s.indices[i] = i
+	}
+	sort.Ints(nums1)
+	sort.Sort(s)
+	res := make([]int, n)
+	any := make([]int, 0, n/10)
+	var i, j int
+	for i < n && j < n {
+		if nums1[i] <= s.nums[j] {
+			any = append(any, nums1[i])
+			i++
+		} else {
+			res[s.indices[j]] = nums1[i]
 			j++
-		case A[j] <= n: // no match - do not shift j
+			i++
 		}
 	}
-
-	unmatchedStack := make([]int, 0)
-	for unmatchedValue, count := range counts {
-		for i := 0; i < count; i++ {
-			unmatchedStack = append(unmatchedStack, unmatchedValue)
-		}
+	for k := j; k < n; k++ {
+		res[s.indices[k]] = any[k-j]
 	}
-
-	// For values that matched, put them in the resulting array
-	for i, n := range B {
-		if matched := matchedValues[n]; len(matched) > 0 {
-			A[i] = matched[len(matched)-1]
-			matchedValues[n] = matched[:len(matched)-1] // Pop
-			continue
-		}
-		// did not match value, pick some element from unmatched values
-		A[i] = unmatchedStack[len(unmatchedStack)-1]
-		unmatchedStack = unmatchedStack[:len(unmatchedStack)-1]
-	}
-
-	return A
+	return res
 }
