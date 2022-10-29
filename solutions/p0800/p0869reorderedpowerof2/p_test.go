@@ -2,8 +2,6 @@ package p0869reorderedpowerof2
 
 import (
 	"fmt"
-	"sort"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"

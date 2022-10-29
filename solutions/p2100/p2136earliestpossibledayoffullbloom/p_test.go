@@ -2,7 +2,7 @@ package p2136earliestpossibledayoffullbloom
 
 import (
 	"fmt"
-	"sort"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -27,38 +27,30 @@ func Test_earliestFullBloom(t *testing.T) {
 	}
 }
 
-type sorter struct {
-	p []int
-	g []int
-}
-
-func (f *sorter) Swap(i, j int) {
-	f.p[i], f.p[j] = f.p[j], f.p[i]
-	f.g[i], f.g[j] = f.g[j], f.g[i]
-}
-
-func (f *sorter) Less(i, j int) bool {
-	if f.g[i] == f.g[j] {
-		return f.p[i] > f.p[j]
-	}
-	return f.g[i] > f.g[j]
-}
-
-func (f *sorter) Len() int {
-	return len(f.p)
-}
-
 func earliestFullBloom(plantTime []int, growTime []int) int {
-	f := &sorter{plantTime, growTime}
-	sort.Sort(f)
-
-	var day int
-	var maxEnd int
+	var sums [10001]uint32
+	var maxGrowTime int
+	minGrowTime := math.MaxInt32
 	for i := range plantTime {
-		day += plantTime[i]
-		maxEnd = max(maxEnd, day+growTime[i])
+		sums[growTime[i]] += uint32(plantTime[i])
+		maxGrowTime = max(maxGrowTime, growTime[i])
+		minGrowTime = min(minGrowTime, growTime[i])
 	}
-	return maxEnd
+	var sum int
+	var res int
+	for i := maxGrowTime; i >= minGrowTime; i-- {
+		sum += int(sums[i])
+		res = max(res, sum+i)
+	}
+
+	return int(res)
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func max(a, b int) int {
