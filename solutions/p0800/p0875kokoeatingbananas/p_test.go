@@ -25,28 +25,20 @@ func Test_minEatingSpeed(t *testing.T) {
 }
 
 func minEatingSpeed(piles []int, h int) int {
-	var max int
-	for _, p := range piles {
-		if p > max {
-			max = p
-		}
-	}
-
-	lo, hi := 1, max
-	for lo < hi {
-		mid := (lo + hi) / 2
-
+	check := func(k int) bool {
 		hh := h
-		ok := true
 		for _, p := range piles {
-			hh -= ((p - 1) / mid) + 1
+			hh -= 1 + (p-1)/k
 			if hh < 0 {
-				ok = false
 				break
 			}
 		}
-
-		if ok {
+		return hh >= 0
+	}
+	lo, hi := 1, math.MaxInt32
+	for lo < hi {
+		mid := lo + (hi-lo)/2
+		if check(mid) {
 			hi = mid
 		} else {
 			lo = mid + 1
