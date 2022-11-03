@@ -23,43 +23,26 @@ func Test_longestPalindrome(t *testing.T) {
 }
 
 func longestPalindrome(words []string) int {
-	pairCount := make(map[string]int)
-	for _, word := range words {
-		pairCount[word]++
+	m := make(map[[2]byte]int)
+	for _, w := range words {
+		m[[2]byte{w[0], w[1]}]++
 	}
-	var res int
-	var hasMiddle bool
-	for word, count := range pairCount {
-		r := rev(word)
-		if r == word {
-			if count%2 == 1 {
-				hasMiddle = true
-			}
-			res += (count / 2) * 4
-		} else {
-			n := pairCount[r]
-			pairCount[r] -= min(n, count)
-			pairCount[word] -= min(n, count)
-			res += min(n, count) * 4
+	var middle int
+	var pairCount int
+	for w, x := range m {
+		if w[0] > w[1] {
+			continue
 		}
+		if w[0] == w[1] {
+			middle |= x & 1
+		} else {
+			ss := [2]byte{w[1], w[0]}
+			if m[ss] < x {
+				x = m[ss]
+			}
+			x *= 2
+		}
+		pairCount += x - x&1
 	}
-	if hasMiddle {
-		res += 2
-	}
-	return res
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func rev(s string) string {
-	bs := []byte(s)
-	for l, r := 0, len(s)-1; l < r; l, r = l+1, r-1 {
-		bs[l], bs[r] = bs[r], bs[l]
-	}
-	return string(bs)
+	return (pairCount + middle) * 2
 }
