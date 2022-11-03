@@ -1,8 +1,8 @@
 package p0899orderlyqueue
 
 import (
-	"bytes"
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,28 +24,20 @@ func Test_orderlyQueue(t *testing.T) {
 }
 
 func orderlyQueue(s string, k int) string {
-	// If k == 1, then the only available action is to rotate s until reaching
-	// the lexicographically smallest value
+	// Trial and error made me realize that for k = 0, the best rotation wins
 	if k == 1 {
-		bs := make([]byte, len(s)*2)
-		copy(bs, s)
-		copy(bs[len(s):], s)
-		smallest := s
+		res := s
 		for i := 1; i < len(s); i++ {
-			if cand := string(bs[i : i+len(s)]); cand < smallest {
-				smallest = cand
+			if u := s[i:] + s[:i]; u < res {
+				res = u
 			}
 		}
-		return smallest
+		return res
 	}
-	// k > 0, any combination is possible. Sort string lexicographically
-	var charCount [26]int
-	for _, ch := range s {
-		charCount[ch-'a']++
-	}
-	res := make([]byte, 0, len(s))
-	for ch, count := range charCount {
-		res = append(res, bytes.Repeat([]byte{byte(ch) + 'a'}, count)...)
-	}
-	return string(res)
+	// And for k >= 2, we can shuffle the string any way we like
+	bs := []byte(s)
+	sort.Slice(bs, func(i, j int) bool {
+		return bs[i] < bs[j]
+	})
+	return string(bs)
 }
