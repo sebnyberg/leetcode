@@ -34,76 +34,78 @@ func check(err error) {
 }
 
 func superpalindromesInRange(left string, right string) int {
-	lower, err := strconv.Atoi(left)
-	check(err)
-	upper, err := strconv.Atoi(right)
-	check(err)
-
-	// Odd palindrome
-	superPalindromes := make(map[string]struct{})
-	for i := 1; i < 100000; i++ {
-		// Form square root palindromes by copying i to the left side
-		s := strconv.Itoa(i)
-
-		ss := s + rev(s[:len(s)-1])
-		ssn, err := strconv.Atoi(ss)
-		check(err)
-		ssn *= ssn
-		if ssn > upper {
-			break
+	l := mustParse(left)
+	r := mustParse(right)
+	rev := func(s string) string {
+		b := []byte(s)
+		for l, r := 0, len(s)-1; l < r; l, r = l+1, r-1 {
+			b[l], b[r] = b[r], b[l]
 		}
-		if ssn >= lower {
-			sss := strconv.Itoa(ssn)
-			if sss == rev(sss) {
-				superPalindromes[sss] = struct{}{}
+		return string(b)
+	}
+	var res int
+	for k := 1; ; k++ {
+		if k == 1 {
+			for x := 1; x <= 9; x++ {
+				if x*x < l {
+					continue
+				}
+				if x*x > r {
+					return res
+				}
+				if isPalin(x * x) {
+					res++
+				}
+			}
+			continue
+		}
+		lo := pow(10, k/2-1)
+		hi := pow(10, k/2)
+		for y := 0; y < pow(10, k&1); y++ {
+			for x := lo; x < hi; x++ {
+				var mid string
+				if k&1 == 1 {
+					mid = fmt.Sprint(y)
+				}
+				v := mustParse(fmt.Sprint(x) + mid + rev(fmt.Sprint(x)))
+				if v*v < l {
+					continue
+				}
+				if v*v > r {
+					return res
+				}
+				if isPalin(v * v) {
+					res++
+				}
 			}
 		}
 	}
-
-	// Even palindrome
-	for i := 1; i < 100000; i++ {
-		// Form square root palindromes by copying i to the left side
-		s := strconv.Itoa(i)
-
-		ss := s + rev(s)
-
-		// Check if square is also palindrome
-		ssn, err := strconv.Atoi(ss)
-		check(err)
-		ssn *= ssn
-		if ssn > upper {
-			break
-		}
-		if ssn >= lower {
-			sss := strconv.Itoa(ssn)
-			if sss == rev(sss) {
-				superPalindromes[sss] = struct{}{}
-			}
-		}
-	}
-
-	return len(superPalindromes)
 }
 
-// func isPalindrome(n int) bool {
-// 	bs := make([]byte, 0)
-// 	for n >= 10 {
-// 		bs = append(bs, byte(n%10))
-// 		n /= 10
-// 	}
-// 	bs = append(bs, byte(n))
-// 	for l, r := 0, len(bs)-1; l <= r; l, r = l+1, r-1 {
-// 		if bs[l] != bs[r] {
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
-
-func rev(s string) string {
-	bs := []byte(s)
-	for l, r := 0, len(s)-1; l < r; l, r = l+1, r-1 {
-		bs[l], bs[r] = bs[r], bs[l]
+func mustParse(s string) int {
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		panic(err)
 	}
-	return string(bs)
+	return int(v)
+}
+
+func isPalin(v int) bool {
+	s := fmt.Sprint(v)
+	for l, r := 0, len(s)-1; l < r; l, r = l+1, r-1 {
+		if s[l] != s[r] {
+			return false
+		}
+	}
+	return true
+}
+
+func pow(a, b int) int {
+	if b == 0 {
+		return 1
+	}
+	if b == 1 {
+		return a
+	}
+	return pow(a, b/2) * pow(a, b/2+b&1)
 }

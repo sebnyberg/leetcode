@@ -21,24 +21,29 @@ func Test_sumSubarrayMins(t *testing.T) {
 	}
 }
 
-const mod = 1_000_000_007
+const mod = 1e9 + 7
 
 func sumSubarrayMins(arr []int) int {
-	stack := make([]int, 0)
-	arr = append(arr, -30001, 0)
-	copy(arr[1:], arr)
-	arr[0] = -30001
+	stack := []int{-1}
+	count := []int{0}
 	var res int
-	var stacklen int
-	for i, n := range arr {
-		for stacklen > 1 && arr[stack[stacklen-1]] > n {
-			a := stack[stacklen-1]
-			stack = stack[:stacklen-1]
-			stacklen--
-			res += arr[a] * (i - a) * (a - stack[stacklen-1])
+	var delta int
+	n := 1
+	for _, v := range arr {
+		x := 1
+		delta += v
+		for stack[n-1] >= v {
+			delta = (delta - count[n-1]*stack[n-1] + mod) % mod
+			x += count[n-1]
+			delta = (delta + count[n-1]*v) % mod
+			stack = stack[:n-1]
+			count = count[:n-1]
+			n--
 		}
-		stack = append(stack, i)
-		stacklen++
+		stack = append(stack, v)
+		count = append(count, x)
+		n++
+		res = (res + delta) % mod
 	}
-	return res % mod
+	return res
 }

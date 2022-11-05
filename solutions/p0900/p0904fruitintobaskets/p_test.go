@@ -22,64 +22,32 @@ func Test_totalFruit(t *testing.T) {
 	}
 }
 
-func totalFruit(tree []int) int {
-	var maxFruits int
-
-	// This is somewhat easy to solve but not easy to write in a readable manner
-	// One way is to keep two "fruits", one previous and one current
-	// Both fruits contain a min and max index
-	// Once a fruit comes that does not match previous or current, current
-	// becomes previous, and previous min index is changed to the position after
-	// the old previous max index.
-
-	type fruit struct {
-		fruitType int
-		minIdx    int
-		maxIdx    int
-	}
-	curFruit := fruit{fruitType: -1, minIdx: -1, maxIdx: -1}
-	prevFruit := fruit{fruitType: -1, minIdx: -1, maxIdx: -1}
-	for i, curTree := range tree {
-		switch {
-		case curTree == curFruit.fruitType:
-			curFruit.maxIdx = i
-		case curTree == prevFruit.fruitType:
-			prevFruit.maxIdx = i
-		default:
-			// Check if there is a new max count
-			maxFruits = max(maxFruits,
-				max(curFruit.maxIdx, prevFruit.maxIdx)-min(curFruit.minIdx, prevFruit.minIdx)+1,
-			)
-			// The fruit with the greatest max index should become prev fruit
-			if prevFruit.maxIdx > curFruit.maxIdx {
-				curFruit, prevFruit = prevFruit, curFruit
+func totalFruit(fruits []int) int {
+	// When adding a fruit would introduce a third type,
+	// remove fruits from the window until count is down to one
+	m := make(map[int]int)
+	var n int
+	var l int
+	var res int
+	for r := range fruits {
+		if m[fruits[r]] == 0 {
+			for n >= 2 {
+				if m[fruits[l]] == 1 {
+					n--
+				}
+				m[fruits[l]]--
+				l++
 			}
-			curFruit.minIdx = prevFruit.maxIdx + 1
-			prevFruit = curFruit
-			curFruit = fruit{
-				fruitType: curTree,
-				minIdx:    i,
-				maxIdx:    i,
-			}
+			n++
 		}
+		m[fruits[r]]++
+		res = max(res, r-l+1)
 	}
-	// Check if there is a new max count
-	maxFruits = max(maxFruits,
-		max(curFruit.maxIdx, prevFruit.maxIdx)-min(curFruit.minIdx, prevFruit.minIdx)+1,
-	)
-
-	return maxFruits
+	return res
 }
 
 func max(a, b int) int {
 	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
 		return a
 	}
 	return b
