@@ -13,9 +13,9 @@ func Test_findWords(t *testing.T) {
 		words []string
 		want  []string
 	}{
-		{[][]byte{{'a'}}, []string{"a"}, []string{"a"}},
 		{[][]byte{{'o', 'a', 'a', 'n'}, {'e', 't', 'a', 'e'}, {'i', 'h', 'k', 'r'}, {'i', 'f', 'l', 'v'}}, []string{"oath", "pea", "eat", "rain"}, []string{"eat", "oath"}},
 		{[][]byte{{'a', 'b'}, {'c', 'd'}}, []string{"abd", "acd"}, []string{"abd", "acd"}},
+		{[][]byte{{'a'}}, []string{"a"}, []string{"a"}},
 	} {
 		t.Run(fmt.Sprintf("%+v/%v", tc.board, tc.words), func(t *testing.T) {
 			require.ElementsMatch(t, tc.want, findWords(tc.board, tc.words))
@@ -23,86 +23,65 @@ func Test_findWords(t *testing.T) {
 	}
 }
 
+type trieNode struct {
+	next [26]*trieNode
+	word string
+}
+
 func findWords(board [][]byte, words []string) []string {
-	// create trie
-	root := &trieNode{
-		children: make(map[byte]*trieNode),
-	}
-	for _, word := range words {
-		node := root
-		for i := range word {
-			ch := word[i]
-			if _, exists := node.children[ch]; !exists {
-				node.children[ch] = &trieNode{
-					children: make(map[byte]*trieNode),
-				}
+	m := len(board)
+	n := len(board[0])
+
+	root := &trieNode{}
+	for _, w := range words {
+		curr := root
+		for _, ch := range w {
+			if curr.next[ch-'a'] == nil {
+				curr.next[ch-'a'] = &trieNode{}
 			}
-			node = node.children[ch]
+			curr = curr.next[ch-'a']
 		}
-		node.val = word
+		curr.word = w
 	}
 
-	// Keep track of the positions that have been visited
-	m, n := len(board), len(board[0])
-	visited := make([][]bool, m)
-	for i := range board {
-		visited[i] = make([]bool, n)
-	}
-
-	// For each position on the board
-	f := wordFinder{
-		words:   make(map[string]struct{}),
-		board:   board,
-		visited: visited,
-		n:       n,
-		m:       m,
-	}
+	var visited [12][12]bool
+	seen := make(map[string]struct{})
 	for i := range board {
 		for j := range board[i] {
-			f.findWordsWithTrie(root, i, j)
+			explore(board, seen, root, &visited, i, j, m, n)
 		}
 	}
-
-	result := make([]string, 0, len(f.words))
-	for word := range f.words {
-		result = append(result, word)
+	var res []string
+	for w := range seen {
+		res = append(res, w)
 	}
-
-	return result
+	return res
 }
 
-type wordFinder struct {
-	words   map[string]struct{}
-	visited [][]bool
-	board   [][]byte
-	n       int
-	m       int
-}
-
-func (f *wordFinder) invalidPosition(i, j int) bool {
-	return i >= f.m || i < 0 || j >= f.n || j < 0
-}
-
-func (f *wordFinder) findWordsWithTrie(trie *trieNode, i, j int) {
-	if f.invalidPosition(i, j) || f.visited[i][j] {
+// explore the board from a given starting position, following routes in the
+// trie and adding words to seen.
+func explore(
+	board [][]byte,
+	seen map[string]struct{},
+	curr *trieNode,
+	visited *[12][12]bool,
+	i, j, m, n int,
+) {
+	next := curr.next[board[i][j]-'a']
+	if next == nil {
 		return
 	}
-	if _, exists := trie.children[f.board[i][j]]; !exists {
-		return
+	if next.word != "" {
+		seen[next.word] = struct{}{}
 	}
-	f.visited[i][j] = true
-	trie = trie.children[f.board[i][j]]
-	if trie.val != "" {
-		f.words[trie.val] = struct{}{}
+	visited[i][j] = true
+	for _, d := range [][2]int{{0, 1}, {1, 0}, {-1, 0}, {0, -1}} {
+		ii := i + d[0]
+		jj := j + d[1]
+		if ii < 0 || jj < 0 || ii >= m || jj >= n || visited[ii][jj] {
+			continue
+		}
+		explore(board, seen, next, visited, ii, jj, m, n)
 	}
-	// visit adjacent positions
-	for _, pos := range [][2]int{{i - 1, j}, {i + 1, j}, {i, j - 1}, {i, j + 1}} {
-		f.findWordsWithTrie(trie, pos[0], pos[1])
-	}
-	f.visited[i][j] = false
-}
-
-type trieNode struct {
-	children map[byte]*trieNode
-	val      string // Terminal nodes are marked with a value
+	visited[i][j] = false
 }
