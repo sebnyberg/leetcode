@@ -1,4 +1,4 @@
-package p0991brokencalculator
+package p0991brokencalc
 
 import (
 	"fmt"
@@ -9,31 +9,35 @@ import (
 
 func Test_brokenCalc(t *testing.T) {
 	for _, tc := range []struct {
-		startValue int
-		target     int
-		want       int
+		X    int
+		Y    int
+		want int
 	}{
-		{1, 1e9, 39},
-		{1024, 1, 1023},
-		{2, 3, 2},
-		{5, 8, 2},
-		{3, 10, 3},
+		{1, 1000000000, 39},
+		// {2, 3, 2},
+		// {5, 8, 2},
+		// {3, 10, 3},
+		// {1024, 1, 1023},
 	} {
-		t.Run(fmt.Sprintf("%+v", tc.startValue), func(t *testing.T) {
-			require.Equal(t, tc.want, brokenCalc(tc.startValue, tc.target))
+		t.Run(fmt.Sprintf("%v/%v", tc.X, tc.Y), func(t *testing.T) {
+			require.Equal(t, tc.want, brokenCalc(tc.X, tc.Y))
 		})
 	}
 }
 
-func brokenCalc(startValue int, target int) int {
-	var steps int
-	for target > startValue {
-		steps++
-		if target&1 == 1 {
-			target++
+func brokenCalc(X int, Y int) (ops int) {
+	got := X
+	want := Y
+	for want > got {
+		if want%2 == 1 {
+			want++
 		} else {
-			target >>= 1
+			want /= 2
 		}
+		ops++
 	}
-	return steps + (startValue - target)
+	if got > want {
+		ops += got - want
+	}
+	return ops
 }
