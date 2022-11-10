@@ -3,26 +3,23 @@ package p0932beautifularray
 import (
 	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func Test_beautifulArray(t *testing.T) {
-	for _, tc := range []struct {
-		n int
+	for i, tc := range []struct {
+		n    int
+		want []int
 	}{
-		{4},
-		{5},
+		{4, []int{2, 1, 4, 3}},
+		{5, []int{3, 1, 2, 5, 4}},
 	} {
-		t.Run(fmt.Sprintf("%+v", tc.n), func(t *testing.T) {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			res := beautifulArray(tc.n)
-			// Validate
-			require.True(t, len(res) >= 3)
-			for i := 0; i < len(res)-2; i++ {
-				for j := i + 2; j < len(res); j++ {
-					for k := i + 1; k < j; k++ {
-						if res[i]+res[j] == 2*res[k] {
-							t.Fatalf("arr %+v failed condition on i=%v, k=%v, j=%v\n%v+%v = 2*%v", res, i, j, k, res[i], res[j], res[k])
+			for k := 1; k < len(res)-1; k++ {
+				for i := 0; i < k; i++ {
+					for j := k + 1; j < len(res); j++ {
+						if res[i]+res[j] == res[k]*2 {
+							t.FailNow()
 						}
 					}
 				}
@@ -32,9 +29,21 @@ func Test_beautifulArray(t *testing.T) {
 }
 
 func beautifulArray(n int) []int {
-	// Observations:
-	// * A pair of odd + even is always safe in positions i and j
-	// * A pair of odd or even is safe iff positions k inbetween do not contain
-	//   the pair divided by 2
-	return []int{3, 1, 2, 5, 4}
+	if n == 0 {
+		return []int{}
+	}
+	if n == 1 {
+		return []int{1}
+	}
+	left := beautifulArray(n/2 + n&1)
+	right := beautifulArray(n / 2)
+	res := make([]int, len(left)+len(right))
+	for i := range left {
+		res[i] = left[i]*2 - 1
+	}
+	for i := range right {
+		j := len(left) + i
+		res[j] = right[i] * 2
+	}
+	return res
 }
