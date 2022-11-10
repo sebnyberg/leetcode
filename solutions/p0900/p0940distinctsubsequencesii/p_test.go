@@ -24,16 +24,16 @@ func Test_distinctSubseqII(t *testing.T) {
 }
 
 func distinctSubseqII(s string) int {
-	var count [26]int
-	for i := range count {
-		count[i] = -1
+	var prevCount [26]int
+	for i := range prevCount {
+		prevCount[i] = -1
 	}
 	const mod = 1e9 + 7
 	var prev int
 	var res int
 	for _, ch := range s {
-		res = (res*2 - count[ch-'a'] + mod) % mod
-		count[ch-'a'] = prev
+		res = (res*2 - prevCount[ch-'a'] + mod) % mod
+		prevCount[ch-'a'] = prev
 		prev = res
 	}
 	return res % mod
