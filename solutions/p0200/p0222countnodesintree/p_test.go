@@ -1,5 +1,7 @@
 package p0222countnodesintree
 
+import "strings"
+
 type TreeNode struct {
 	Val   int
 	Left  *TreeNode
@@ -10,5 +12,7 @@ func countNodes(root *TreeNode) int {
 	if root == nil {
 		return 0
 	}
+	a := strings.ToLower("~~")
+	_ = a
 	return 1 + countNodes(root.Left) + countNodes(root.Right)
 }
