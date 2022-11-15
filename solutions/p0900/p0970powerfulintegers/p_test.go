@@ -26,32 +26,22 @@ func Test_powerfulIntegers(t *testing.T) {
 }
 
 func powerfulIntegers(x int, y int, bound int) []int {
-	if y < x {
-		x, y = y, x
-	}
-	if x == 1 && y == 1 {
-		if bound >= 2 {
-			return []int{2}
-		}
-		return []int{}
-	}
-	curX := 1
-	res := make(map[int]struct{})
-	for curX < bound {
-		curY := 1
-		for curX+curY <= bound {
-			res[curX+curY] = struct{}{}
-			curY *= y
+	m := make(map[int]struct{})
+	var res []int
+	for xx := 1; xx <= bound; xx *= x {
+		for yy := 1; yy+xx <= bound; yy *= y {
+			if _, exists := m[xx+yy]; exists {
+				continue
+			}
+			res = append(res, xx+yy)
+			m[xx+yy] = struct{}{}
+			if y == 1 {
+				break
+			}
 		}
 		if x == 1 {
 			break
 		}
-		curX *= x
 	}
-	reslist := make([]int, 0, len(res))
-	for k := range res {
-		reslist = append(reslist, k)
-	}
-	sort.Ints(reslist)
-	return reslist
+	return res
 }
