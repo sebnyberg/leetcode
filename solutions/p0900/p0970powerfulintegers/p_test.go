@@ -2,7 +2,6 @@ package p0970powerfulintegers
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
