@@ -26,47 +26,35 @@ func Test_equationsPossible(t *testing.T) {
 }
 
 func equationsPossible(equations []string) bool {
-	eq := NewDSU(26)
-	for _, equation := range equations {
-		if equation[1] != '=' {
-			continue
-		}
-		eq.union(int(equation[0]-'a'), int(equation[3]-'a'))
+	var parent [26]byte
+	for i := range parent {
+		parent[i] = byte(i)
 	}
-
-	for _, equation := range equations {
-		if equation[1] != '!' {
-			continue
+	var find func(byte) byte
+	find = func(a byte) byte {
+		if parent[a] == a {
+			return a
 		}
-		a, b := int(equation[0]-'a'), int(equation[3]-'a')
-		if a == b || eq.find(a) == eq.find(b) {
-			return false
+		return find(parent[a])
+	}
+	union := func(a, b byte) {
+		parent[find(a)] = find(b)
+	}
+	for _, eq := range equations {
+		if eq[1] == '=' {
+			a := eq[0] - 'a'
+			b := eq[3] - 'a'
+			union(a, b)
+		}
+	}
+	for _, eq := range equations {
+		if eq[1] == '!' {
+			a := eq[0] - 'a'
+			b := eq[3] - 'a'
+			if find(a) == find(b) {
+				return false
+			}
 		}
 	}
 	return true
-}
-
-type DSU struct {
-	parent []int
-}
-
-func NewDSU(n int) *DSU {
-	dsu := &DSU{
-		parent: make([]int, n),
-	}
-	for i := 0; i < n; i++ {
-		dsu.parent[i] = i
-	}
-	return dsu
-}
-
-func (d *DSU) find(a int) int {
-	if p := d.parent[a]; p != a {
-		return d.find(d.parent[a])
-	}
-	return a
-}
-
-func (d *DSU) union(a, b int) {
-	d.parent[d.find(a)] = d.find(b)
 }

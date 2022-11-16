@@ -25,35 +25,40 @@ func Test_subarraysWithKDistinct(t *testing.T) {
 }
 
 func subarraysWithKDistinct(nums []int, k int) int {
-	// Convert this into two sub-problems: finding the number of subarrays with
-	// at most K distinct characters, then take count(K) - count(K-1) to get the
-	// answer.
-	a := countSubarraysWithAtMostKDistinct(nums, k-1)
-	b := countSubarraysWithAtMostKDistinct(nums, k)
-	return b - a
-}
-
-func countSubarraysWithAtMostKDistinct(nums []int, k int) int {
-	if k == 0 {
-		return 0
-	}
-	l := 0
-	numCount := make(map[int]int)
-	ndistinct := 0
-	res := 0
-	for r, num := range nums {
-		if numCount[num] == 0 {
+	// Greedy solution
+	// Keep track of the number of distinct numbers from nums[l:i]
+	// Whenever possible, move l and increment the number of variants
+	// The variants keeps track of the redundant prefix of the window
+	n := len(nums)
+	count := make([]int, n+1)
+	var ndistinct int
+	var l int
+	variants := 1
+	var res int
+	for _, x := range nums {
+		if count[x] == 0 {
 			ndistinct++
 		}
-		numCount[num]++
-		for l < r && ndistinct > k {
-			numCount[nums[l]]--
-			if numCount[nums[l]] == 0 {
+		count[x]++
+		if ndistinct < k {
+			continue
+		}
+		for ndistinct > k {
+			variants = 1
+			count[nums[l]]--
+			if count[nums[l]] == 0 {
 				ndistinct--
 			}
 			l++
 		}
-		res += r - l + 1
+		// count how many numbers could be removed from the left while keeping k
+		// distinct numbers around
+		for count[nums[l]] > 1 {
+			variants++
+			count[nums[l]]--
+			l++
+		}
+		res += variants
 	}
 	return res
 }
