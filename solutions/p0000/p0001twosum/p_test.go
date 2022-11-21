@@ -29,6 +29,7 @@ func twoSum(nums []int, target int) []int {
 	// form the target.
 	// Time and space complexity: O(n)
 
+	// Things
 	numIdx := make(map[int]int, len(nums))
 	for i, n1 := range nums {
 		if j, exists := numIdx[target-n1]; exists {
