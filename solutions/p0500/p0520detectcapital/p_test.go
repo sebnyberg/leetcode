@@ -2,8 +2,8 @@ package p0520detectcapital
 
 import (
 	"fmt"
+	"strings"
 	"testing"
-	"unicode"
 
 	"github.com/stretchr/testify/require"
 )
@@ -24,18 +24,7 @@ func Test_detectCapitalUse(t *testing.T) {
 }
 
 func detectCapitalUse(word string) bool {
-	isUpper := func(ch byte) bool {
-		return unicode.Is(unicode.Upper, rune(ch))
-	}
-	isLower := func(ch byte) bool {
-		return unicode.Is(unicode.Lower, rune(ch))
-	}
-
-	for i := 0; i < len(word)-1; i++ {
-		if i > 0 && isUpper(word[i]) && isLower(word[i+1]) ||
-			isLower(word[i]) && isUpper(word[i+1]) {
-			return false
-		}
-	}
-	return true
+	lo := strings.ToLower(word)
+	up := strings.ToUpper(word)
+	return up == word || word[1:] == lo[1:]
 }
