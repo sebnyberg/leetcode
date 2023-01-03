@@ -21,11 +21,11 @@ services:
       POSTGRES_PASSWORD: secretpassword
 
   sqlserver:
-    image: "mcr.microsoft.com/mssql/server"
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     ports:
     - 11433:1433
     environment:
-      SA_PASSWORD: Leetcode@123
+      MSSQL_SA_PASSWORD: Leetcode@123
       ACCEPT_EULA: "Y"
 
 # Names our volume
