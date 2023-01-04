@@ -22,54 +22,41 @@ func Test_shortestPathBinaryMatrix(t *testing.T) {
 	}
 }
 
-type pos struct{ i, j int }
-
 func shortestPathBinaryMatrix(grid [][]int) int {
-	if grid[0][0] == 1 {
+	n := len(grid[0])
+	if grid[0][0] == 1 || grid[n-1][n-1] == 1 {
 		return -1
 	}
-	m := len(grid)
-	n := len(grid[0])
-	available := make([][]bool, m+2)
-	for i := range available {
-		available[i] = make([]bool, n+2)
+	if n == 1 {
+		return 1
 	}
-	for i := range grid {
-		for j := range grid[i] {
-			if grid[i][j] == 0 {
-				available[i+1][j+1] = true
-			}
-		}
+	curr := [][2]int{{0, 0}}
+	next := [][2]int{}
+	seen := make(map[[2]int]bool)
+	seen[curr[0]] = true
+	dirs := [][2]int{{1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}}
+	ok := func(i, j int) bool {
+		return i >= 0 && j >= 0 && i < n && j < n
 	}
 
-	todo := map[pos]struct{}{
-		{1, 1}: {},
-	}
-
-	steps := 1
-	for len(todo) > 0 {
-		// for each position in todo, pop it and add all nearby
-		// available positions to the list of todos
-		for todoPos := range todo {
-			if todoPos.i == m && todoPos.j == n {
-				return steps
-			}
-			available[todoPos.i][todoPos.j] = false
-		}
-		newTodo := make(map[pos]struct{})
-		for t := range todo {
-			for _, nearby := range []pos{
-				{t.i - 1, t.j - 1}, {t.i - 1, t.j}, {t.i - 1, t.j + 1},
-				{t.i, t.j - 1}, {t.i, t.j}, {t.i, t.j + 1},
-				{t.i + 1, t.j - 1}, {t.i + 1, t.j}, {t.i + 1, t.j + 1},
-			} {
-				if available[nearby.i][nearby.j] {
-					newTodo[nearby] = struct{}{}
+	for k := 2; len(curr) > 0; k++ {
+		next = next[:0]
+		for _, x := range curr {
+			for _, d := range dirs {
+				ii := x[0] + d[0]
+				jj := x[1] + d[1]
+				q := [2]int{ii, jj}
+				if !ok(ii, jj) || seen[q] || grid[ii][jj] == 1 {
+					continue
 				}
+				if q == [2]int{n - 1, n - 1} {
+					return k
+				}
+				seen[q] = true
+				next = append(next, q)
 			}
 		}
-		todo = newTodo
-		steps++
+		curr, next = next, curr
 	}
 
 	return -1
