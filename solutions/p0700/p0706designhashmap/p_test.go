@@ -1,50 +1,81 @@
 package p0706designhashmap
 
-import "math"
-
-type item struct {
-	key   int
-	value int
-}
+const empty = -1
+const tombstone = -2
 
 type MyHashMap struct {
-	items [][]*item
+	entries []int
+	keys    []int
+	n       int
+	nmax    int
 }
 
-/** Initialize your data structure here. */
 func Constructor() MyHashMap {
-	return MyHashMap{
-		items: make([][]*item, 1000),
-	}
+	var m MyHashMap
+	m.nmax = 70
+	m.grow()
+	return m
 }
 
-/** value will always be non-negative. */
+func findSlot(keys []int, key int) int {
+	n := len(keys)
+	j := key % n
+	for keys[j] != empty && keys[j] != key {
+		j = (j + 1) % n
+	}
+	return j
+}
+
+func (curr *MyHashMap) grow() {
+	nmax := curr.nmax * 2
+	entries := make([]int, nmax)
+	keys := make([]int, nmax)
+	for i := range keys {
+		keys[i] = empty
+	}
+	var n int
+	for i, k := range curr.keys {
+		if k < 0 {
+			continue
+		}
+		n++
+		j := findSlot(keys, k)
+		entries[j] = curr.entries[i]
+		keys[j] = k
+	}
+	curr.nmax = nmax
+	curr.keys = keys
+	curr.entries = entries
+	curr.n = n
+}
+
 func (this *MyHashMap) Put(key int, value int) {
-	for _, it := range this.items[key%1000] {
-		if it.key == key {
-			it.value = value
-			return
-		}
+	if this.n*100/this.nmax >= 70 {
+		this.grow()
 	}
-	this.items[key%1000] = append(this.items[key%1000], &item{key, value})
+	j := findSlot(this.keys, key)
+	if this.keys[j] == empty {
+		this.n++
+	}
+	this.keys[j] = key
+	this.entries[j] = value
 }
 
-/** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
 func (this *MyHashMap) Get(key int) int {
-	for _, it := range this.items[key%1000] {
-		if it.key == key {
-			return it.value
-		}
+	if this.n*100/this.nmax >= 70 {
+		this.grow()
+	}
+	j := findSlot(this.keys, key)
+	if this.keys[j] >= 0 {
+		return this.entries[j]
 	}
 	return -1
+
 }
 
-/** Removes the mapping of the specified value key if this map contains a mapping for the key */
 func (this *MyHashMap) Remove(key int) {
-	for _, it := range this.items[key%1000] {
-		if it.key == key {
-			it.key = math.MinInt64
-			return
-		}
+	j := findSlot(this.keys, key)
+	if this.keys[j] != empty {
+		this.keys[j] = tombstone
 	}
 }
