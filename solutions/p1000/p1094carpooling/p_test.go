@@ -26,25 +26,25 @@ func Test_carPooling(t *testing.T) {
 }
 
 func carPooling(trips [][]int, capacity int) bool {
-	type change struct {
-		delta int16
-		time  int16
+	type delta struct {
+		t int
+		d int
 	}
-
-	changes := make([]change, 0, len(trips)*2)
+	deltas := []delta{}
 	for _, t := range trips {
-		changes = append(changes,
-			change{int16(-t[0]), int16(t[1])},
-			change{int16(t[0]), int16(t[2])},
-		)
+		deltas = append(deltas, delta{t: t[1], d: t[0]})
+		deltas = append(deltas, delta{t: t[2], d: -t[0]})
 	}
-	sort.Slice(changes, func(i, j int) bool {
-		return changes[i].time < changes[j].time
+	sort.Slice(deltas, func(i, j int) bool {
+		if deltas[i].t == deltas[j].t {
+			return deltas[i].d < 0
+		}
+		return deltas[i].t < deltas[j].t
 	})
 
-	for i, ch := range changes {
-		capacity += int(ch.delta)
-		if i < len(changes)-1 && changes[i].time != changes[i+1].time && capacity < 0 {
+	for _, d := range deltas {
+		capacity -= d.d
+		if capacity < 0 {
 			return false
 		}
 	}
