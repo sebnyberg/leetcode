@@ -22,6 +22,9 @@ func Test_baseNeg2(t *testing.T) {
 }
 
 func baseNeg2(n int) string {
+	if n == 0 {
+		return "0"
+	}
 	var res string
 	for n != 0 {
 		res = fmt.Sprint(n&1) + res
