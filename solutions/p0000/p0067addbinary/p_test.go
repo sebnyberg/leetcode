@@ -2,7 +2,6 @@ package p0067addbinary
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -27,29 +26,35 @@ func Test_addBinary(t *testing.T) {
 }
 
 func addBinary(a string, b string) string {
-	if len(b) > len(a) {
-		a, b = b, a
+	m := max(len(a), len(b))
+	res := make([]byte, 0, m)
+	var carry byte
+	for i := 0; i < m; i++ {
+		ai := len(a) - i - 1
+		bi := len(b) - i - 1
+		var aa, bb byte
+		if ai >= 0 {
+			aa = byte(a[ai] - '0')
+		}
+		if bi >= 0 {
+			bb = byte(b[bi] - '0')
+		}
+		v := aa + bb + carry
+		carry = v / 2
+		res = append(res, v&1+'0')
 	}
-	na := len(a)
-	nb := len(b)
-	var carry int
-	var resp strings.Builder
-	for i := 0; i < len(b); i++ {
-		carry += int(a[na-1-i]) - '0' + int(b[nb-1-i]) - '0'
-		resp.WriteRune(rune(carry%2 + '0'))
-		carry /= 2
+	if carry > 0 {
+		res = append(res, '1')
 	}
-	for i := nb; i < na; i++ {
-		carry += int(a[na-1-i] - '0')
-		resp.WriteRune(rune(carry%2 + '0'))
-		carry /= 2
+	for l, r := 0, len(res)-1; l < r; l, r = l+1, r-1 {
+		res[l], res[r] = res[r], res[l]
 	}
-	if carry == 1 {
-		resp.WriteRune('1')
+	return string(res)
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
 	}
-	runes := []rune(resp.String())
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-	return string(runes)
+	return b
 }
