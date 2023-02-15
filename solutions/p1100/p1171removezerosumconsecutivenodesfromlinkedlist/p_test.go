@@ -6,9 +6,8 @@ type ListNode struct {
 }
 
 func removeZeroSumSublists(head *ListNode) *ListNode {
-	// I guess we could recursively try to remove stuff until it is no longer
-	// possible.
-	//
+	// Keep a running sum and check whether that sum can be removed (sum up to
+	// zero). Then, splice the linked list and reboot the algo.
 	m := make(map[int]*ListNode)
 	dummy := &ListNode{
 		Next: head,
