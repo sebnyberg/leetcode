@@ -24,8 +24,9 @@ func Test_singleNonDuplicate(t *testing.T) {
 }
 
 func singleNonDuplicate(nums []int) int {
-	idx := sort.Search((len(nums)-1)/2, func(i int) bool {
-		return nums[i] == nums[i+1]
-	})
-	return nums[idx]
+	var res int
+	for _, x := range nums {
+		res ^= x
+	}
+	return res
 }
