@@ -2,7 +2,6 @@ package p0540singleelementinasortedarray
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
