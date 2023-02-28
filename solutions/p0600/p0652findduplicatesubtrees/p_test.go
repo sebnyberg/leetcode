@@ -108,28 +108,58 @@ func Test_findDuplicatesubtrees(t *testing.T) {
 }
 
 func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
-	// Use post-order traversal to hash each sub-tree and add to a list of counts
-	count := make(map[string]int)
-	double := make(map[string]*TreeNode)
-	dfs(root, count, double)
+	var treeSize [][]*TreeNode
+	count(root, &treeSize)
 
+	// Check pairs of subtrees with the same size
 	var res []*TreeNode
-	for _, v := range double {
-		res = append(res, v)
+	var dup []bool
+
+	for _, nodes := range treeSize {
+
+		// Reset dup. This idiom should be picked up by the compiler to avoid
+		// double alloc.
+		dup = append(dup[:0], make([]bool, len(nodes))...)
+
+		for i := range nodes {
+			if dup[i] {
+				continue
+			}
+			for j := i + 1; j < len(nodes); j++ {
+				if equal(nodes[i], nodes[j]) {
+					if !dup[i] {
+						res = append(res, nodes[i])
+					}
+					dup[i] = true
+					dup[j] = true
+				}
+			}
+		}
 	}
 	return res
 }
 
-func dfs(cur *TreeNode, count map[string]int, double map[string]*TreeNode) string {
-	if cur == nil {
-		return "null"
+func count(curr *TreeNode, treeSizes *[][]*TreeNode) int {
+	if curr == nil {
+		return 0
 	}
-	left := fmt.Sprintf("(%v)", dfs(cur.Left, count, double))
-	right := fmt.Sprintf("(%v)", dfs(cur.Right, count, double))
-	s := fmt.Sprintf("%v->%v<-%v", left, cur.Val, right)
-	count[s]++
-	if count[s] == 2 {
-		double[s] = cur
+	res := count(curr.Left, treeSizes) + count(curr.Right, treeSizes) + 1
+	missing := max(0, res-len(*treeSizes)+1)
+	*treeSizes = append(*treeSizes, make([][]*TreeNode, missing)...)
+	(*treeSizes)[res] = append((*treeSizes)[res], curr)
+	return res
+}
+
+func equal(a, b *TreeNode) bool {
+	if a == nil || b == nil {
+		return a == b
 	}
-	return s
+	return a.Val == b.Val && equal(a.Left, b.Left) && equal(a.Right, b.Right)
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
