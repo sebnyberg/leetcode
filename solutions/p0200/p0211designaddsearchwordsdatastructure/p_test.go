@@ -3,7 +3,6 @@ package p0211designaddsearchwordsdatastructure
 import (
 	"fmt"
 	"testing"
-	"unicode/utf8"
 
 	"github.com/stretchr/testify/require"
 )
@@ -28,55 +27,67 @@ func TestWordDictionary(t *testing.T) {
 	}
 }
 
-type TrieNode struct {
-	next map[rune]*TrieNode
+type WordDictionary struct {
+	root *node
+	curr []*node
+	next []*node
+}
+
+type node struct {
+	next [26]*node
 	end  bool
 }
 
-type WordDictionary struct {
-	root *TrieNode
-}
-
 func Constructor() WordDictionary {
-	root := &TrieNode{
-		next: make(map[rune]*TrieNode),
+	return WordDictionary{
+		root: &node{},
+		curr: []*node{},
+		next: []*node{},
 	}
-	return WordDictionary{root: root}
 }
 
 func (this *WordDictionary) AddWord(word string) {
-	cur := this.root
+	curr := this.root
 	for _, ch := range word {
-		if _, exists := cur.next[ch]; !exists {
-			cur.next[ch] = &TrieNode{
-				next: make(map[rune]*TrieNode),
-			}
+		ch -= 'a'
+		if curr.next[ch] == nil {
+			curr.next[ch] = &node{}
 		}
-		cur = cur.next[ch]
+		curr = curr.next[ch]
 	}
-	cur.end = true
+	curr.end = true
 }
 
 func (this *WordDictionary) Search(word string) bool {
-	return this.searchNode(this.root, word)
-}
-
-func (this *WordDictionary) searchNode(cur *TrieNode, word string) bool {
-	if len(word) == 0 && cur.end {
-		return true
-	}
-	ch, width := utf8.DecodeRuneInString(word)
-	if ch != '.' {
-		if next, exists := cur.next[ch]; exists {
-			return this.searchNode(next, word[width:])
+	// Using BFS here, trading code complexity for better performance
+	this.curr = append(this.curr[:0], this.root)
+	for len(this.curr) > 0 {
+		this.next = this.next[:0]
+		var end bool
+		ch := word[0] - 'a'
+		for _, x := range this.curr {
+			if ch+'a' == '.' {
+				// add all non-nil edges
+				for _, y := range x.next {
+					if y != nil {
+						this.next = append(this.next, y)
+						end = end || y.end
+					}
+				}
+			} else {
+				// only add matching edges
+				y := x.next[ch]
+				if y != nil {
+					this.next = append(this.next, y)
+					end = end || y.end
+				}
+			}
 		}
-		return false
-	}
-	// ch == '.'
-	for _, next := range cur.next {
-		if this.searchNode(next, word[width:]) {
-			return true
+		word = word[1:]
+		if len(word) == 0 {
+			return end
 		}
+		this.curr, this.next = this.next, this.curr
 	}
 	return false
 }
