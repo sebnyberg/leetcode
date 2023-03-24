@@ -2,14 +2,11 @@ package p1466reorderroutestomakeallpathsleadtothecityzero
 
 func minReorder(n int, connections [][]int) int {
 	adj := make([][]int, n)
-	out := make([][]bool, n)
 	for _, c := range connections {
 		a := c[0]
 		b := c[1]
 		adj[a] = append(adj[a], b)
-		adj[b] = append(adj[b], a)
-		out[a] = append(out[a], true)
-		out[b] = append(out[b], false)
+		adj[b] = append(adj[b], -a)
 	}
 	curr := []int{0}
 	next := []int{}
@@ -19,12 +16,16 @@ func minReorder(n int, connections [][]int) int {
 	for len(curr) > 0 {
 		next = next[:0]
 		for _, x := range curr {
-			for j, y := range adj[x] {
+			for _, y := range adj[x] {
+				out := y < 0
+				if out {
+					y = -y
+				}
 				if seen[y] {
 					continue
 				}
 				seen[y] = true
-				if out[x][j] {
+				if !out {
 					res++
 				}
 				next = append(next, y)
