@@ -64,6 +64,6 @@ Remember to check if a path exists.
 * Bellman-Ford - easy BFS-based searching for weighted graphs with positive and
   negative weights
 
-## Minimal Enclosing Circle
+### Minimal Enclosing Circle
 
 * Welzl's algorithm
