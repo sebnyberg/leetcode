@@ -1,6 +1,6 @@
 # Leetcode
 
-Collection of leetcode solutions in Go.
+Collection of 2000+ leetcode solutions in Go.
 
 ## Algorithm dictionary
 
