@@ -26,21 +26,21 @@ func cloneGraph(node *Node) *Node {
 		return nil
 	}
 	nodes := make(map[int]*Node)
-	todos := []*Node{node}
+	curr := []*Node{node}
+	next := []*Node{}
 	nodes[node.Val] = &Node{Val: node.Val}
-	for len(todos) > 0 {
-		var newTodo []*Node
-		for _, todo := range todos {
-			for _, neighbourNode := range todo.Neighbors {
-				if _, exists := nodes[neighbourNode.Val]; !exists {
-					nodes[neighbourNode.Val] = &Node{Val: neighbourNode.Val}
-					newTodo = append(newTodo, neighbourNode)
+	for len(curr) > 0 {
+		next = next[:0]
+		for _, x := range curr {
+			for _, y := range x.Neighbors {
+				if _, exists := nodes[y.Val]; !exists {
+					nodes[y.Val] = &Node{Val: y.Val}
+					next = append(next, y)
 				}
-				nodes[todo.Val].Neighbors = append(nodes[todo.Val].Neighbors, nodes[neighbourNode.Val])
+				nodes[x.Val].Neighbors = append(nodes[x.Val].Neighbors, nodes[y.Val])
 			}
 		}
-
-		todos = newTodo
+		curr, next = next, curr
 	}
 
 	return nodes[node.Val]
