@@ -22,13 +22,12 @@ func Test_addDigits(t *testing.T) {
 
 func addDigits(num int) int {
 	for num >= 10 {
-		res := 0
-		for num >= 10 {
-			res *= 10
-			res += num % 10
+		var next int
+		for num > 0 {
+			next += num % 10
 			num /= 10
 		}
-		num = num + res
+		num = next
 	}
 	return num
 }
