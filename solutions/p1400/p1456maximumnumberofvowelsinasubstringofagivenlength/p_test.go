@@ -10,10 +10,15 @@ func maxVowels(s string, k int) int {
 		}
 		return 0
 	}
+	var res int
 	for i, ch := range s {
 		count += countVowel(ch)
 		if i >= k {
 			count -= countVowel(rune(s[i-k]))
 		}
+		if i >= k-1 && count > res {
+			res = count
+		}
 	}
+	return res
 }
