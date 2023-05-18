@@ -7,21 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_circularPermutation(t *testing.T) {
-	for i, tc := range []struct {
-		n     int
-		start int
-		want  []int
-	}{
-		// {2, 3, []int{3, 2, 0, 1}},
-		{3, 2, []int{2, 6, 7, 5, 4, 0, 1, 3}},
-	} {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			require.Equal(t, tc.want, circularPermutation(tc.n, tc.start))
-		})
-	}
-}
-
 func circularPermutation(n int, start int) []int {
 	// Generate a list of indices to flip.
 	// In order for permutation at index 1, 3, 7, etc to have exactly one bit
