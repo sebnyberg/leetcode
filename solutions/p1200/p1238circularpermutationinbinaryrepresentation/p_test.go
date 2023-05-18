@@ -1,12 +1,5 @@
 package p1238circularpermutationinbinaryrepresentation
 
-import (
-	"fmt"
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
 func circularPermutation(n int, start int) []int {
 	// Generate a list of indices to flip.
 	// In order for permutation at index 1, 3, 7, etc to have exactly one bit
