@@ -40,7 +40,6 @@ func crackSafe(n int, k int) string {
 }
 
 // https://www.geeksforgeeks.org/generating-lyndon-words-of-length-n/
-// TODO: Learn how this actually works...
 func duval(alphabet string, maxLen int) []string {
 	alphaBytes := []byte(alphabet)
 	sort.Slice(alphaBytes, func(i, j int) bool {
