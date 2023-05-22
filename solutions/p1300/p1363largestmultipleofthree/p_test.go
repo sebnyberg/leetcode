@@ -14,7 +14,7 @@ func Test_largestMultipleOfThree(t *testing.T) {
 		digits []int
 		want   string
 	}{
-		{[]int{9, 7, 6, 7, 6}, ""},
+		{[]int{9, 7, 6, 7, 6}, "966"},
 		{[]int{5, 8}, ""},
 		{[]int{8, 1, 9}, "981"},
 		{[]int{8, 6, 7, 1, 0}, "8760"},
