@@ -74,6 +74,9 @@ func dfs(adj [][]int, seen *[101]bool, i, n, t, target int) float64 {
 		seen[b] = false
 	}
 	if choices == 0 {
+		if i == target {
+			return 1
+		}
 		return 0
 	}
 	return res / float64(choices)
