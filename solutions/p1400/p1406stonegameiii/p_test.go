@@ -10,7 +10,7 @@ func stoneGameIII(stoneValue []int) string {
 	}
 	// m[i] = maximum number of points for the current player given that the
 	// front-stone is the i'th in stoneValue.
-	res := dfs(m, stoneValue, 0, len(stoneValue))
+	res := dfs(mem, stoneValue, 0, len(stoneValue))
 	if res < 0 {
 		return "Bob"
 	} else if res == 0 {
