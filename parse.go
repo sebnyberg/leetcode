@@ -20,7 +20,7 @@ func ParseMatrix(s string) [][]int {
 		for _, numStr := range strings.Split(part, ",") {
 			num, err := strconv.Atoi(numStr)
 			if err != nil {
-				log.Fatalf("failed to parse number, %v, %w\n", numStr, err)
+				log.Fatalf("failed to parse number, %v, %v\n", numStr, err)
 			}
 			res[i] = append(res[i], num)
 		}
