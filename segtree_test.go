@@ -22,8 +22,9 @@ func TestSegtreeMin(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			var tree leetcode.SegTree[int]
-			tree.Init(tc.arr, min, math.MaxInt64)
+			tree, err := leetcode.NewSegtree(math.MaxInt64, min)
+			require.NoError(t, err)
+			tree.Init(tc.arr)
 			got := tree.QueryRange(tc.i, tc.j)
 			require.Equal(t, tc.want, got)
 		})
@@ -39,8 +40,9 @@ func TestSegTreeRand(t *testing.T) {
 		x := rand.Intn(ub - lb + 1)
 		arr[i] = x + lb
 	}
-	var tree leetcode.SegTree[int]
-	tree.Init(arr, min, math.MaxInt32)
+	tree, err := leetcode.NewSegtree(math.MaxInt64, min)
+	require.NoError(t, err)
+	tree.Init(arr)
 	for k := 0; k < 4*(n/2); k++ {
 		lo := rand.Intn(n)
 		hi := rand.Intn(n)

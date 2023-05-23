@@ -1,54 +1,69 @@
 package leetcode
 
 import (
+	"errors"
 	"fmt"
 )
 
 type SegTree[T any] struct {
 	tree  []T
-	n     int
-	m     int
+	n     int // number of elements in input
+	m     int // bottom level size in the tree
 	agg   func(a, b T) T
 	empty T
 }
 
-// Init initializes the segment tree with the provided values. The default value
-// is used for padding and must retain the required invariant given by the agg
-// function. For example, if agg is min, then defaultVal should be
-// math.MaxInt64, if agg is sum, then defaultVal should be 0, and so on.
-func (t *SegTree[T]) Init(nums []T, agg func(a, b T) T, defaultVal T) {
-	n := 1
-	t.m = len(nums)
-	t.empty = defaultVal
-	for n < t.m {
-		n *= 2
+// NewSegtree creates a new segment tree. The default value is used for padding
+// out-of-bounds values, and must be chosen carefully so that agg(defaultVal,
+// val) = val. For example if agg is min(a, b), then defaultVal should be
+// math.MaxInt64, if agg is sum(a, b), then defaultVal should be 0, and so on.
+func NewSegtree[T any](defaultVal T, agg func(a, b T) T) (*SegTree[T], error) {
+	if agg == nil {
+		return nil, errors.New("agg is required")
 	}
-	t.n = n
-
-	// Bunch of boilerplate to effeciently resize the tree to match the size of
-	// the input.
-	t.tree = t.tree[:cap(t.tree)]
-	r := min(len(t.tree), n*2)
-	for i := 0; i < r; i++ {
-		t.tree[i] = t.empty
-	}
-	if len(t.tree) < n*2 {
-		t.tree = append(t.tree, make([]T, n*2-len(t.tree))...)
-	}
-	t.Reset()
-
-	copy(t.tree[n:], nums)
-	for i := n - 1; i >= 1; i-- {
-		t.tree[i] = agg(t.tree[i*2], t.tree[i*2+1])
-	}
-
+	var t SegTree[T]
 	t.agg = agg
+	t.empty = defaultVal
+	t.m = 1
+	return &t, nil
 }
 
-func (t *SegTree[T]) Reset() {
-	for i := 1; i < t.n*2; i++ {
+// Init fast-inizializes the segtree with the provided values in O(n). If the
+// tree is no large enough to accomodate the values, the inner tree is expanded.
+// Values outside the range of the provided array are initialized using the
+// default value provided to the constructor.
+func (t *SegTree[T]) Init(nums []T) {
+	t.grow(len(nums))
+	copy(t.tree[t.m:], nums)
+	for i := t.m + t.n; i < t.m*2; i++ {
 		t.tree[i] = t.empty
 	}
+	for i := t.m - 1; i >= 1; i-- {
+		t.tree[i] = t.agg(t.tree[i*2], t.tree[i*2+1])
+	}
+}
+
+// Reset resets the tree
+func (t *SegTree[T]) Reset(n int) {
+	t.grow(n)
+	for i := 1; i < t.m*2; i++ {
+		t.tree[i] = t.empty
+	}
+}
+
+// grow updates the tree to size n, ensuring that it can be accomodated
+func (t *SegTree[T]) grow(n int) {
+	if t.agg == nil {
+		panic("nil agg function")
+	}
+	for n > t.m {
+		t.m *= 2
+	}
+	if len(t.tree) < t.m*2 {
+		nmissing := t.m*2 - len(t.tree)
+		t.tree = append(t.tree, make([]T, nmissing)...)
+	}
+	t.n = n
 }
 
 // Update the value of a single element.
@@ -56,8 +71,8 @@ func (t *SegTree[T]) Reset() {
 // overwrites pending lazy changes. Once update-range is in place, it is better
 // to just call UpdateRange for the interval [i,i]
 func (t *SegTree[T]) Update(i int, v T) {
-	t.tree[i+t.n] = v
-	for j := (i + t.n) / 2; j >= 1; j /= 2 {
+	t.tree[i+t.m] = v
+	for j := (i + t.m) / 2; j >= 1; j /= 2 {
 		t.tree[j] = t.agg(t.tree[j*2], t.tree[j*2+1])
 	}
 }
@@ -92,15 +107,15 @@ func (t *SegTree[T]) query(i, qlo, qhi, lo, hi int) T {
 
 // QueryRange finds the aggregated value for the range [qlo,qhi].
 func (t *SegTree[T]) QueryRange(qlo, qhi int) T {
-	if qhi >= t.m {
-		s := fmt.Sprintf("index %v out of bounds, slice has len %v", qhi, t.m)
+	if qhi >= t.n {
+		s := fmt.Sprintf("index %v out of bounds, slice has len %v", qhi, t.n)
 		panic(s)
 	}
 	if qlo < 0 {
 		s := fmt.Sprintf("index %v out of bounds", qlo)
 		panic(s)
 	}
-	return t.query(1, qlo, qhi, 0, t.n-1)
+	return t.query(1, qlo, qhi, 0, t.m-1)
 }
 
 // QueryValRange finds the start and end index such that the range includes the
