@@ -1,4 +1,30 @@
-package p3
+package p0837new21game
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func Test_new21Game(t *testing.T) {
+	for i, tc := range []struct {
+		n      int
+		k      int
+		maxPts int
+		want   float64
+	}{
+		{10, 1, 10, 1.0},
+		{6, 1, 10, 0.6},
+		{21, 17, 10, 0.73278},
+	} {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			require.InEpsilon(t, tc.want, new21Game(tc.n, tc.k, tc.maxPts), eps)
+		})
+	}
+}
+
+const eps = 1e-5
 
 func new21Game(n int, k int, maxPts int) float64 {
 	if k == 0 || n >= k+maxPts {
@@ -19,5 +45,5 @@ func new21Game(n int, k int, maxPts int) float64 {
 			windowSum -= dp[i-maxPts]
 		}
 	}
-	return 0
+	return res
 }
