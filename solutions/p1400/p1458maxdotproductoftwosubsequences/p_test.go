@@ -1,5 +1,7 @@
 package p1458maxdotproductoftwosubsequences
 
+import "math"
+
 func maxDotProduct(nums1 []int, nums2 []int) int {
 	// This is a typical matching problem. We can use DP for it.
 	m := len(nums1)
