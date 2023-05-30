@@ -70,9 +70,6 @@ func nchoosek(n, k int) int {
 	for x := n; x > k; x-- {
 		a = (a * x) % mod
 	}
-	if a < 0 {
-		panic(a)
-	}
 	b := 1
 	for x := n - k; x > 1; x-- {
 		b = (b * x) % mod
@@ -82,4 +79,20 @@ func nchoosek(n, k int) int {
 	modinv := inv.Int64()
 	res := a * int(modinv)
 	return res % mod
+}
+
+func modInverse(a, mod int) int {
+	return modPow(a, mod-2, mod)
+}
+
+func modPow(a, b, mod int) int {
+	if b == 0 {
+		return 1
+	}
+	p := modPow(a, b/2, mod) % mod
+	p = p * p % mod
+	if b%2 == 0 {
+		return p
+	}
+	return (a * p) % mod
 }
