@@ -26,26 +26,18 @@ func Test_minimumEffort(t *testing.T) {
 }
 
 func minimumEffort(tasks [][]int) int {
-	var sum int
-	toSort := [][]int{}
-	for _, t := range tasks {
-		if t[1] <= t[0] {
-			sum += t[0]
-		} else {
-			toSort = append(toSort, t)
-		}
-	}
-	sort.Slice(toSort, func(i, j int) bool {
-		a := toSort[i]
-		b := toSort[j]
+	var t int
+	sort.Slice(tasks, func(i, j int) bool {
+		a := tasks[i]
+		b := tasks[j]
 		da := a[1] - a[0]
 		db := b[1] - b[0]
 		return da < db
 	})
-	for _, x := range toSort {
-		sum = max(sum+x[0], x[1])
+	for _, x := range tasks {
+		t = max(t+x[0], x[1])
 	}
-	return sum
+	return t
 }
 
 func max(a, b int) int {
