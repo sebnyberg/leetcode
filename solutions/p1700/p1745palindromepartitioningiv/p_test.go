@@ -44,14 +44,12 @@ func checkPartitioning(s string) bool {
 	}
 
 	left := make([]bool, n)
-	left[1] = true
-	for i := 2; i < n; i++ {
+	for i := 1; i < n; i++ {
 		left[i] = isPalindrome(0, i)
 	}
 
 	right := make([]bool, n)
-	right[n-1] = true
-	for i := n - 2; i >= 2; i-- {
+	for i := n - 1; i >= 2; i-- {
 		right[i] = isPalindrome(i, n)
 	}
 
