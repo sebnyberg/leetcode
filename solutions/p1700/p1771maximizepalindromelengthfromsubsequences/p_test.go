@@ -44,6 +44,8 @@ func longestPalindrome(word1 string, word2 string) int {
 	// next to each other, we could add a letter in the middle of the matching
 	// to increase the total size of the palindrome.
 	//
+	// Note that this can be done with 1D-DP, but I can't be arsed to re-write
+	// it.
 	s := word1 + word2
 	buf := []byte(s)
 	for l, r := 0, len(buf)-1; l < r; l, r = l+1, r-1 {
