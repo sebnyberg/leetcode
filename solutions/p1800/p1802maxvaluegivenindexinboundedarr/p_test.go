@@ -54,12 +54,6 @@ func maxValue(n int, index int, maxSum int) int {
 	res := sort.Search(2*maxSum, func(i int) bool {
 		return getSum(leftWidth, rightWidth, i) > maxSum
 	})
-	a := getSum(leftWidth, rightWidth, res)
-	b := getSum(leftWidth, rightWidth, res+1)
-	c := getSum(leftWidth, rightWidth, res-1)
-	_ = a
-	_ = b
-	_ = c
 
 	return res - 1
 }
