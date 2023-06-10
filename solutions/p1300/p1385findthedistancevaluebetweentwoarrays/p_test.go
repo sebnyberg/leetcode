@@ -12,10 +12,10 @@ func findTheDistanceValue(arr1 []int, arr2 []int, d int) int {
 		pre := arr2[0]
 		post := arr2[0]
 		if i < len(arr2) {
-			pre = arr2[i]
+			post = arr2[i]
 		}
-		if i < len(arr2)-1 {
-			post = arr2[i+1]
+		if i > 0 {
+			pre = arr2[i-1]
 		}
 		if min(abs(x-pre), abs(post-x)) <= d {
 			continue
