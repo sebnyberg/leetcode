@@ -31,7 +31,7 @@ func minSpeedOnTime(dist []int, hour float64) int {
 	// Depending on speed, we may need to wait for the second train
 	// The fastest possible time is to jump on each train within an hour
 	n := len(dist)
-	if hour < float64(n-1) {
+	if hour <= float64(n-1) {
 		return -1
 	}
 	// Otherwise, it is always possible
