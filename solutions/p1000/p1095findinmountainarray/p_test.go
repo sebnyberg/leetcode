@@ -2,15 +2,13 @@ package p1095findinmountainarray
 
 import "fmt"
 
-/**
- * // This is the MountainArray's API interface.
- * // You should not implement it, or speculate about its implementation
- * type MountainArray struct {
- * }
- *
- * func (this *MountainArray) get(index int) int {}
- * func (this *MountainArray) length() int {}
- */
+// This is the MountainArray's API interface.
+// You should not implement it, or speculate about its implementation
+type MountainArray struct {
+}
+
+func (this *MountainArray) get(index int) int { return 0 }
+func (this *MountainArray) length() int       { return 0 }
 
 func findInMountainArray(target int, mountainArr *MountainArray) int {
 	var lo int

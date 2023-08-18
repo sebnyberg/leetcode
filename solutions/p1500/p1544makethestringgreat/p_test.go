@@ -1,7 +1,5 @@
 package p1544makethestringgreat
 
-import "unicode"
-
 func makeGood(s string) string {
 	d := int('A' - 'a')
 	for i := 0; i < len(s)-1; {

@@ -6,7 +6,7 @@ import (
 )
 
 func Test_TreeAncestor(t *testing.T) {
-	for i, tc := range []struct {
+	for i, _ := range []struct {
 		n      int
 		parent []int
 	}{

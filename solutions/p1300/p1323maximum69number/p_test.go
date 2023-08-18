@@ -1,5 +1,10 @@
 package p1323maximum69number
 
+import (
+	"fmt"
+	"strconv"
+)
+
 func maximum69Number(num int) int {
 	p := func(s string) int {
 		x, err := strconv.ParseInt(s, 10, 64)

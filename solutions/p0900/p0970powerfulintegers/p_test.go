@@ -2,7 +2,6 @@ package p0970powerfulintegers
 
 import (
 	"fmt"
-	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -27,7 +26,6 @@ func Test_powerfulIntegers(t *testing.T) {
 
 func powerfulIntegers(x int, y int, bound int) []int {
 	m := make(map[int]struct{})
-	a := math.MaxInt32
 	var res []int
 	for xx := 1; xx <= bound; xx *= x {
 		for yy := 1; yy+xx <= bound; yy *= y {

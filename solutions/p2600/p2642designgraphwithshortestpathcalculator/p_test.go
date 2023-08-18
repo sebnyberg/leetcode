@@ -45,8 +45,8 @@ func Constructor(n int, edges [][]int) Graph {
 }
 
 func (this *Graph) AddEdge(e []int) {
-	u, v, w := e[0], e[1], e[2]
-	this.adj[u] = append(this.adj[u], edge{u, v, w})
+	u, v := e[0], e[1]
+	this.adj[u] = append(this.adj[u], edge{u, v})
 }
 
 func (this *Graph) ShortestPath(node1 int, node2 int) int {
