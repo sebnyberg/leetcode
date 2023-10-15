@@ -24,37 +24,13 @@ func Test_constructProductMatrix(t *testing.T) {
 
 const mod = 12345
 
-func inv(grid [][]int) [][]int {
-	m := len(grid)
-	n := len(grid[0])
-
-	// Inverse grid, we want few, long rows.
-	next := make([][]int, n)
-	for i := range next {
-		next[i] = make([]int, m)
-	}
-	for i := range grid {
-		for j := range grid[i] {
-			next[j][i] = grid[i][j]
-		}
-	}
-	return next
-}
-
 func constructProductMatrix(grid [][]int) [][]int {
 	// The main issue here is that since 12345 is not a prime, we cannot use
 	// Euler's prime theorem to perform modular inverse multiplication.
 	//
 	m := len(grid)
 	n := len(grid[0])
-	var didInv bool
-	// if m > n {
-	// 	// Inverse grid, we want few, long rows.
-	// 	grid = inv(grid)
-	// 	m = len(grid)
-	// 	n = len(grid[0])
-	// 	didInv = true
-	// }
+
 	// Calculate the product of each row.
 	rows := make([]int, m)
 	for i := range grid {
@@ -77,7 +53,7 @@ func constructProductMatrix(grid [][]int) [][]int {
 		res[i] = make([]int, n)
 	}
 
-	// Calculate post-product of columnts in the row
+	// Calculate post-product of columns in the row
 	postCol := make([]int, n+1)
 	preRow := 1
 	for i := range grid {
@@ -98,24 +74,5 @@ func constructProductMatrix(grid [][]int) [][]int {
 		preRow = (preRow * preCol) % mod
 	}
 
-	if didInv {
-		res = inv(res)
-	}
 	return res
-}
-
-func modInverse(a, mod int) int {
-	return modPow(a, mod-2, mod)
-}
-
-func modPow(a, b, mod int) int {
-	if b == 0 {
-		return 1
-	}
-	p := modPow(a, b/2, mod) % mod
-	p = p * p % mod
-	if b%2 == 0 {
-		return p
-	}
-	return (a * p) % mod
 }
