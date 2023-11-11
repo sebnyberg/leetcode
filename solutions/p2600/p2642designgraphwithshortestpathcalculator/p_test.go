@@ -14,6 +14,11 @@ func TestConstructor(t *testing.T) {
 	c := Constructor(4, edges)
 	res := c.ShortestPath(3, 2)
 	require.Equal(t, res, 6)
+	res = c.ShortestPath(0, 3)
+	require.Equal(t, res, -1)
+	c.AddEdge([]int{1, 3, 4})
+	res = c.ShortestPath(0, 3)
+	require.Equal(t, res, 6)
 }
 
 type edge struct {
@@ -45,8 +50,8 @@ func Constructor(n int, edges [][]int) Graph {
 }
 
 func (this *Graph) AddEdge(e []int) {
-	u, v := e[0], e[1]
-	this.adj[u] = append(this.adj[u], edge{u, v})
+	u, v, w := e[0], e[1], e[2]
+	this.adj[u] = append(this.adj[u], edge{v, w})
 }
 
 func (this *Graph) ShortestPath(node1 int, node2 int) int {
