@@ -9,9 +9,14 @@
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = [ pkgs.nodejs ];
+          buildInputs = [
+            pkgs.go
+            pkgs.gopls
+            pkgs.golangci-lint
+            pkgs.gotools # staticcheck, gofmt, goimports, etc.
+          ];
           shellHook = ''
-            echo "node `${pkgs.nodejs}/bin/node --version`"
+            echo $(${pkgs.go}/bin/go version)
 '';
         };
       }
