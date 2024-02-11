@@ -1,5 +1,7 @@
 package p2931maximumspendingafterbuyingitems
 
+import "sort"
+
 func maxSpending(values [][]int) int64 {
 	// Hm, isn't this just a matter of buying products from cheap to expensive?
 	// We could just sort all values...
