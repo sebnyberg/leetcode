@@ -1,7 +1,6 @@
 package p2925maximumscoreafterapplyingoperationsonatree
 
 import (
-	"fmt"
 	"math"
 )
 

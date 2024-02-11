@@ -1,7 +1,5 @@
 package p2919minimumincrementoperationstomakearraybeautiful
 
-import "math"
-
 func minIncrementOperations(nums []int, k int) int64 {
 	// Clearly, the "nasty" case is a length-3 window that scans across nums,
 	// trying to find a subarray that does not contain a maximum value of k
