@@ -2,6 +2,7 @@ package p0057insertinterval
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,6 +14,8 @@ func Test_insert(t *testing.T) {
 		newInterval []int
 		want        [][]int
 	}{
+		{[][]int{{1, 2}, {12, 16}}, []int{4, 8}, [][]int{{1, 2}, {4, 8}, {12, 16}}},
+		{[][]int{{1, 2}, {4, 8}}, []int{12, 16}, [][]int{{1, 2}, {4, 8}, {12, 16}}},
 		{[][]int{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, []int{4, 8}, [][]int{{1, 2}, {3, 10}, {12, 16}}},
 		{[][]int{{1, 5}}, []int{0, 3}, [][]int{{0, 5}}},
 		{[][]int{{1, 5}, {10, 11}}, []int{6, 7}, [][]int{{1, 5}, {6, 7}, {10, 11}}},
@@ -27,53 +30,36 @@ func Test_insert(t *testing.T) {
 	}
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func insert(intervals [][]int, newInterval []int) [][]int {
-	n := len(intervals)
-	if n == 0 {
-		return [][]int{newInterval}
-	}
-	res := make([][]int, 0, n)
-	if newInterval[1] < intervals[0][0] {
-		intervals = append(intervals, []int{})
-		copy(intervals[1:], intervals)
-		intervals[0] = newInterval
+	i := sort.Search(len(intervals), func(j int) bool {
+		return intervals[j][1] >= newInterval[0]
+	})
+	if i == len(intervals) {
+		intervals = append(intervals, newInterval)
 		return intervals
 	}
-	if newInterval[0] > intervals[n-1][1] {
-		return append(intervals, newInterval)
+	// i now points to the lowest interval that has a end >= newInterval.
+	//
+	// Case 1. The current interval is outside the newInterval
+	if intervals[i][0] > newInterval[1] {
+		// Then, we insert newInterval where intervals[i] was and return
+		intervals = append(intervals, []int{})
+		copy(intervals[i+1:], intervals[i:])
+		intervals[i] = newInterval
+		return intervals
 	}
-
-	var i int
-	for ; i < len(intervals) && newInterval[0] > intervals[i][1]; i++ {
-		res = append(res, intervals[i])
-	}
-
-	if newInterval[1] < intervals[i][0] {
-		res = append(res, newInterval)
-		return append(res, intervals[i:]...)
-	}
-
-	start, end := min(newInterval[0], intervals[i][0]), max(intervals[i][1], newInterval[1])
-	for i++; i < len(intervals) && intervals[i][0] <= end; i++ {
+	left := i
+	start := min(newInterval[0], intervals[i][0])
+	end := max(newInterval[1], intervals[i][1])
+	i++
+	for i < len(intervals) && end >= intervals[i][0] {
 		end = max(end, intervals[i][1])
+		i++
 	}
-	res = append(res, []int{start, end})
-	if i < len(intervals) {
-		res = append(res, intervals[i:]...)
-	}
-	return res
+	// Replace the range [left:i] with the interval []int{start, end}
+	m := i - left
+	copy(intervals[left+1:], intervals[i:])
+	intervals = intervals[:len(intervals)-(m-1)]
+	intervals[left] = []int{start, end}
+	return intervals
 }
