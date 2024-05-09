@@ -1,9 +1,5 @@
 package p1143longestcommonsubsequence
 
-import (
-	"math"
-)
-
 func longestCommonSubsequence(text1 string, text2 string) int {
 	// This is a classical DP problem
 	// The easiest way to do this is using 2d-DP, but I'll just do 1D today

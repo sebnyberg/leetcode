@@ -1,3 +1,5 @@
+package p1688countofmatchesintournament
+
 func numberOfMatches(n int) int {
 	var res int
 	for n > 1 {

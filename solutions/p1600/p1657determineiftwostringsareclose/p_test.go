@@ -1,8 +1,6 @@
 package p1657determineiftwostringsareclose
 
-import (
-	"fmt"
-)
+import "sort"
 
 func closeStrings(word1 string, word2 string) bool {
 	doCount := func(a string) ([]int, int) {

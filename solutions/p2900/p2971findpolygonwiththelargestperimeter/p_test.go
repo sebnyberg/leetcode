@@ -1,8 +1,6 @@
 package p2971findpolygonwiththelargestperimeter
 
-import (
-	"fmt"
-)
+import "sort"
 
 func largestPerimeter(nums []int) int64 {
 	var sum int

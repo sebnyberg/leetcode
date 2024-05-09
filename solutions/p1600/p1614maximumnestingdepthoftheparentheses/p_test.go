@@ -1,9 +1,5 @@
 package p1614maximumnestingdepthoftheparentheses
 
-import (
-	"fmt"
-)
-
 func maxDepth(s string) int {
 	var paren int
 	var maxParen int
