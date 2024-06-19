@@ -1,6 +1,6 @@
 module github.com/sebnyberg/leetcode
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/bcmills/unsafeslice v0.2.0
