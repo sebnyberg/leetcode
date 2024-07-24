@@ -3,7 +3,6 @@ package p2191
 import (
 	"fmt"
 	"sort"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -27,14 +26,18 @@ func Test_sortJumbled(t *testing.T) {
 func sortJumbled(mapping []int, nums []int) []int {
 	mapped := make([]mappedNum, len(nums))
 	for i, num := range nums {
+		mapped[i].idx = i
 		s := []byte(fmt.Sprint(num))
 		for j := range s {
-			s[j] = byte(mapping[s[j]-'0'] + '0')
+			s[j] = byte(mapping[s[j]-'0'])
 		}
-		v, _ := strconv.Atoi(string(s))
-		mapped[i] = mappedNum{v: num, mapped: v}
+		var x int
+		for _, ch := range s {
+			x = x*10 + int(ch)
+		}
+		mapped[i] = mappedNum{v: num, mapped: x}
 	}
-	sort.Slice(mapped, func(i, j int) bool {
+	sort.SliceStable(mapped, func(i, j int) bool {
 		return mapped[i].mapped < mapped[j].mapped
 	})
 	res := make([]int, len(nums))
@@ -47,4 +50,5 @@ func sortJumbled(mapping []int, nums []int) []int {
 type mappedNum struct {
 	v      int
 	mapped int
+	idx    int
 }
