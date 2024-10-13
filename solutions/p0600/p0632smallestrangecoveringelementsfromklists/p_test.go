@@ -3,9 +3,10 @@ package p0632smallestrangecoveringelementsfromklists
 import (
 	"container/heap"
 	"fmt"
-	"github.com/sebnyberg/leetcode"
 	"math"
 	"testing"
+
+	"github.com/sebnyberg/leetcode"
 
 	"github.com/stretchr/testify/require"
 )
@@ -15,6 +16,7 @@ func Test_smallestRange(t *testing.T) {
 		nums [][]int
 		want []int
 	}{
+		{leetcode.ParseMatrix("[[-1,1],[-2,2],[-3,3]]"), []int{-3, -1}},
 		{leetcode.ParseMatrix("[[10,10],[11,11]]"), []int{10, 11}},
 		{leetcode.ParseMatrix("[[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]"), []int{20, 24}},
 		{leetcode.ParseMatrix("[[1,2,3],[1,2,3],[1,2,3]]"), []int{1, 1}},
@@ -38,7 +40,7 @@ func smallestRange(nums [][]int) []int {
 	r := make(MinHeap, 0)
 	listCount := make([]int, len(nums))
 	var count int
-	var maxVal int
+	maxVal := math.MinInt32
 	res := []int{0, 0}
 	minDiff := math.MaxInt32
 
