@@ -1,5 +1,7 @@
 package p1716minimumlimitofballsinabag
 
+import "math"
+
 func minimumSize(nums []int, maxOperations int) int {
 	// binary search
 	ok := func(y int) bool {
