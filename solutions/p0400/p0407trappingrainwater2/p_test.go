@@ -2,9 +2,10 @@ package p0407trappingrainwater2
 
 import (
 	"fmt"
-	"github.com/sebnyberg/leetcode"
 	"sort"
 	"testing"
+
+	"github.com/sebnyberg/leetcode"
 
 	"github.com/stretchr/testify/require"
 )
@@ -24,87 +25,102 @@ func Test_trapRainWater(t *testing.T) {
 }
 
 func trapRainWater(heightMap [][]int) int {
-	m, n := len(heightMap), len(heightMap[0])
+	// Everything is a "puddle" until it is joined toward an edge of the map.
+	// We can join locations together as a DSU and calculate the total trapped
+	// rainwater whenever it is joned toward the edge.
 
-	// Find each distinct level in the elevation map
-	levels := make([]int, 0, m*n)
-	for i := range heightMap {
-		for _, v := range heightMap[i] {
-			levels = append(levels, v)
+	m := len(heightMap)
+	n := len(heightMap[0])
+	parent := make([]int, m*n)
+	trapped := make([]bool, m*n)
+	for i := range parent {
+		parent[i] = i
+		trapped[i] = true
+	}
+	var find func(a int) int
+	find = func(a int) int {
+		if parent[a] == a {
+			return a
 		}
-	}
-	sort.Ints(levels)
-	var j int
-	for i := range levels {
-		if i > 0 && levels[i] == levels[i-1] {
-			continue
-		}
-		levels[j] = levels[i]
-		j++
-	}
-	levels = levels[:j]
-
-	// Helper functions
-	dirs := [][]int{{1, 0}, {-1, 0}, {0, -1}, {0, 1}}
-	ok := func(i, j int) bool {
-		return i >= 0 && i < m && j >= 0 && j < n
-	}
-	isEdge := func(i, j int) bool {
-		return i == 0 || i == m-1 || j == 0 || j == n-1
+		ra := find(parent[a])
+		parent[a] = ra // path compression
+		return ra
 	}
 
-	// fill starts in (i, j) and flood-fills the area with the value v
-	// If this results in filling an edge position, the return value is zero
-	fill := func(i, j, val int) int {
-		start := heightMap[i][j]
-		if start == val {
+	// Union joins together two puddles. If one puddle is trapped and the other is
+	// not, then we add the trapped water to the total result and mark it as
+	// untrapped.
+	union := func(a, b, currentHeight int) int {
+		ra := find(a)
+		rb := find(b)
+		if ra == rb {
 			return 0
 		}
-		cur := [][]int{{i, j}}
-		next := [][]int{}
-		count := 1
-		heightMap[i][j] = val
-		var edge bool
-		for len(cur) > 0 {
-			next = next[:0]
-			for _, p := range cur {
-				if isEdge(p[0], p[1]) {
-					edge = true
-				}
-				for _, dir := range dirs {
-					ii := p[0] + dir[0]
-					jj := p[1] + dir[1]
-					if !ok(ii, jj) || heightMap[ii][jj] != start {
-						continue
+		var trappedWater int
+		if !trapped[rb] {
+			ra, rb = rb, ra
+		}
+		if !trapped[ra] && trapped[rb] {
+			// calculate total amount trapped prior to this puddle going over the
+			// edge of the map.
+			for i := range heightMap {
+				for j, h := range heightMap[i] {
+					if find(i*n+j) == rb {
+						trappedWater += currentHeight - h
 					}
-					heightMap[ii][jj] = val
-					count++
-					next = append(next, []int{ii, jj})
 				}
 			}
-			cur, next = next, cur
 		}
-		if edge {
-			return 0
-		}
-		return count
+		parent[rb] = ra
+		return trappedWater
 	}
 
-	// For each distinct level (except the last)
-	var result int
-	for k := 0; k < len(levels)-1; k++ {
-		l := levels[k]
-		delta := levels[k+1] - levels[k]
-		// For each place in the height map that can be filled with water
-		for i := range heightMap {
-			for j, v := range heightMap[i] {
-				if v != l {
+	// Mark edge blocks as untrapped
+	for i := range heightMap {
+		trapped[i*n] = false
+		trapped[(i+1)*n-1] = false
+	}
+	for j := range heightMap[0] {
+		trapped[j] = false
+		trapped[n*(m-1)+j] = false
+	}
+
+	// Partition blocks by height
+	unitsByHeight := make(map[int][][2]int)
+	for i := range heightMap {
+		for j, v := range heightMap[i] {
+			unitsByHeight[v] = append(unitsByHeight[v], [2]int{i, j})
+		}
+	}
+	var heights []int
+	for k := range unitsByHeight {
+		heights = append(heights, k)
+	}
+	sort.Ints(heights)
+
+	ok := func(i, j int) bool {
+		return i >= 0 && j >= 0 && i < m && j < n
+	}
+
+	var dirs = [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+
+	// Iterate over blocks for each height.
+	var totalWater int
+	for _, h := range heights {
+		for _, block := range unitsByHeight[h] {
+			i := block[0]
+			j := block[1]
+			for _, d := range dirs {
+				ii := i + d[0]
+				jj := j + d[1]
+				if !ok(ii, jj) || heightMap[ii][jj] > h {
 					continue
 				}
-				// Fill with the next level and add the filled area to the result
-				result += fill(i, j, levels[k+1]) * delta
+				// The neighbouring block is at a lower level, join it with this puddle.
+				totalWater += union(i*n+j, ii*n+jj, h)
 			}
 		}
 	}
-	return result
+
+	return totalWater
 }
