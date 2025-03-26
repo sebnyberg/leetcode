@@ -49,7 +49,7 @@ func minOperations(grid [][]int, x int) int {
 	median := vals[len(vals)/2]
 	minCost := cost(vals, median, x)
 	if len(vals)%2 == 0 {
-		minCost = min(minCost, cost(vals, vals[(len(vals)/2)+1], x))
+		minCost = min(minCost, cost(vals, vals[(len(vals)/2)-1], x))
 	}
 	return minCost
 }
