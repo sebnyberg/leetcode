@@ -2,6 +2,7 @@ package p2818applyoperationstomaximizescore
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -22,28 +23,103 @@ func Test_maximumScore(t *testing.T) {
 	}
 }
 
+const mod = 1e9 + 7
+
 func maximumScore(nums []int, k int) int {
-	// There are two subproblems:
-	//
-	// 1. Calculate the prime score of each element in nums
-	// 2. Select subarrays in an optimal way to maximise the total score
-	//
-	// Let's start with prime factorization
-	numPrimes := make(map[int]int)
-	for _, x := range nums {
-		if _, exists := numPrimes[x]; exists {
-			continue
+	n := len(nums)
+
+	// Precompute prime scores for all numbers up to the maximum in nums
+	maxNum := 0
+	for _, num := range nums {
+		if num > maxNum {
+			maxNum = num
 		}
-		for factor := 2; factor*factor <= x; factor++ {
-			if x%factor != 0 {
-				continue
-			}
-			numPrimes[x]++
-			for x%factor == 0 {
-				x /= factor
+	}
+
+	primeScores := make([]int, maxNum+1)
+	for i := 2; i <= maxNum; i++ {
+		if primeScores[i] == 0 { // i is prime
+			for j := i; j <= maxNum; j += i {
+				primeScores[j]++
 			}
 		}
 	}
 
-	// Second subproblem is to figure out which subarrays to select
+	// Compute next greater elements and previous greater elements for each element
+	nextGreater := make([]int, n)
+	prevGreater := make([]int, n)
+
+	stack := []int{}
+	for i := 0; i < n; i++ {
+		for len(stack) > 0 && primeScores[nums[stack[len(stack)-1]]] < primeScores[nums[i]] {
+			nextGreater[stack[len(stack)-1]] = i
+			stack = stack[:len(stack)-1]
+		}
+		stack = append(stack, i)
+	}
+	for len(stack) > 0 {
+		nextGreater[stack[len(stack)-1]] = n
+		stack = stack[:len(stack)-1]
+	}
+
+	for i := n - 1; i >= 0; i-- {
+		for len(stack) > 0 && primeScores[nums[stack[len(stack)-1]]] <= primeScores[nums[i]] {
+			prevGreater[stack[len(stack)-1]] = i
+			stack = stack[:len(stack)-1]
+		}
+		stack = append(stack, i)
+	}
+	for len(stack) > 0 {
+		prevGreater[stack[len(stack)-1]] = -1
+		stack = stack[:len(stack)-1]
+	}
+
+	// Create elements with their contribution counts
+	type Element struct {
+		val   int
+		count int
+	}
+
+	elements := make([]Element, n)
+	for i := 0; i < n; i++ {
+		left := prevGreater[i]
+		right := nextGreater[i]
+		count := (i - left) * (right - i)
+		elements[i] = Element{nums[i], count}
+	}
+
+	// Sort elements in descending order
+	sort.Slice(elements, func(i, j int) bool {
+		return elements[i].val > elements[j].val
+	})
+
+	// Calculate the maximum score
+	score := 1
+	remaining := k
+
+	for _, elem := range elements {
+		if remaining <= 0 {
+			break
+		}
+		take := elem.count
+		if take > remaining {
+			take = remaining
+		}
+		score = (score * pow(elem.val, take)) % mod
+		remaining -= take
+	}
+
+	return score
+}
+
+func pow(x, n int) int {
+	res := 1
+	for n > 0 {
+		if n%2 == 1 {
+			res = (res * x) % mod
+		}
+		x = (x * x) % mod
+		n /= 2
+	}
+	return res
 }
