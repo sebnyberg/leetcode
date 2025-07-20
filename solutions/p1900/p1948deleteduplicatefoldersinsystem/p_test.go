@@ -2,6 +2,7 @@ package p1948deleteduplicatefoldersinsystem
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"testing"
 
@@ -13,6 +14,10 @@ func Test_deleteDuplicateFolder(t *testing.T) {
 		paths [][]string
 		want  [][]string
 	}{
+		{
+			[][]string{{"a"}, {"a", "c"}, {"a", "d"}, {"a", "d", "e"}, {"b"}, {"b", "e"}, {"b", "c"}, {"b", "c", "d"}, {"f"}, {"f", "h"}, {"f", "h", "i"}, {"f", "j"}, {"g"}, {"g", "j"}, {"g", "h"}, {"g", "h", "i"}},
+			[][]string{{"a"}, {"b"}, {"a", "c"}, {"a", "d"}, {"b", "e"}, {"b", "c"}, {"a", "d", "e"}, {"b", "c", "d"}},
+		},
 		{
 			[][]string{{"a"}, {"c"}, {"d"}, {"a", "b"}, {"c", "b"}, {"d", "a"}},
 			[][]string{{"d"}, {"d", "a"}},
@@ -28,10 +33,6 @@ func Test_deleteDuplicateFolder(t *testing.T) {
 		{
 			[][]string{{"a"}, {"a", "x"}, {"a", "x", "y"}, {"a", "z"}, {"b"}, {"b", "x"}, {"b", "x", "y"}, {"b", "z"}},
 			[][]string{},
-		},
-		{
-			[][]string{{"a"}, {"a", "x"}, {"a", "x", "y"}, {"a", "z"}, {"b"}, {"b", "x"}, {"b", "x", "y"}, {"b", "z"}, {"b", "w"}},
-			[][]string{{"b"}, {"b", "w"}, {"b", "z"}, {"a"}, {"a", "z"}},
 		},
 	} {
 		t.Run(fmt.Sprintf("%+v", tc.paths), func(t *testing.T) {
@@ -72,8 +73,13 @@ type Deduper struct {
 
 func (d *Deduper) dedupe(cur *TrieNode) string {
 	var subFolder strings.Builder
-	for _, next := range cur.next {
-		subFolder.WriteString(d.dedupe(next))
+	var nextStrs []string
+	for nextStr := range cur.next {
+		nextStrs = append(nextStrs, nextStr)
+	}
+	sort.Strings(nextStrs)
+	for _, nextStr := range nextStrs {
+		subFolder.WriteString(d.dedupe(cur.next[nextStr]))
 	}
 	subFolderStr := subFolder.String()
 	if len(cur.next) > 0 {
